@@ -281,6 +281,33 @@ describe('CarbonLedger API (e2e)', () => {
       .set('Authorization', `Bearer ${userToken}`)
       .expect(200)
     expect(secondSnapshot.body.summary.build.totalEmission).toBeGreaterThan(emissionBefore)
+
+    const reportXlsx = await server()
+      .get(`/api/projects/${projectId}/versions/${saved.body.id}/reports/excel`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .buffer(true)
+      .parse((response, callback) => {
+        const chunks: Buffer[] = []
+        response.on('data', (chunk: Buffer) => chunks.push(chunk))
+        response.on('end', () => callback(null, Buffer.concat(chunks)))
+      })
+      .expect(200)
+    expect(reportXlsx.headers['content-type']).toContain('spreadsheetml.sheet')
+    expect(Buffer.isBuffer(reportXlsx.body)).toBe(true)
+    expect(reportXlsx.body.length).toBeGreaterThan(1000)
+
+    const reportPdf = await server()
+      .get(`/api/projects/${projectId}/versions/${saved.body.id}/reports/pdf`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .buffer(true)
+      .parse((response, callback) => {
+        const chunks: Buffer[] = []
+        response.on('data', (chunk: Buffer) => chunks.push(chunk))
+        response.on('end', () => callback(null, Buffer.concat(chunks)))
+      })
+      .expect(200)
+    expect(reportPdf.headers['content-type']).toContain('application/pdf')
+    expect((reportPdf.body as Buffer).subarray(0, 4).toString()).toBe('%PDF')
   })
 
   it('跨用户隔离：其他用户不能访问项目、记录、版本与分析', async () => {
