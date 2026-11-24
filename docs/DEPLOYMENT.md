@@ -14,7 +14,7 @@
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y nginx postgresql certbot python3-certbot-nginx
+sudo apt-get install -y nginx postgresql certbot python3-certbot-nginx gnupg
 sudo apt-get install -y fonts-noto-cjk
 ```
 
@@ -149,6 +149,66 @@ sudo certbot renew --dry-run
 ```
 
 证书申请前不要执行 HTTPS 配置；域名必须已经解析到服务器，且 80 端口可从公网访问。
+
+## 备份与恢复
+
+生产环境使用 PostgreSQL 的加密逻辑备份，保留最近 4 份。先在服务器导入备份专用 GPG 公钥，并将其指纹写入 root 仅可读的环境文件：
+
+```bash
+sudo install -d -m 700 /var/backups/carbon-ledger
+sudo install -m 600 /dev/null /etc/carbon-ledger-backup.env
+sudoedit /etc/carbon-ledger-backup.env
+# 内容：DATABASE_URL=... 和 BACKUP_GPG_RECIPIENT=GPG指纹或邮箱
+```
+
+手动验证备份：
+
+```bash
+sudo bash -lc 'set -a; source /etc/carbon-ledger-backup.env; set +a; BACKUP_DIR=/var/backups/carbon-ledger bash /opt/carbon-ledger/scripts/backup-postgres.sh'
+```
+
+创建 `/etc/systemd/system/carbon-ledger-backup.service`：
+
+```ini
+[Unit]
+Description=CarbonLedger encrypted PostgreSQL backup
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/carbon-ledger-backup.env
+ExecStart=/opt/carbon-ledger/scripts/backup-postgres.sh
+```
+
+创建 `/etc/systemd/system/carbon-ledger-backup.timer`：
+
+```ini
+[Unit]
+Description=Weekly CarbonLedger backup
+
+[Timer]
+OnCalendar=Sun 03:15
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+启用并检查：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now carbon-ledger-backup.timer
+sudo systemctl start carbon-ledger-backup.service
+sudo systemctl list-timers carbon-ledger-backup.timer
+```
+
+恢复演练需在临时数据库执行，不能覆盖线上库：
+
+```bash
+gpg --decrypt carbonledger-YYYYmmddTHHMMSSZ.dump.gz.gpg | gzip -d > /tmp/carbonledger.dump
+createdb carbonledger_restore
+pg_restore --exit-on-error --dbname=carbonledger_restore /tmp/carbonledger.dump
+```
 
 ## 发布检查清单
 
