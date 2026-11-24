@@ -3,9 +3,10 @@ import { ReportsController } from './reports.controller'
 import { ReportsService } from './reports.service'
 import { ProjectsModule } from '../projects/projects.module'
 import { AnalysisModule } from '../analysis/analysis.module'
+import { AuditModule } from '../audit/audit.module'
 
 @Module({
-  imports: [ProjectsModule, AnalysisModule],
+  imports: [ProjectsModule, AnalysisModule, AuditModule],
   controllers: [ReportsController],
   providers: [ReportsService],
 })

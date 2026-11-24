@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
 import { ProjectsService } from '../projects/projects.service'
 import { AnalysisService } from '../analysis/analysis.service'
+import { AuditService } from '../audit/audit.service'
 import type { CalcVersionSnapshot } from '@carbonledger/shared'
 
 @Injectable()
@@ -17,6 +18,7 @@ export class ReportsService {
     private readonly prisma: PrismaService,
     private readonly projects: ProjectsService,
     private readonly analysis: AnalysisService,
+    private readonly audit: AuditService,
   ) {}
 
   async getSnapshot(projectId: number, userId: number, versionId: number): Promise<CalcVersionSnapshot> {
@@ -43,19 +45,27 @@ export class ReportsService {
   }
 
   async exportCurrentExcel(projectId: number, userId: number): Promise<Buffer> {
-    return this.renderExcel(await this.currentSnapshot(projectId, userId))
+    const bytes = await this.renderExcel(await this.currentSnapshot(projectId, userId))
+    await this.audit.record(userId, 'REPORT_EXPORTED', 'PROJECT', String(projectId), '当前核算 Excel')
+    return bytes
   }
 
   async exportCurrentPdf(projectId: number, userId: number): Promise<Buffer> {
-    return this.renderPdf(await this.currentSnapshot(projectId, userId))
+    const bytes = await this.renderPdf(await this.currentSnapshot(projectId, userId))
+    await this.audit.record(userId, 'REPORT_EXPORTED', 'PROJECT', String(projectId), '当前核算 PDF')
+    return bytes
   }
 
   async exportExcel(projectId: number, userId: number, versionId: number): Promise<Buffer> {
-    return this.renderExcel(await this.getSnapshot(projectId, userId, versionId))
+    const bytes = await this.renderExcel(await this.getSnapshot(projectId, userId, versionId))
+    await this.audit.record(userId, 'REPORT_EXPORTED', 'VERSION', String(versionId), '版本 Excel')
+    return bytes
   }
 
   async exportPdf(projectId: number, userId: number, versionId: number): Promise<Buffer> {
-    return this.renderPdf(await this.getSnapshot(projectId, userId, versionId))
+    const bytes = await this.renderPdf(await this.getSnapshot(projectId, userId, versionId))
+    await this.audit.record(userId, 'REPORT_EXPORTED', 'VERSION', String(versionId), '版本 PDF')
+    return bytes
   }
 
   private async renderExcel(snapshot: CalcVersionSnapshot): Promise<Buffer> {

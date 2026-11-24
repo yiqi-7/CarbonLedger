@@ -388,6 +388,7 @@ describe('CarbonLedger API (e2e)', () => {
       .expect(200)
     expect(Array.isArray(logs.body)).toBe(true)
     expect(logs.body.some((log: { action: string }) => log.action === 'VERSION_SAVED')).toBe(true)
+    expect(logs.body.some((log: { action: string }) => log.action === 'REPORT_EXPORTED')).toBe(true)
   })
 
   it('项目永久删除后不可再访问', async () => {
