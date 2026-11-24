@@ -63,15 +63,29 @@ export class VersionsService {
         id: true,
         versionNumber: true,
         createdAt: true,
+        snapshot: true,
         createdBy: { select: { username: true } },
       },
     })
-    return versions.map(version => ({
-      id: version.id,
-      versionNumber: version.versionNumber,
-      createdAt: version.createdAt,
-      createdBy: version.createdBy.username,
-    }))
+    return versions.map(version => {
+      let netEmission: number | null = null
+      let totalCost: number | null = null
+      try {
+        const snapshot = JSON.parse(version.snapshot) as CalcVersionSnapshot
+        netEmission = snapshot.summary?.emission?.netEmission ?? null
+        totalCost = snapshot.summary?.cost?.totalCost ?? null
+      } catch {
+        // 快照损坏时不影响列表展示
+      }
+      return {
+        id: version.id,
+        versionNumber: version.versionNumber,
+        createdAt: version.createdAt,
+        createdBy: version.createdBy.username,
+        netEmission,
+        totalCost,
+      }
+    })
   }
 
   async detail(projectId: number, userId: number, versionId: number): Promise<CalcVersionSnapshot & { id: number }> {
