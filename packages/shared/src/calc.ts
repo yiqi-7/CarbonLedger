@@ -1,4 +1,5 @@
 import { CONSTRUCTION_ENERGY_TYPES, RECYCLING_PRESERVED_CATEGORIES, TRANSPORT_ENERGY_TYPES } from './constants'
+import type { ConstructionEnergyType, RecyclingCategory } from './types'
 import type {
   BuildCarbonSummary,
   BuildMaterialRecord,
@@ -8,7 +9,6 @@ import type {
   EmissionAnalysis,
   LifecycleStage,
   RecyclingCarbonSummary,
-  RecyclingCategory,
   RecyclingRecord,
   TransportCarbonSummary,
   TransportRecord,
@@ -222,24 +222,23 @@ export function computeLifecycleStages(
 /** 排放分析（旧版碳排放分析页口径） */
 export function computeEmissionAnalysis(
   materials: BuildMaterialRecord[],
-  constructionRecords: ConstructionRecord[],
   buildSummary: BuildCarbonSummary,
+  transportSummary: TransportCarbonSummary,
   constructionSummary: ConstructionCarbonSummary,
   recyclingSummary: RecyclingCarbonSummary,
   buildingArea: number,
 ): EmissionAnalysis {
   const stages = computeLifecycleStages(
     buildSummary.totalEmission,
-    0,
+    transportSummary.totalEmission,
     constructionSummary.totalEmission,
     recyclingSummary.totalReduction,
   )
-  // 运输阶段排放由调用侧填充（保持参数显式），这里按 stages 顺序修正第二项。
   const netEmission = stages.reduce((total, stage) => total + stage.emission, 0)
   const details = materials
-    .map((material, index) => ({
+    .map(material => ({
       id: material.id,
-      rank: index + 1,
+      rank: 0,
       materialName: material.materialName,
       type: material.type,
       emissionAmount: material.emissionAmount,
@@ -309,7 +308,7 @@ export function computeCostAnalysis(
   }
 }
 
-/** 计算运输阶段排放并填入生命周期阶段（辅助函数，保证口径集中） */
+/** 构造运输阶段（用于汇总管道，保证口径集中） */
 export function withTransportStage(stages: LifecycleStage[], transportTotalEmission: number): LifecycleStage[] {
   return stages.map(stage =>
     stage.name === '运输碳排放' ? { ...stage, emission: transportTotalEmission } : stage,

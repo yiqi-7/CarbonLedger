@@ -52,7 +52,7 @@ describe('建材公式（旧版口径）', () => {
 
 describe('运输公式（旧版口径）', () => {
   it('排放量 = 运距 × 运输量 × 因子 ÷ 1000', () => {
-    expect(transportEmission(50, 10, 0.05)).toBeCloseTo(0.25)
+    expect(transportEmission(50, 10, 0.05)).toBeCloseTo(0.025)
   })
 
   it('总价 = 运距 × 运输单价 ÷ 10000（旧版原式，不乘运输量）', () => {
@@ -131,7 +131,7 @@ describe('记录重算（派生字段）', () => {
       emissionAmount: 0,
       transportTotalPrice: 0,
     })
-    expect(record.emissionAmount).toBeCloseTo(0.25)
+    expect(record.emissionAmount).toBeCloseTo(0.025)
     expect(record.transportTotalPrice).toBeCloseTo(0.004)
   })
 
@@ -238,7 +238,7 @@ describe('排放与成本分析', () => {
     { machineryName: '塔吊', shiftCount: 10, energyType: '电力', totalEnergy: 1000, emissionAmount: 581, totalPrice: 0.5 },
   ] as ConstructionRecord[]
   const transport = [
-    { transportTotalPrice: 0.004 },
+    { emissionAmount: 0.004, transportTotalPrice: 0.004 },
   ] as TransportRecord[]
 
   it('生命周期阶段：施工 kg→t，回收为负值', () => {
@@ -254,19 +254,20 @@ describe('排放与成本分析', () => {
 
   it('排放分析：净排放与单位面积净排放', () => {
     const buildSummary = computeBuildSummary(materials, 100)
+    const transportSummary = computeTransportSummary(transport)
     const constructionSummary = computeConstructionSummary(construction)
     const recyclingSummary = computeRecyclingSummary([], 0)
     const analysis = computeEmissionAnalysis(
       materials,
-      construction,
       buildSummary,
+      transportSummary,
       constructionSummary,
       recyclingSummary,
       100,
     )
-    // 净排放 = 0.25 + 0.75(建材) + 0(运输) + 0.581(施工) - 0(回收) = 1.581
-    expect(analysis.netEmission).toBeCloseTo(1.581)
-    expect(analysis.unitAreaNetEmission).toBeCloseTo(15.81)
+    // 净排放 = 0.25 + 0.75(建材) + 0.004(运输) + 0.581(施工) - 0(回收) = 1.585
+    expect(analysis.netEmission).toBeCloseTo(1.585)
+    expect(analysis.unitAreaNetEmission).toBeCloseTo(15.85)
     expect(analysis.buildMaterialDetails[0].materialName).toBe('B')
     expect(analysis.buildMaterialDetails[0].rank).toBe(1)
     expect(analysis.buildMaterialDetails[0].share).toBeCloseTo(75)
