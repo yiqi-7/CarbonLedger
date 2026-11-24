@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import ExcelJS from 'exceljs'
 import PDFDocument from 'pdfkit'
 import { readFile } from 'node:fs/promises'
@@ -11,6 +11,8 @@ import type { CalcVersionSnapshot } from '@carbonledger/shared'
 
 @Injectable()
 export class ReportsService {
+  private readonly logger = new Logger(ReportsService.name)
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly projects: ProjectsService,
@@ -91,10 +93,35 @@ export class ReportsService {
     return Buffer.from(result as ArrayBuffer)
   }
 
+  private applyCjkFont(document: PDFKit.PDFDocument): boolean {
+    const candidates: Array<{ path: string; family?: string }> = [
+      { path: join(process.cwd(), 'assets', 'fonts', 'NotoSansSC-Regular.otf') },
+      { path: join(process.cwd(), 'assets', 'fonts', 'simsun.ttc'), family: 'SimSun' },
+      { path: '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc', family: 'Noto Sans CJK SC' },
+      { path: '/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc', family: 'Noto Sans CJK SC' },
+      { path: '/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc', family: 'WenQuanYi Zen Hei' },
+      { path: '/usr/share/fonts/truetype/arphic/uming.ttc', family: 'AR PL UMing CN' },
+      { path: 'C:\\Windows\\Fonts\\simsun.ttc', family: 'SimSun' },
+      { path: 'C:\\Windows\\Fonts\\msyh.ttc', family: 'Microsoft YaHei' },
+    ]
+    for (const candidate of candidates) {
+      if (!existsSync(candidate.path)) continue
+      try {
+        if (candidate.family) document.font(candidate.path, candidate.family)
+        else document.font(candidate.path)
+        return true
+      } catch {
+        // 继续尝试下一个候选字体
+      }
+    }
+    return false
+  }
+
   private async renderPdf(snapshot: CalcVersionSnapshot): Promise<Buffer> {
-    const fontPath = join(process.cwd(), 'assets', 'fonts', 'simsun.ttc')
     const document = new PDFDocument({ size: 'A4', margin: 42 })
-    if (existsSync(fontPath)) document.font(fontPath)
+    if (!this.applyCjkFont(document)) {
+      this.logger.warn('未找到可用的中文字体，PDF 中的中文可能无法正确显示')
+    }
 
     const chunks: Buffer[] = []
     document.on('data', chunk => chunks.push(Buffer.from(chunk)))

@@ -10,6 +10,16 @@
 - 已安装：Node.js 22、PostgreSQL 18、Nginx、Certbot
 - 当前状态：基础软件已安装，应用代码尚未上传，线上数据库尚未创建
 
+## 服务器初始化（一次性）
+
+```bash
+sudo apt-get update
+sudo apt-get install -y nginx postgresql certbot python3-certbot-nginx
+sudo apt-get install -y fonts-noto-cjk
+```
+
+`fonts-noto-cjk` 是 PDF 报告显示中文所必需的；缺失时 PDF 会回退到内置字体，中文可能显示异常。
+
 ## 发布前准备
 
 1. 在本地运行完整测试和构建：
@@ -29,28 +39,37 @@ sudo mkdir -p /opt/carbon-ledger
 sudo chown -R ubuntu:ubuntu /opt/carbon-ledger
 cd /opt/carbon-ledger
 git clone https://github.com/yiqi-7/CarbonLedger.git .
-npm ci
-npm run build:shared
-npm run build -w server
-npm run build -w web
 ```
 
-3. 创建 PostgreSQL 数据库和账号。不要使用管理员账号运行应用：
+3. 创建生产环境变量文件 `/opt/carbon-ledger/server/.env`（不要提交到仓库）：
+
+```bash
+cat > /opt/carbon-ledger/server/.env <<'EOF'
+DATABASE_URL=postgresql://carbonledger:数据库密码@127.0.0.1:5432/carbonledger?schema=public
+JWT_SECRET=随机长密钥
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=独立管理员密码
+PORT=3000
+EOF
+chmod 600 /opt/carbon-ledger/server/.env
+```
+
+4. 创建 PostgreSQL 数据库和最小权限账号（不要用管理员账号运行应用）：
 
 ```bash
 sudo -u postgres createuser --pwprompt carbonledger
 sudo -u postgres createdb -O carbonledger carbonledger
 ```
 
-4. 部署前把 `server/prisma/schema.prisma` 的 datasource provider 从 `sqlite` 改为 `postgresql`，然后生成客户端并同步结构：
+5. 日常发布使用一键脚本，它会自动把 Prisma provider 切换为 `postgresql`、同步结构、构建并重启服务：
 
 ```bash
 cd /opt/carbon-ledger
-npx prisma generate --schema server/prisma/schema.prisma
-npx prisma db push --schema server/prisma/schema.prisma
+bash scripts/deploy.sh
 ```
 
-生产环境必须设置独立随机的 `JWT_SECRET`、数据库密码、管理员密码，不要复用本地 `.env`。
+> 注意：脚本会在服务器上把 `server/prisma/schema.prisma` 的 provider 改为 `postgresql`。
+> 这是本地与线上共用一个 schema 文件的已知取舍，改动只发生在服务器的检出副本中。
 
 ## Nginx
 
