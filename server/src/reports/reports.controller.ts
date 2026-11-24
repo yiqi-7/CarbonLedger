@@ -11,11 +11,31 @@ function sendFile(response: Response, filename: string, contentType: string, byt
     .send(bytes)
 }
 
-@Controller('projects/:projectId/versions/:versionId/reports')
+@Controller('projects/:projectId/reports')
 export class ReportsController {
   constructor(private readonly reports: ReportsService) {}
 
-  @Get('excel')
+  @Get('current/excel')
+  async currentExcel(
+    @CurrentUser() user: AuthUser,
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Res() response: Response,
+  ) {
+    const bytes = await this.reports.exportCurrentExcel(projectId, user.userId)
+    sendFile(response, 'CarbonLedger-当前核算.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', bytes)
+  }
+
+  @Get('current/pdf')
+  async currentPdf(
+    @CurrentUser() user: AuthUser,
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Res() response: Response,
+  ) {
+    const bytes = await this.reports.exportCurrentPdf(projectId, user.userId)
+    sendFile(response, 'CarbonLedger-当前核算.pdf', 'application/pdf', bytes)
+  }
+
+  @Get(':versionId/excel')
   async excel(
     @CurrentUser() user: AuthUser,
     @Param('projectId', ParseIntPipe) projectId: number,
@@ -31,7 +51,7 @@ export class ReportsController {
     )
   }
 
-  @Get('pdf')
+  @Get(':versionId/pdf')
   async pdf(
     @CurrentUser() user: AuthUser,
     @Param('projectId', ParseIntPipe) projectId: number,

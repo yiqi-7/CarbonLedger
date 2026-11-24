@@ -6,6 +6,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
 import { ProjectsService } from '../projects/projects.service'
+import { AnalysisService } from '../analysis/analysis.service'
 import type { CalcVersionSnapshot } from '@carbonledger/shared'
 
 @Injectable()
@@ -13,6 +14,7 @@ export class ReportsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly projects: ProjectsService,
+    private readonly analysis: AnalysisService,
   ) {}
 
   async getSnapshot(projectId: number, userId: number, versionId: number): Promise<CalcVersionSnapshot> {
@@ -22,8 +24,39 @@ export class ReportsService {
     return JSON.parse(version.snapshot) as CalcVersionSnapshot
   }
 
+  async currentSnapshot(projectId: number, userId: number): Promise<CalcVersionSnapshot> {
+    const bundle = await this.analysis.buildBundle(projectId, userId)
+    return {
+      versionNumber: 0,
+      savedAt: new Date().toISOString(),
+      savedByUserId: userId,
+      project: bundle.projectInfo,
+      factors: bundle.factors,
+      buildMaterials: bundle.buildMaterials,
+      transportRecords: bundle.transportRecords,
+      constructionRecords: bundle.constructionRecords,
+      recyclingRecords: bundle.recyclingRecords,
+      summary: bundle.summary,
+    }
+  }
+
+  async exportCurrentExcel(projectId: number, userId: number): Promise<Buffer> {
+    return this.renderExcel(await this.currentSnapshot(projectId, userId))
+  }
+
+  async exportCurrentPdf(projectId: number, userId: number): Promise<Buffer> {
+    return this.renderPdf(await this.currentSnapshot(projectId, userId))
+  }
+
   async exportExcel(projectId: number, userId: number, versionId: number): Promise<Buffer> {
-    const snapshot = await this.getSnapshot(projectId, userId, versionId)
+    return this.renderExcel(await this.getSnapshot(projectId, userId, versionId))
+  }
+
+  async exportPdf(projectId: number, userId: number, versionId: number): Promise<Buffer> {
+    return this.renderPdf(await this.getSnapshot(projectId, userId, versionId))
+  }
+
+  private async renderExcel(snapshot: CalcVersionSnapshot): Promise<Buffer> {
     const templatePath = join(process.cwd(), 'assets', 'legacy', '报告书导出.xlsx')
     const workbook = new ExcelJS.Workbook()
     if (existsSync(templatePath)) await workbook.xlsx.readFile(templatePath)
@@ -58,8 +91,7 @@ export class ReportsService {
     return Buffer.from(result as ArrayBuffer)
   }
 
-  async exportPdf(projectId: number, userId: number, versionId: number): Promise<Buffer> {
-    const snapshot = await this.getSnapshot(projectId, userId, versionId)
+  private async renderPdf(snapshot: CalcVersionSnapshot): Promise<Buffer> {
     const fontPath = join(process.cwd(), 'assets', 'fonts', 'simsun.ttc')
     const document = new PDFDocument({ size: 'A4', margin: 42 })
     if (existsSync(fontPath)) document.font(fontPath)

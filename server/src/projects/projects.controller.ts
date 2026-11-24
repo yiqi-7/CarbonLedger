@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -12,6 +13,8 @@ import {
 import { ProjectsService } from './projects.service'
 import { BuildFactorDto, CreateProjectDto, UpdateProjectDto, TransportFactorDto } from './project.dto'
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { UploadedFile, UseInterceptors } from '@nestjs/common'
 
 @Controller('projects')
 export class ProjectsController {
@@ -39,6 +42,22 @@ export class ProjectsController {
     @Body() dto: UpdateProjectDto,
   ) {
     return this.projectsService.update(id, user.userId, dto)
+  }
+
+  @Post(':id/model-image')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  uploadModelImage(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (!file?.buffer) throw new BadRequestException('请上传模型图片')
+    return this.projectsService.updateModelImage(id, user.userId, file.buffer, file.originalname, file.mimetype)
+  }
+
+  @Delete(':id/model-image')
+  removeModelImage(@CurrentUser() user: AuthUser, @Param('id', ParseIntPipe) id: number) {
+    return this.projectsService.removeModelImage(id, user.userId)
   }
 
   @Delete(':id')

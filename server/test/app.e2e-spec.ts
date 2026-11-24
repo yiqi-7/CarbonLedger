@@ -115,6 +115,18 @@ describe('CarbonLedger API (e2e)', () => {
     projectId = created.body.id
     expect(projectId).toBeGreaterThan(0)
 
+    const imageUpload = await server()
+      .post(`/api/projects/${projectId}/model-image`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .attach('file', Buffer.from('png-image-fixture'), { filename: 'model.png', contentType: 'image/png' })
+      .expect(201)
+    expect(imageUpload.body.modelImage).toMatch(/^data:image\/png;base64,/)
+    expect(imageUpload.body.modelImageName).toBe('model.png')
+    await server()
+      .delete(`/api/projects/${projectId}/model-image`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+
     const buildFactors = await server()
       .get(`/api/projects/${projectId}/build-factors`)
       .set('Authorization', `Bearer ${userToken}`)
@@ -283,7 +295,7 @@ describe('CarbonLedger API (e2e)', () => {
     expect(secondSnapshot.body.summary.build.totalEmission).toBeGreaterThan(emissionBefore)
 
     const reportXlsx = await server()
-      .get(`/api/projects/${projectId}/versions/${saved.body.id}/reports/excel`)
+      .get(`/api/projects/${projectId}/reports/${saved.body.id}/excel`)
       .set('Authorization', `Bearer ${userToken}`)
       .buffer(true)
       .parse((response, callback) => {
@@ -297,7 +309,7 @@ describe('CarbonLedger API (e2e)', () => {
     expect(reportXlsx.body.length).toBeGreaterThan(1000)
 
     const reportPdf = await server()
-      .get(`/api/projects/${projectId}/versions/${saved.body.id}/reports/pdf`)
+      .get(`/api/projects/${projectId}/reports/${saved.body.id}/pdf`)
       .set('Authorization', `Bearer ${userToken}`)
       .buffer(true)
       .parse((response, callback) => {
@@ -308,6 +320,18 @@ describe('CarbonLedger API (e2e)', () => {
       .expect(200)
     expect(reportPdf.headers['content-type']).toContain('application/pdf')
     expect((reportPdf.body as Buffer).subarray(0, 4).toString()).toBe('%PDF')
+
+    const currentPdf = await server()
+      .get(`/api/projects/${projectId}/reports/current/pdf`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .buffer(true)
+      .parse((response, callback) => {
+        const chunks: Buffer[] = []
+        response.on('data', (chunk: Buffer) => chunks.push(chunk))
+        response.on('end', () => callback(null, Buffer.concat(chunks)))
+      })
+      .expect(200)
+    expect((currentPdf.body as Buffer).subarray(0, 4).toString()).toBe('%PDF')
   })
 
   it('跨用户隔离：其他用户不能访问项目、记录、版本与分析', async () => {

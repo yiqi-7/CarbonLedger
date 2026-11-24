@@ -96,6 +96,21 @@ export class ProjectsService implements OnModuleInit {
     return project
   }
 
+  async updateModelImage(projectId: number, userId: number, image: Buffer, filename: string, mimeType: string) {
+    await this.assertOwner(projectId, userId)
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(mimeType)) {
+      throw new BadRequestException('模型图片仅支持 PNG、JPG 或 WEBP')
+    }
+    if (image.length > 10 * 1024 * 1024) throw new BadRequestException('模型图片不能超过 10MB')
+    const dataUrl = `data:${mimeType};base64,${image.toString('base64')}`
+    return this.prisma.project.update({ where: { id: projectId }, data: { modelImage: dataUrl, modelImageName: filename } })
+  }
+
+  async removeModelImage(projectId: number, userId: number) {
+    await this.assertOwner(projectId, userId)
+    return this.prisma.project.update({ where: { id: projectId }, data: { modelImage: null, modelImageName: '' } })
+  }
+
   async update(projectId: number, userId: number, dto: UpdateProjectDto) {
     await this.assertOwner(projectId, userId)
     if (!(Number(dto.buildingArea) > 0)) {
