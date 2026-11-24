@@ -2,6 +2,25 @@ import axios from 'axios'
 
 export const api = axios.create({ baseURL: '/api', timeout: 20000 })
 
+export function apiMessage(error: unknown, fallback = '操作失败'): string {
+  const value = error as { response?: { data?: { message?: string | string[] } } }
+  const message = value.response?.data?.message
+  return Array.isArray(message) ? message.join('；') : message || fallback
+}
+
+export async function downloadApiFile(path: string, fallbackName: string): Promise<void> {
+  const response = await api.get(path, { responseType: 'blob' })
+  const disposition = String(response.headers['content-disposition'] || '')
+  const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1]
+  const filename = encoded ? decodeURIComponent(encoded) : fallbackName
+  const url = URL.createObjectURL(response.data)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  URL.revokeObjectURL(url)
+}
+
 api.interceptors.request.use(config => {
   const token = typeof localStorage === 'undefined' ? null : localStorage.getItem('carbon-ledger-token')
   if (token) config.headers.Authorization = `Bearer ${token}`
