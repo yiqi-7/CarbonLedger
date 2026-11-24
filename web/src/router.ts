@@ -8,6 +8,7 @@ const router = createRouter({
     { path: '/login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
     { path: '/register', component: () => import('@/views/RegisterView.vue'), meta: { public: true } },
     { path: '/projects', component: () => import('@/views/ProjectsView.vue') },
+    { path: '/admin', component: () => import('@/views/AdminView.vue'), meta: { admin: true } },
     { path: '/projects/:id', component: () => import('@/views/WorkspaceView.vue') },
   ],
 })
@@ -16,6 +17,7 @@ router.beforeEach(async to => {
   const auth = useAuthStore()
   if (!auth.user && auth.token) await auth.loadMe()
   if (!to.meta.public && !auth.isAuthenticated) return '/login'
+  if (to.meta.admin && auth.user?.role !== 'ADMIN') return '/projects'
   if (to.meta.public && auth.isAuthenticated && to.path === '/login') return '/projects'
 })
 

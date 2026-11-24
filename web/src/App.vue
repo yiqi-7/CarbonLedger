@@ -14,7 +14,7 @@ onUnmounted(() => window.removeEventListener('carbon-ledger-unauthorized', onUna
   <div class="app-shell">
     <header v-if="auth.isAuthenticated" class="topbar">
       <RouterLink to="/projects" class="brand"><span class="brand-mark">CL</span><span>CarbonLedger</span></RouterLink>
-      <div class="topbar-actions"><span class="user-chip">{{ auth.user?.username }}</span><button class="text-button" @click="auth.logout(); router.push('/login')">退出</button></div>
+      <div class="topbar-actions"><RouterLink v-if="auth.user?.role === 'ADMIN'" to="/admin" class="topbar-link">管理</RouterLink><span class="user-chip">{{ auth.user?.username }}</span><button class="text-button" @click="auth.logout(); router.push('/login')">退出</button></div>
     </header>
     <main :class="{ 'page-main': auth.isAuthenticated }"><RouterView /></main>
   </div>
