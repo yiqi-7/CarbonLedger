@@ -36,7 +36,7 @@ export class CreateProjectDto {
   /** 模型图片 data URL（≤10MB 文件，base64 后约 1.4 千万字符） */
   @IsOptional()
   @IsString()
-  @MaxLength(14000000, { message: '模型图片过大，请压缩到 10MB 以内' })
+  @MaxLength(13981080, { message: '模型图片过大，请压缩到 10MB 以内' })
   modelImage?: string | null
 
   @IsOptional() @IsString() @MaxLength(200) modelImageName?: string
