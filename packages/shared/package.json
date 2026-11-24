@@ -1,0 +1,16 @@
+{
+  "name": "@carbonledger/shared",
+  "version": "0.1.0",
+  "description": "CarbonLedger 共享领域类型与核算引擎（公式与旧版 ProjectCarbonCal 一致）",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

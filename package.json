@@ -1,0 +1,17 @@
+{
+  "name": "carbon-ledger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CarbonLedger - 建筑工程建造阶段碳排放核算多用户 Web 平台",
+  "workspaces": [
+    "packages/shared",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "build:shared": "npm run build -w @carbonledger/shared",
+    "dev:server": "npm run dev -w server",
+    "dev:web": "npm run dev -w web",
+    "test": "npm run test --workspaces --if-present"
+  }
+}

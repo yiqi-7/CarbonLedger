@@ -1,0 +1,198 @@
+// CarbonLedger Prisma schema
+// 本地开发/测试使用 SQLite；部署上云时把 provider 切换为 "postgresql"，
+// 并按 docs/DEPLOYMENT.md 执行 prisma db push。所有列类型均为两种数据库通用。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  remark       String   @default("")
+  role         String   @default("USER") // ADMIN | USER
+  status       String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  projects     Project[]
+  versions     CalcVersion[]
+  auditLogs    AuditLog[]
+}
+
+model Project {
+  id                    Int       @id @default(autoincrement())
+  ownerId               Int
+  owner                 User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  projectName           String
+  province              String    @default("")
+  cityDistrict          String    @default("")
+  address               String    @default("")
+  buildingArea          Float
+  floorCount            String    @default("")
+  buildingType          String    @default("")
+  structureType         String    @default("")
+  designLife            String    @default("")
+  modelImage            String? // data URL，≤10MB
+  modelImageName        String    @default("")
+  startDate             String    @default("")
+  plannedCompletionDate String    @default("")
+  projectManager        String    @default("")
+  accountingStandard    String    @default("GB/T 51366-2019")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  buildFactorConfigs     BuildFactorConfig[]
+  transportFactorConfigs TransportFactorConfig[]
+  buildMaterials         BuildMaterial[]
+  transportRecords       TransportRecord[]
+  constructionRecords    ConstructionRecord[]
+  recyclingRecords       RecyclingRecord[]
+  versions               CalcVersion[]
+}
+
+// 项目级建材因子配置（旧“建筑碳排配置”的项目级化）
+model BuildFactorConfig {
+  id                   Int     @id @default(autoincrement())
+  projectId            Int
+  project              Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  category             String
+  name                 String
+  emissionFactor       Float
+  materialUnit         String
+  recyclingFactor      Float   @default(0)
+  recyclingCoefficient Float   @default(0)
+
+  @@index([projectId])
+}
+
+// 项目级运输因子配置（旧“运输碳排配置”的项目级化）
+model TransportFactorConfig {
+  id             Int     @id @default(autoincrement())
+  projectId      Int
+  project        Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  vehicleName    String
+  energyType     String // 柴油 | 汽油
+  emissionFactor Float
+
+  @@index([projectId])
+}
+
+model BuildMaterial {
+  id                                  Int     @id @default(autoincrement())
+  projectId                           Int
+  project                             Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  materialName                        String
+  type                                String
+  quantity                            Float
+  unit                                String
+  emissionFactor                      Float
+  marketPrice                         Float?
+  unitPrice                           Float
+  recyclingFactor                     Float   @default(0)
+  recyclingCoefficient                Float   @default(0)
+  isCustomMaterial                    Boolean @default(false)
+  // 派生字段（服务端计算后存储）
+  emissionAmount                      Float
+  totalPrice                          Float
+  isParticipatingInRecyclingCalculation Boolean @default(false)
+
+  recyclingRecords RecyclingRecord[]
+
+  @@index([projectId])
+}
+
+model TransportRecord {
+  id                  Int     @id @default(autoincrement())
+  projectId           Int
+  project             Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  vehicleName         String
+  transportedMaterial String
+  transportQuantity   Float
+  transportDistance   Float
+  energyType          String // 柴油 | 汽油
+  emissionFactor      Float
+  transportUnitPrice  Float
+  isCustomMaterial    Boolean @default(false)
+  // 派生字段
+  emissionAmount      Float
+  transportTotalPrice Float
+
+  @@index([projectId])
+}
+
+model ConstructionRecord {
+  id               Int     @id @default(autoincrement())
+  projectId        Int
+  project          Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  machineryName    String
+  shiftCount       Int
+  energyType       String // 电力 | 柴油 | 汽油
+  energyPerShift   Float
+  emissionFactor   Float
+  shiftUnitPrice   Float
+  isCustomMaterial Boolean @default(false)
+  // 派生字段
+  energyUnit       String
+  totalEnergy      Float
+  emissionAmount   Float // kg
+  totalPrice       Float
+
+  @@index([projectId])
+}
+
+model RecyclingRecord {
+  id                    Int     @id @default(autoincrement())
+  projectId             Int
+  project               Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  materialName          String
+  materialType          String // 金属 | 保温材料 | 玻璃 | 其他
+  recyclingQuantity     Float
+  unit                  String
+  recyclingFactor       Float
+  recyclingCoefficient  Float
+  recyclingUnitPrice    Float   @default(0)
+  sourceBuildMaterialId Int?
+  sourceBuildMaterial   BuildMaterial? @relation(fields: [sourceBuildMaterialId], references: [id], onDelete: SetNull)
+  isCustomMaterial      Boolean @default(false)
+  // 派生字段
+  reductionAmount       Float
+  residualValue         Float
+
+  @@index([projectId])
+  @@index([sourceBuildMaterialId])
+}
+
+// 核算版本：不可变快照（JSON 字符串列，SQLite/PostgreSQL 通用）
+model CalcVersion {
+  id            Int      @id @default(autoincrement())
+  projectId     Int
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  versionNumber Int
+  snapshot      String // CalcVersionSnapshot JSON
+  createdAt     DateTime @default(now())
+  createdByUserId Int
+  createdBy     User     @relation(fields: [createdByUserId], references: [id])
+
+  @@unique([projectId, versionNumber])
+  @@index([projectId])
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  targetType String
+  targetId   String   @default("")
+  detail     String   @default("")
+  result     String   @default("SUCCESS")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
