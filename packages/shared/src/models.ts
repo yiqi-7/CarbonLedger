@@ -169,6 +169,9 @@ export interface EmissionAnalysis {
     type: string
     emissionAmount: number
     share: number
+    quantity: number
+    unit: string
+    emissionFactor: number
   }>
 }
 

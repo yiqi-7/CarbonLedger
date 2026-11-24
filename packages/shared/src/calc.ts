@@ -242,6 +242,9 @@ export function computeEmissionAnalysis(
       materialName: material.materialName,
       type: material.type,
       emissionAmount: material.emissionAmount,
+      quantity: material.quantity,
+      unit: material.unit,
+      emissionFactor: material.emissionFactor,
       share: buildSummary.totalEmission > 0
         ? (material.emissionAmount / buildSummary.totalEmission) * 100
         : 0,
