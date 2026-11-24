@@ -91,6 +91,19 @@ describe('CarbonLedger API (e2e)', () => {
       .expect(409)
   })
 
+  it('连续登录失败会临时锁定账号', async () => {
+    for (let index = 0; index < 5; index += 1) {
+      await server()
+        .post('/api/auth/login')
+        .send({ username: 'ratelimit-only-user', password: 'wrong-password' })
+        .expect(401)
+    }
+    await server()
+      .post('/api/auth/login')
+      .send({ username: 'ratelimit-only-user', password: 'any-password' })
+      .expect(429)
+  })
+
   it('创建项目：建筑面积必须大于 0，并自动装载旧版因子配置', async () => {
     await server()
       .post('/api/projects')
