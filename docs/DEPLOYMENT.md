@@ -5,7 +5,7 @@
 ## 当前服务器
 
 - 域名：`arcnum.cn`
-- 服务器：`111.229.48.14`
+- 服务器：由运维环境变量或主机面板提供，本文不保存公网 IP
 - 系统：Ubuntu 26.04 LTS
 - 已安装：Node.js 22、PostgreSQL 18、Nginx、Certbot
 - 当前状态：基础软件已安装，应用代码尚未上传，线上数据库尚未创建
@@ -133,7 +133,7 @@ sudo certbot renew --dry-run
 
 ## 发布检查清单
 
-- [ ] `arcnum.cn` A 记录指向 `111.229.48.14`
+- [ ] `arcnum.cn` A 记录指向服务器公网 IP（IP 不写入仓库）
 - [ ] PostgreSQL 数据库和最小权限账号已创建
 - [ ] Prisma provider 已切换为 `postgresql`
 - [ ] 生产 `.env` 已使用随机 JWT 密钥和新管理员密码

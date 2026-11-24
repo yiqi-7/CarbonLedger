@@ -4,7 +4,7 @@ import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { AuditModule } from '../audit/audit.module'
 
-const jwtSecret = process.env.JWT_SECRET ?? 'carbon-ledger-dev-secret-please-change'
+const jwtSecret = process.env.JWT_SECRET ?? 'test-only-secret-change-before-deploy'
 
 @Module({
   imports: [
