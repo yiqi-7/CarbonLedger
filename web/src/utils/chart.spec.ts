@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aggregateTop, formatNumber, stageLabel } from './chart'
+import { aggregateTop, compositionShares, formatNumber, stageLabel, topPriceSeries } from './chart'
 
 describe('aggregateTop', () => {
   it('按标签求和并按绝对值降序取前 N 项', () => {
@@ -42,5 +42,63 @@ describe('stageLabel', () => {
     expect(stageLabel('建材碳排放')).toBe('建材')
     expect(stageLabel('回收碳计算')).toBe('回收')
     expect(stageLabel('运输碳排放')).toBe('运输')
+  })
+})
+
+describe('topPriceSeries', () => {
+  const rows = [
+    { name: '钢材', emission: 10, market: 5200, deal: 5000 },
+    { name: '混凝土', emission: 40, market: null, deal: 430 },
+    { name: '玻璃', emission: 25, market: 1800, deal: 1750 },
+  ]
+  it('按碳排放降序取前 N 条并保留市场价/成交价', () => {
+    const result = topPriceSeries(rows, {
+      labelOf: row => row.name,
+      weightOf: row => row.emission,
+      marketPriceOf: row => row.market,
+      dealPriceOf: row => row.deal,
+      limit: 2,
+    })
+    expect(result).toEqual([
+      { label: '混凝土', marketPrice: null, dealPrice: 430 },
+      { label: '玻璃', marketPrice: 1800, dealPrice: 1750 },
+    ])
+  })
+
+  it('市场价缺失时返回 null 而不是 0', () => {
+    const result = topPriceSeries([{ name: '砖', emission: 1, market: undefined, deal: 2 }], {
+      labelOf: row => row.name,
+      weightOf: row => row.emission,
+      marketPriceOf: row => row.market,
+      dealPriceOf: row => row.deal,
+    })
+    expect(result[0].marketPrice).toBeNull()
+    expect(result[0].dealPrice).toBe(2)
+  })
+
+  it('内部空格标签回退为未命名', () => {
+    const result = topPriceSeries([{ name: '   ', emission: 1, market: 1, deal: 1 }], {
+      labelOf: row => row.name,
+      weightOf: row => row.emission,
+      marketPriceOf: row => row.market,
+      dealPriceOf: row => row.deal,
+    })
+    expect(result[0].label).toBe('未命名')
+  })
+})
+
+describe('compositionShares', () => {
+  it('计算百分比且总和为 100', () => {
+    const result = compositionShares([
+      { label: '土方', value: 30 },
+      { label: '混凝土', value: 70 },
+    ])
+    expect(result.map(item => item.share)).toEqual([30, 70])
+    expect(result.reduce((sum, item) => sum + item.share, 0)).toBe(100)
+  })
+
+  it('合计为 0 时返回空数组，避免除零', () => {
+    expect(compositionShares([{ label: '空', value: 0 }])).toEqual([])
+    expect(compositionShares([])).toEqual([])
   })
 })
