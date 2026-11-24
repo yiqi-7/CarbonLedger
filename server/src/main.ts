@@ -2,11 +2,12 @@ import 'reflect-metadata'
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe, Logger } from '@nestjs/common'
 import { AppModule } from './app.module'
+import { configureCors } from './configure-cors'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bodyParser: true })
   app.setGlobalPrefix('api')
-  app.enableCors({ origin: true, credentials: true })
+  configureCors(app)
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
