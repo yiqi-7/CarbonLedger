@@ -143,13 +143,9 @@ export class ProjectsService implements OnModuleInit {
   /** 立即永久删除（不设回收站），级联删除核算数据、版本、因子配置 */
   async remove(projectId: number, userId: number): Promise<{ deleted: true }> {
     await this.assertOwner(projectId, userId)
-    const project = await this.prisma.project.findUnique({
-      where: { id: projectId },
-      select: { projectName: true },
-    })
     await this.prisma.project.delete({ where: { id: projectId } })
-    // 审计仅记录最少事件元数据，不保留核算明细
-    await this.audit.record(userId, 'PROJECT_DELETED', 'PROJECT', String(projectId), project?.projectName ?? '')
+    // 删除事件只保留操作者、动作和项目 ID，不留业务名称或核算内容
+    await this.audit.record(userId, 'PROJECT_DELETED', 'PROJECT', String(projectId))
     return { deleted: true }
   }
 
