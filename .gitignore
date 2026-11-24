@@ -10,4 +10,5 @@ server/prisma/*.db
 server/prisma/*.db-journal
 server/assets/fonts/
 web/dist/
+web/*.tsbuildinfo
 .vite/
