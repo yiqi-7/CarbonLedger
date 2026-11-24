@@ -12,4 +12,11 @@
 .model-preview,.overview-model-image{display:block;max-width:100%;border-radius:7px;border:1px solid #e3e9eb;margin-top:10px}
 .overview-model-image{margin:0 0 14px}
 .stat-card span{font-size:13px}
+.chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
+.bar-chart-wrap{width:100%;padding-top:6px}
+.bar-chart{width:100%;height:auto;display:block;overflow:visible}
+.bar-chart .bar-value{font-size:9px;fill:#5c7078}
+.bar-chart .bar-label{font-size:9px;fill:#78878e}
+.empty-chart{padding:28px 0;text-align:center}
+@media (max-width:900px){.chart-grid{grid-template-columns:1fr}}
 table .el-button+.el-button{margin-left:6px}
