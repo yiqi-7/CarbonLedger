@@ -47,6 +47,8 @@ git clone https://github.com/yiqi-7/CarbonLedger.git .
 cat > /opt/carbon-ledger/server/.env <<'EOF'
 DATABASE_URL=postgresql://carbonledger:数据库密码@127.0.0.1:5432/carbonledger?schema=public
 JWT_SECRET=随机长密钥
+# 同源 Nginx 部署无需设置；只有独立前端域名时才填写可信来源
+CORS_ORIGINS=
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=独立管理员密码
 PORT=3000
@@ -70,6 +72,8 @@ bash scripts/deploy.sh
 
 > 注意：脚本会在服务器上把 `server/prisma/schema.prisma` 的 provider 改为 `postgresql`。
 > 这是本地与线上共用一个 schema 文件的已知取舍，改动只发生在服务器的检出副本中。
+
+API 默认关闭 CORS；本部署通过 Nginx 同源提供前端与 `/api`，无需额外跨域配置。若独立前端域名确有需要，在 `.env` 中将 `CORS_ORIGINS` 设为逗号分隔的精确来源（含协议和端口），不要使用 `*`；认证使用 Bearer token，不依赖跨站 Cookie。
 
 ## Nginx
 
