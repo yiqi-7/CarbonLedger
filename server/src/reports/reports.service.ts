@@ -9,6 +9,7 @@ import { ProjectsService } from '../projects/projects.service'
 import { AnalysisService } from '../analysis/analysis.service'
 import { AuditService } from '../audit/audit.service'
 import type { CalcVersionSnapshot } from '@carbonledger/shared'
+import { reportImagePng } from './report-image'
 
 @Injectable()
 export class ReportsService {
@@ -75,12 +76,13 @@ export class ReportsService {
     else this.createFallbackTemplate(workbook)
 
     const overview = workbook.getWorksheet('项目总览') ?? workbook.worksheets[0]
+    const imagePng = await reportImagePng(snapshot.project.modelImage)
     this.setCells(overview, {
       B2: snapshot.project.projectName,
       B3: [snapshot.project.province, snapshot.project.cityDistrict, snapshot.project.address].filter(Boolean).join(' '),
       B4: snapshot.project.buildingArea,
       B5: snapshot.project.buildingType,
-      B6: snapshot.project.modelImage ? '' : '未提供',
+      B6: imagePng ? '' : snapshot.project.modelImage ? '图片无法读取' : '未提供',
       A9: '净碳排放总量（tCO₂e）',
       F9: '单位建筑面积净碳排放量（kgCO₂e/㎡）',
       A10: snapshot.summary.emission.netEmission,
@@ -93,6 +95,12 @@ export class ReportsService {
       H10: snapshot.summary.cost.unitCostEmission,
       I10: snapshot.summary.cost.unitAreaBuildCost,
     })
+    if (overview && imagePng) {
+      const imageBuffer = Buffer.from(imagePng)
+      const imageId = workbook.addImage({ buffer: imageBuffer as never, extension: 'png' })
+      overview.addImage(imageId, { tl: { col: 1, row: 5 }, ext: { width: 120, height: 80 } } as never)
+      if (overview.getRow(6).height < 62) overview.getRow(6).height = 62
+    }
 
     this.fillBuildSheet(workbook.getWorksheet('建材生产碳排放量'), snapshot)
     this.fillTransportSheet(workbook.getWorksheet('运输碳排放量'), snapshot)
@@ -148,6 +156,11 @@ export class ReportsService {
     document.text(`建筑面积：${snapshot.project.buildingArea} ㎡`)
     document.text(`核算标准：${snapshot.project.accountingStandard}`)
     document.text(`版本号：v${snapshot.versionNumber}    保存时间：${snapshot.savedAt}`)
+    const imagePng = await reportImagePng(snapshot.project.modelImage)
+    if (imagePng) {
+      document.moveDown(0.4)
+      document.image(imagePng, { fit: [220, 140], align: 'center' })
+    }
 
     document.moveDown(0.8)
     document.fontSize(14).text('一、生命周期碳排放汇总')

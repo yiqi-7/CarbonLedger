@@ -2,6 +2,8 @@ import { beforeAll, afterAll, describe, expect, it } from 'vitest'
 import { Test } from '@nestjs/testing'
 import { ValidationPipe, type INestApplication } from '@nestjs/common'
 import request from 'supertest'
+import ExcelJS from 'exceljs'
+import sharp from 'sharp'
 import { AppModule } from '../src/app.module'
 
 /**
@@ -312,8 +314,21 @@ describe('CarbonLedger API (e2e)', () => {
       .expect(200)
     expect(secondSnapshot.body.summary.build.totalEmission).toBeGreaterThan(emissionBefore)
 
+    const validModelImage = await sharp({
+      create: { width: 4, height: 3, channels: 3, background: '#287a54' },
+    }).png().toBuffer()
+    await server()
+      .post(`/api/projects/${projectId}/model-image`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .attach('file', validModelImage, { filename: 'report-model.png', contentType: 'image/png' })
+      .expect(201)
+    const imageVersion = await server()
+      .post(`/api/projects/${projectId}/versions`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(201)
+
     const reportXlsx = await server()
-      .get(`/api/projects/${projectId}/reports/${saved.body.id}/excel`)
+      .get(`/api/projects/${projectId}/reports/${imageVersion.body.id}/excel`)
       .set('Authorization', `Bearer ${userToken}`)
       .buffer(true)
       .parse((response, callback) => {
@@ -325,9 +340,12 @@ describe('CarbonLedger API (e2e)', () => {
     expect(reportXlsx.headers['content-type']).toContain('spreadsheetml.sheet')
     expect(Buffer.isBuffer(reportXlsx.body)).toBe(true)
     expect(reportXlsx.body.length).toBeGreaterThan(1000)
+    const exportedWorkbook = new ExcelJS.Workbook()
+    await exportedWorkbook.xlsx.load(reportXlsx.body as Buffer)
+    expect(exportedWorkbook.getWorksheet('项目总览')?.getImages().length).toBeGreaterThan(0)
 
     const reportPdf = await server()
-      .get(`/api/projects/${projectId}/reports/${saved.body.id}/pdf`)
+      .get(`/api/projects/${projectId}/reports/${imageVersion.body.id}/pdf`)
       .set('Authorization', `Bearer ${userToken}`)
       .buffer(true)
       .parse((response, callback) => {
@@ -338,6 +356,7 @@ describe('CarbonLedger API (e2e)', () => {
       .expect(200)
     expect(reportPdf.headers['content-type']).toContain('application/pdf')
     expect((reportPdf.body as Buffer).subarray(0, 4).toString()).toBe('%PDF')
+    expect((reportPdf.body as Buffer).includes(Buffer.from('/Subtype /Image'))).toBe(true)
 
     const currentPdf = await server()
       .get(`/api/projects/${projectId}/reports/current/pdf`)
