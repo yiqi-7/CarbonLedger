@@ -130,11 +130,19 @@ describe('CarbonLedger API (e2e)', () => {
     projectId = created.body.id
     expect(projectId).toBeGreaterThan(0)
 
+    const initialModelImage = await sharp({
+      create: { width: 3, height: 2, channels: 3, background: '#287a54' },
+    }).png().toBuffer()
     const imageUpload = await server()
       .post(`/api/projects/${projectId}/model-image`)
       .set('Authorization', `Bearer ${userToken}`)
-      .attach('file', Buffer.from('png-image-fixture'), { filename: 'model.png', contentType: 'image/png' })
+      .attach('file', initialModelImage, { filename: 'model.png', contentType: 'image/png' })
       .expect(201)
+    await server()
+      .post(`/api/projects/${projectId}/model-image`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .attach('file', Buffer.from('not-an-image'), { filename: 'fake.png', contentType: 'image/png' })
+      .expect(400)
     expect(imageUpload.body.modelImage).toMatch(/^data:image\/png;base64,/)
     expect(imageUpload.body.modelImageName).toBe('model.png')
     await server()

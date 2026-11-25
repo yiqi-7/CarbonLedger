@@ -6,6 +6,7 @@ import {
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common'
+import sharp from 'sharp'
 import { PrismaService } from '../prisma/prisma.service'
 import { AuditService } from '../audit/audit.service'
 import { LegacyConfigService } from './legacy-config.service'
@@ -102,6 +103,13 @@ export class ProjectsService implements OnModuleInit {
       throw new BadRequestException('模型图片仅支持 PNG、JPG 或 WEBP')
     }
     if (image.length > 10 * 1024 * 1024) throw new BadRequestException('模型图片不能超过 10MB')
+    try {
+      const metadata = await sharp(image).metadata()
+      const actualMime = metadata.format === 'jpeg' ? 'image/jpeg' : metadata.format ? `image/${metadata.format}` : ''
+      if (actualMime !== mimeType) throw new Error('mime mismatch')
+    } catch {
+      throw new BadRequestException('模型图片内容无效，请上传真实的 PNG、JPG 或 WEBP 图片')
+    }
     const dataUrl = `data:${mimeType};base64,${image.toString('base64')}`
     return this.prisma.project.update({ where: { id: projectId }, data: { modelImage: dataUrl, modelImageName: filename } })
   }
