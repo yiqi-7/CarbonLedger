@@ -46,10 +46,10 @@ if grep -q 'provider = "sqlite"' "$SCHEMA"; then
 fi
 
 echo "==> 4/7 生成 Prisma Client"
-npx prisma generate --schema "$SCHEMA"
+DATABASE_URL="$DATABASE_URL" npx prisma generate --schema "$SCHEMA"
 
 echo "==> 5/7 同步数据库结构"
-npx prisma db push --schema "$SCHEMA" --skip-generate
+DATABASE_URL="$DATABASE_URL" npx prisma db push --schema "$SCHEMA" --skip-generate
 
 echo "==> 6/7 构建"
 npm run build:shared
