@@ -23,6 +23,11 @@ export function aggregateTop<T>(
 
 export type PricePoint = { label: string; marketPrice: number | null; dealPrice: number }
 
+export function currentQuarterLabel(date = new Date()): string {
+  const quarter = Math.floor(date.getMonth() / 3) + 1
+  return `${date.getFullYear()} 年第 ${quarter} 季度`
+}
+
 /**
  * 建材市场价格对比取数（旧版首页口径）：
  * 按碳排放量降序取前 N 条，保留市场价（可为空）与成交价。

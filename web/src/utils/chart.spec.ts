@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aggregateTop, compositionShares, formatNumber, stageLabel, topPriceSeries } from './chart'
+import { aggregateTop, compositionShares, currentQuarterLabel, formatNumber, stageLabel, topPriceSeries } from './chart'
 
 describe('aggregateTop', () => {
   it('按标签求和并按绝对值降序取前 N 项', () => {
@@ -25,6 +25,15 @@ describe('aggregateTop', () => {
 
   it('空输入返回空数组', () => {
     expect(aggregateTop([], () => '', () => 0)).toEqual([])
+  })
+})
+
+describe('currentQuarterLabel', () => {
+  it('按自然季度生成旧版市场价提示', () => {
+    expect(currentQuarterLabel(new Date(2026, 0, 1))).toBe('2026 年第 1 季度')
+    expect(currentQuarterLabel(new Date(2026, 2, 31))).toBe('2026 年第 1 季度')
+    expect(currentQuarterLabel(new Date(2026, 3, 1))).toBe('2026 年第 2 季度')
+    expect(currentQuarterLabel(new Date(2026, 11, 31))).toBe('2026 年第 4 季度')
   })
 })
 
