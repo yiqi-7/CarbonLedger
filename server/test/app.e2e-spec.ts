@@ -473,6 +473,11 @@ describe('CarbonLedger API (e2e)', () => {
     expect(Array.isArray(logs.body)).toBe(true)
     expect(logs.body.some((log: { action: string }) => log.action === 'VERSION_SAVED')).toBe(true)
     expect(logs.body.some((log: { action: string }) => log.action === 'REPORT_EXPORTED')).toBe(true)
+    const successfulVersionLog = logs.body.find((log: { action: string }) => log.action === 'VERSION_SAVED')
+    expect(successfulVersionLog).toMatchObject({ userId: expect.any(Number), targetType: 'PROJECT', targetId: String(projectId), result: 'SUCCESS' })
+    expect(successfulVersionLog.detail).toMatch(/^版本 v\d+$/)
+    expect(Date.parse(successfulVersionLog.createdAt)).not.toBeNaN()
+    expect(JSON.stringify(logs.body)).not.toMatch(/DujU83QQ5mX16WBwhoJt|Bearer|accessToken|password/i)
   })
 
   it('项目永久删除后不可再访问', async () => {
@@ -490,6 +495,13 @@ describe('CarbonLedger API (e2e)', () => {
       .expect(200)
     const deletion = logs.body.find((log: { action: string; targetId: string }) => log.action === 'PROJECT_DELETED' && log.targetId === String(projectId))
     expect(deletion).toBeTruthy()
-    expect(deletion.detail).toBe('')
+    expect(deletion).toMatchObject({
+      userId: expect.any(Number),
+      targetType: 'PROJECT',
+      targetId: String(projectId),
+      detail: '',
+      result: 'SUCCESS',
+    })
+    expect(Date.parse(deletion.createdAt)).not.toBeNaN()
   })
 })
