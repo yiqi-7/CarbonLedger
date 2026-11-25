@@ -29,6 +29,11 @@ describe('旧版 Excel 导入规则', () => {
       recyclingCoefficient: 0.9,
     })
 
+    sheet.getRow(2).getCell(1).value = '钢材'
+    sheet.getRow(2).getCell(2).value = '钢材'
+    const steel = parseBuildMaterialWorkbook(workbook)
+    expect(steel.materials[0].type).toBe('金属')
+
     sheet.addRow(['钢材', '金属', '', 2, '', 4000, 0, 0])
     expect(() => parseBuildMaterialWorkbook(workbook)).toThrow('不能为空')
   })

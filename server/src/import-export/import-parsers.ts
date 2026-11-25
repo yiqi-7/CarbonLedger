@@ -172,11 +172,12 @@ export function parseBuildMaterialWorkbook(workbook: ExcelJS.Workbook): {
         `第 ${rowIndex + 1} 行用量、碳排放因子、单价、回收因子或回收系数无效`,
       )
     }
+    const normalizedType = type === '钢材' ? '金属' : type
     materials.push({
       materialName,
-      type,
+      type: normalizedType,
       quantity,
-      unit: BUILD_MATERIAL_DEFAULT_UNITS[type] ?? '',
+      unit: BUILD_MATERIAL_DEFAULT_UNITS[normalizedType] ?? '',
       emissionFactor,
       marketPrice,
       unitPrice,

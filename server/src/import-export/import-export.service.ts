@@ -51,14 +51,31 @@ export class ImportExportService {
     const toInsert = materials.filter(
       material => !existingKeys.has(`${material.materialName}__${material.type}`),
     )
-    if (toInsert.length > 0) {
+    const factorNames = [...new Set(toInsert.map(material => material.materialName))]
+    const factorConfigs = await this.prisma.buildFactorConfig.findMany({
+      where: { projectId, name: { in: factorNames } },
+    })
+    const configsByName = new Map<string, typeof factorConfigs>()
+    for (const config of factorConfigs) {
+      const list = configsByName.get(config.name) ?? []
+      list.push(config)
+      configsByName.set(config.name, list)
+    }
+    const resolved = toInsert.map(material => {
+      const matches = configsByName.get(material.materialName) ?? []
+      if (matches.length !== 1) {
+        throw new BadRequestException(`材料“${material.materialName}”无法唯一匹配项目因子配置`)
+      }
+      return { material, config: matches[0] }
+    })
+    if (resolved.length > 0) {
       await this.prisma.buildMaterial.createMany({
-        data: toInsert.map(material => ({
+        data: resolved.map(({ material, config }) => ({
           projectId,
           materialName: material.materialName,
           type: material.type,
           quantity: material.quantity,
-          unit: material.unit,
+          unit: config.materialUnit,
           emissionFactor: material.emissionFactor,
           marketPrice: material.marketPrice,
           unitPrice: material.unitPrice,
