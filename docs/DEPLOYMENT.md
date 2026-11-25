@@ -141,6 +141,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now carbon-ledger
 sudo systemctl status carbon-ledger
 curl http://127.0.0.1:3000/api/health
+# 公网验收：curl http://111.229.48.14/api/health
 ```
 
 ## HTTPS

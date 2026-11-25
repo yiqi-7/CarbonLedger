@@ -58,10 +58,25 @@ npm run build -w web
 
 echo "==> 7/7 重启 API 服务"
 sudo systemctl restart carbon-ledger
-sleep 2
-sudo systemctl is-active carbon-ledger
 
-echo "==> 健康检查"
-curl -fsS http://127.0.0.1:3000/api/health && echo
+echo "==> 健康检查（最多等待 24 秒）"
+HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3000/api/health}"
+HEALTH_ATTEMPTS=12
+HEALTH_OK=0
+for attempt in $(seq 1 "$HEALTH_ATTEMPTS"); do
+  if sudo systemctl is-active --quiet carbon-ledger && curl -fsS "$HEALTH_URL"; then
+    HEALTH_OK=1
+    echo
+    echo "    健康检查通过（第 ${attempt}/${HEALTH_ATTEMPTS} 次）"
+    break
+  fi
+  echo "    服务仍在启动（第 ${attempt}/${HEALTH_ATTEMPTS} 次），2 秒后重试..." >&2
+  sleep 2
+done
+if [[ "$HEALTH_OK" -ne 1 ]]; then
+  echo "错误：服务在 ${HEALTH_ATTEMPTS} 次检查后仍未通过健康检查。" >&2
+  sudo systemctl --no-pager --full status carbon-ledger || true
+  exit 1
+fi
 
-echo "部署完成：https://arcnum.cn"
+echo "部署完成：http://111.229.48.14/"
