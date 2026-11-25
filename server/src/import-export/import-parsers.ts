@@ -98,34 +98,41 @@ export function parseBuildMaterialWorkbook(workbook: ExcelJS.Workbook): {
   materials: ImportedBuildMaterial[]
   sheetName: string
 } {
-  const located = locateSheet(workbook, ['建材生产碳排放量', '材料清单'])
-  if (!located) throw new BadRequestException('Excel文件中没有“建材生产碳排放量”工作表')
-  const { rows, name: sheetName } = located
-
-  const headerIndex = rows.findIndex(row => {
+  const aliases = {
+    materialName: ['材料名称', '名称'],
+    type: ['类型', '材料类别', '类别'],
+    quantity: ['用量', '使用量'],
+    unit: ['单位', '材料单位'],
+    emissionFactor: ['碳排因子', '碳排放因子', '碳排放系数'],
+    marketPrice: ['市场价', '市场价格'],
+    unitPrice: ['单价', '成交价'],
+    recyclingFactor: ['回收因子'],
+    recyclingCoefficient: ['回收系数', '回收率', '再生系数', '可回收系数'],
+  }
+  const findColumn = (headers: string[], names: string[]) =>
+    headers.findIndex(header => names.includes(header))
+  const hasHeader = (row: unknown[]) => {
     const headers = row.map(normalizeHeader)
     return (
-      headers.includes('材料名称') &&
-      (headers.includes('类型') || headers.includes('材料类别')) &&
-      (headers.includes('用量') || headers.includes('使用量'))
+      findColumn(headers, aliases.materialName) >= 0 &&
+      findColumn(headers, aliases.quantity) >= 0
     )
-  })
-  if (headerIndex < 0) throw new BadRequestException(`${sheetName}工作表中没有有效的材料清单表头`)
+  }
+  const candidates = [...new Set(['建材生产碳排放量', '材料清单', ...workbook.worksheets.map(sheet => sheet.name)])]
+  const located = candidates.map(name => ({ name, rows: readSheetRows(workbook, name) }))
+    .find(candidate => candidate.rows?.some(hasHeader))
+  if (!located?.rows) {
+    throw new BadRequestException('Excel文件中没有找到材料清单工作表（需包含“材料名称”“用量”列）')
+  }
+  const { rows, name: sheetName } = located
+  const headerIndex = rows.findIndex(hasHeader)
 
   const headers = rows[headerIndex].map(normalizeHeader)
-  const indexes = {
-    materialName: findExactOrPartial(headers, ['材料名称']),
-    type: findExactOrPartial(headers, ['类型', '材料类别']),
-    quantity: findExactOrPartial(headers, ['用量', '使用量']),
-    emissionFactor: findExactOrPartial(headers, ['碳排因子', '碳排放因子']),
-    marketPrice: findExactOrPartial(headers, ['市场价', '市场价格']),
-    unitPrice: findExactOrPartial(headers, ['单价', '成交价']),
-    recyclingFactor: findExactOrPartial(headers, ['回收因子']),
-    recyclingCoefficient: findExactOrPartial(headers, ['回收系数', '回收率', '再生系数', '可回收系数']),
-  }
+  const indexes = Object.fromEntries(
+    Object.entries(aliases).map(([field, names]) => [field, findColumn(headers, names)]),
+  ) as Record<keyof typeof aliases, number>
   const required: Array<[keyof typeof indexes, string]> = [
     ['materialName', '材料名称'],
-    ['type', '材料类别'],
     ['quantity', '使用量'],
     ['emissionFactor', '碳排放因子'],
     ['unitPrice', '单价/成交价'],
@@ -135,6 +142,13 @@ export function parseBuildMaterialWorkbook(workbook: ExcelJS.Workbook): {
   }
 
   const materials: ImportedBuildMaterial[] = []
+  const placeholders = ['', '-', '—', '–', '/', '无', '暂无']
+  const parseNumericCell = (value: string): number | null => {
+    const match = value.match(/-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?/)
+    if (!match) return null
+    const number = Number(match[0])
+    return Number.isFinite(number) ? number : null
+  }
   for (let rowIndex = headerIndex + 1; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex] ?? []
     if (row.every(value => EMPTY(value))) continue
@@ -146,27 +160,26 @@ export function parseBuildMaterialWorkbook(workbook: ExcelJS.Workbook): {
     const quantityText = valueFor('quantity')
     const emissionFactorText = valueFor('emissionFactor')
     const unitPriceText = valueFor('unitPrice')
-    if (![materialName, type, quantityText, emissionFactorText, unitPriceText].every(Boolean)) {
+    if (![materialName, quantityText, emissionFactorText, unitPriceText].every(Boolean)) {
       throw new BadRequestException(
-        `第 ${rowIndex + 1} 行材料名称、类型、用量、碳排放因子或单价不能为空`,
+        `第 ${rowIndex + 1} 行材料名称、用量、碳排放因子或单价不能为空`,
       )
     }
     const marketPriceText = valueFor('marketPrice')
     const recyclingFactorText = valueFor('recyclingFactor')
     const recyclingCoefficientText = valueFor('recyclingCoefficient')
-    const quantity = Number(quantityText)
-    const emissionFactor = Number(emissionFactorText)
-    const marketPrice = marketPriceText ? Number(marketPriceText) : null
-    const unitPrice = Number(unitPriceText)
-    const recyclingFactor = recyclingFactorText ? Number(recyclingFactorText) : 0
-    const recyclingCoefficient = recyclingCoefficientText ? Number(recyclingCoefficientText) : 0
+    const quantity = parseNumericCell(quantityText)
+    const emissionFactor = parseNumericCell(emissionFactorText)
+    const marketPrice = placeholders.includes(marketPriceText) ? null : parseNumericCell(marketPriceText)
+    const unitPrice = parseNumericCell(unitPriceText)
+    const recyclingFactor = placeholders.includes(recyclingFactorText) ? 0 : parseNumericCell(recyclingFactorText) ?? 0
+    const recyclingCoefficient = placeholders.includes(recyclingCoefficientText) ? 0 : parseNumericCell(recyclingCoefficientText) ?? 0
     if (
-      !Number.isFinite(quantity) || quantity <= 0 ||
-      !Number.isFinite(emissionFactor) || emissionFactor <= 0 ||
-      (marketPrice !== null && (!Number.isFinite(marketPrice) || marketPrice < 0)) ||
-      !Number.isFinite(unitPrice) || unitPrice <= 0 ||
-      !Number.isFinite(recyclingFactor) || recyclingFactor < 0 ||
-      !Number.isFinite(recyclingCoefficient) || recyclingCoefficient < 0
+      quantity === null || quantity <= 0 ||
+      emissionFactor === null || emissionFactor < 0 ||
+      (marketPrice !== null && marketPrice < 0) ||
+      unitPrice === null || unitPrice < 0 ||
+      recyclingFactor < 0 || recyclingCoefficient < 0
     ) {
       throw new BadRequestException(
         `第 ${rowIndex + 1} 行用量、碳排放因子、单价、回收因子或回收系数无效`,
@@ -177,7 +190,7 @@ export function parseBuildMaterialWorkbook(workbook: ExcelJS.Workbook): {
       materialName,
       type: normalizedType,
       quantity,
-      unit: BUILD_MATERIAL_DEFAULT_UNITS[normalizedType] ?? '',
+      unit: valueFor('unit') || BUILD_MATERIAL_DEFAULT_UNITS[normalizedType] || '',
       emissionFactor,
       marketPrice,
       unitPrice,

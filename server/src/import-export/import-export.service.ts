@@ -48,34 +48,41 @@ export class ImportExportService {
     const existingKeys = new Set(
       existing.map(material => `${material.materialName}__${material.type}`),
     )
-    const toInsert = materials.filter(
+    const factorConfigs = await this.prisma.buildFactorConfig.findMany({
+      where: { projectId },
+      orderBy: { id: 'asc' },
+    })
+    const normalizeCategory = (category: string) => category === '钢材' ? '金属' : category
+    const resolved = materials.map(material => {
+      const exactConfig = factorConfigs.find(config =>
+        config.name.trim().toLocaleLowerCase() === material.materialName.trim().toLocaleLowerCase(),
+      )
+      const exactCategory = exactConfig && normalizeCategory(exactConfig.category)
+      const type = normalizeCategory(material.type) || exactCategory || '其他'
+      const categoryUnits = [...new Set(factorConfigs
+        .filter(config => normalizeCategory(config.category) === type && config.materialUnit)
+        .map(config => config.materialUnit))]
+      const unit = exactCategory === type && exactConfig?.materialUnit
+        ? exactConfig.materialUnit
+        : categoryUnits.length === 1
+          ? categoryUnits[0]
+          : material.unit || categoryUnits[0] || ''
+      if (!unit) {
+        throw new BadRequestException(`无法根据建材碳排配置唯一确定材料“${material.materialName}”（${type}）的单位，请在表格中补充“单位”列`)
+      }
+      return { ...material, type, unit }
+    })
+    const toInsert = resolved.filter(
       material => !existingKeys.has(`${material.materialName}__${material.type}`),
     )
-    const factorNames = [...new Set(toInsert.map(material => material.materialName))]
-    const factorConfigs = await this.prisma.buildFactorConfig.findMany({
-      where: { projectId, name: { in: factorNames } },
-    })
-    const configsByName = new Map<string, typeof factorConfigs>()
-    for (const config of factorConfigs) {
-      const list = configsByName.get(config.name) ?? []
-      list.push(config)
-      configsByName.set(config.name, list)
-    }
-    const resolved = toInsert.map(material => {
-      const matches = configsByName.get(material.materialName) ?? []
-      if (matches.length !== 1) {
-        throw new BadRequestException(`材料“${material.materialName}”无法唯一匹配项目因子配置`)
-      }
-      return { material, config: matches[0] }
-    })
-    if (resolved.length > 0) {
-      await this.prisma.buildMaterial.createMany({
-        data: resolved.map(({ material, config }) => ({
+    if (toInsert.length > 0) {
+      const created = await this.prisma.$transaction(toInsert.map(material => this.prisma.buildMaterial.create({
+        data: {
           projectId,
           materialName: material.materialName,
           type: material.type,
           quantity: material.quantity,
-          unit: config.materialUnit,
+          unit: material.unit,
           emissionFactor: material.emissionFactor,
           marketPrice: material.marketPrice,
           unitPrice: material.unitPrice,
@@ -85,10 +92,10 @@ export class ImportExportService {
           emissionAmount: (material.quantity * material.emissionFactor) / 1000,
           totalPrice: (material.quantity * material.unitPrice) / 10000,
           isParticipatingInRecyclingCalculation: material.recyclingFactor > 0,
-        })),
-      })
+        },
+      })))
+      await this.records.syncRecycling(projectId, created.map(material => material.id))
     }
-    await this.records.syncRecycling(projectId)
     return { imported: toInsert.length, skippedRows: materials.length - toInsert.length, sheetName }
   }
 

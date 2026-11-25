@@ -104,7 +104,7 @@ export class RecordsService {
         isParticipatingInRecyclingCalculation: Number(recyclingFactor) > 0,
       },
     })
-    await this.syncRecycling(projectId)
+    await this.syncRecycling(projectId, [created.id])
     return created as unknown as BuildMaterialRecord
   }
 
@@ -156,7 +156,7 @@ export class RecordsService {
         totalPrice: (quantity * unitPrice) / 10000,
       },
     })
-    await this.syncRecycling(projectId)
+    await this.syncRecycling(projectId, [materialId])
     return updated as unknown as BuildMaterialRecord
   }
 
@@ -186,7 +186,6 @@ export class RecordsService {
       },
     })
     await this.prisma.buildMaterial.delete({ where: { id: materialId } })
-    await this.syncRecycling(projectId)
     return { deleted: true }
   }
 
@@ -497,9 +496,6 @@ export class RecordsService {
       where: { id: recordId, projectId },
     })
     if (!existing) throw new NotFoundException('回收记录不存在')
-    if (!existing.isCustomMaterial && existing.sourceBuildMaterialId != null) {
-      throw new BadRequestException('自动联动的回收记录不能直接删除，请移除建材的回收因子或删除建材')
-    }
     await this.prisma.recyclingRecord.delete({ where: { id: recordId } })
     return { deleted: true }
   }
@@ -507,14 +503,19 @@ export class RecordsService {
   // ==================== 回收联动 ====================
 
   /**
-   * 依据当前建材重建自动联动回收记录（旧版行为）：
+   * 只同步本次变更的建材（客户界面行为），保留用户对其他回收记录的删除：
    * - 回收因子 > 0 的建材 → 创建/更新关联记录，回收量 min(现值, 建材用量)；
    * - 回收因子归零或建材删除 → 移除关联记录；
    * - 自定义回收记录保持不变。
    */
-  async syncRecycling(projectId: number): Promise<void> {
-    const buildMaterials = await this.prisma.buildMaterial.findMany({ where: { projectId } })
-    const recycling = await this.prisma.recyclingRecord.findMany({ where: { projectId } })
+  async syncRecycling(projectId: number, materialIds: number[]): Promise<void> {
+    if (materialIds.length === 0) return
+    const buildMaterials = await this.prisma.buildMaterial.findMany({
+      where: { projectId, id: { in: materialIds } },
+    })
+    const recycling = await this.prisma.recyclingRecord.findMany({
+      where: { projectId, sourceBuildMaterialId: { in: materialIds } },
+    })
 
     const existingBySource = new Map<number, { id: number; quantity: number; unitPrice: number }>()
     for (const record of recycling) {

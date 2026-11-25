@@ -38,6 +38,23 @@ describe('旧版 Excel 导入规则', () => {
     expect(() => parseBuildMaterialWorkbook(workbook)).toThrow('不能为空')
   })
 
+  it('客户材料表：表名回退、无类型列、单位文本、零因子价格和空值占位均兼容', () => {
+    const workbook = new ExcelJS.Workbook()
+    workbook.addWorksheet('材料清单').addRow(['项目说明'])
+    const sheet = workbook.addWorksheet('客户提供的清单')
+    sheet.addRow(['名称', '使用量', '材料单位', '碳排放系数', '市场价格', '单价', '回收因子', '再生系数'])
+    sheet.addRow(['新材料', '12.5 kg', 'kg', '2.05e3kg/t', '—', '0元', '/', '暂无'])
+    sheet.addRow(['零排放', 1, '件', 0, '无', 10, '-', '–'])
+    const parsed = parseBuildMaterialWorkbook(workbook)
+    expect(parsed.sheetName).toBe('客户提供的清单')
+    expect(parsed.materials).toEqual([
+      { materialName: '新材料', type: '', quantity: 12.5, unit: 'kg', emissionFactor: 2050, marketPrice: null, unitPrice: 0, recyclingFactor: 0, recyclingCoefficient: 0 },
+      { materialName: '零排放', type: '', quantity: 1, unit: '件', emissionFactor: 0, marketPrice: null, unitPrice: 10, recyclingFactor: 0, recyclingCoefficient: 0 },
+    ])
+    sheet.getRow(2).getCell(2).value = '0kg'
+    expect(() => parseBuildMaterialWorkbook(workbook)).toThrow('回收系数无效')
+  })
+
   it('运输表：仅旧版必填列用于跳过判定，万元单价转元', async () => {
     const workbook = new ExcelJS.Workbook()
     const sheet = workbook.addWorksheet('运输记录清单')

@@ -1,0 +1,73 @@
+/* 修改.docx: improve type size and contrast without changing customer layout. */
+:root {
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  color: #e4edf8;
+  --text: #e4edf8;
+  --muted: #a2b5ce;
+}
+
+body { font-size: 13px; line-height: 1.5; }
+.brand-copy strong { font-size: 15px; letter-spacing: 0; }
+.brand-copy small { font-size: 11px; color: #a2b5ce; }
+.nav-item { font-size: 14px; }
+.material-page-title h1 { font-size: 20px; }
+.material-page-title p, .page-subtitle, .breadcrumb { font-size: 12px; color: #a2b5ce; }
+.button { font-size: 13px; }
+.section-title h2, .material-table-heading h2,
+.construction-energy-heading h2, .cost-chart-heading h2,
+.cost-detail-heading h2, .analysis-card-heading h2 { font-size: 14px; }
+
+.field, .field legend, .field input, .field select, .input-unit,
+.choice, .upload-zone strong, .indicator-copy strong,
+.material-stat-card > span, .cost-metric-card > span,
+.material-search input, .material-filters button,
+.material-table th, .material-table td,
+.material-name-cell strong, .recycling-material-name strong,
+.material-property-input, .material-type-select, .material-edit-input,
+.build-config-suggestions button, .material-delete-button,
+.construction-energy-copy strong, .transport-energy-name,
+.analysis-card-heading select, .analysis-legend-item, .analysis-legend-item strong,
+.analysis-compact-table th, .analysis-compact-table td,
+.analysis-detail-table th, .analysis-detail-table td,
+.analysis-stage-label > span, .analysis-net-total span,
+.cost-chart-tabs button, .cost-detail-table th, .cost-detail-table td {
+  font-size: 12px;
+}
+
+.field, .field legend, .material-stat-card > span, .cost-metric-card > span,
+.material-table th, .analysis-compact-table th, .analysis-detail-table th,
+.cost-detail-table th { color: #b0c1d7; }
+
+.input-unit small, .upload-zone small, .indicator-copy small, .hint-card p,
+.material-table-heading > span, .material-name-cell small,
+.build-config-suggestions small, .material-type,
+.material-stat-card strong small, .cost-metric-card strong small,
+.construction-energy-heading > span, .construction-energy-copy small,
+.construction-energy-emission small, .construction-number-cell small,
+.analysis-metric-card strong small, .analysis-stage-label strong small,
+.analysis-net-total strong small, .analysis-detail-total small,
+.analysis-donut-center span, .analysis-card-heading p,
+.analysis-empty, .analysis-formula, .cost-chart-heading p,
+.cost-detail-heading p, .cost-chart-y-axis, .cost-chart-value,
+.cost-chart-column strong, .cost-chart-empty {
+  font-size: 11px;
+  color: #a2b5ce;
+}
+.material-index, .transport-cargo-cell { font-size: 12px !important; }
+.guidance-price-link {
+  flex: 1 0 64px;
+  color: #90c4ff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.guidance-price-link:hover { color: #c9e3ff; }
+.guidance-price-link:focus-visible { outline: 2px solid #90c4ff; outline-offset: 4px; border-radius: 2px; }
+.material-search input::placeholder, .field input::placeholder { color: #a2b5ce; }
+
+@media (max-width: 520px) {
+  .guidance-price-link { flex-basis: auto; text-align: left; }
+}

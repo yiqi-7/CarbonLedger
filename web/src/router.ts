@@ -9,7 +9,8 @@ const router = createRouter({
     { path: '/register', component: () => import('@/views/RegisterView.vue'), meta: { public: true } },
     { path: '/projects', component: () => import('@/views/ProjectsView.vue') },
     { path: '/admin', component: () => import('@/views/AdminView.vue'), meta: { admin: true } },
-    { path: '/projects/:id', component: () => import('@/views/WorkspaceView.vue') },
+    { path: '/projects/:id', component: () => import('@/views/WorkspaceView.vue'), meta: { customerWorkspace: true } },
+    { path: '/projects/:id/tools', component: () => import('@/views/ProjectToolsView.vue') },
   ],
 })
 
