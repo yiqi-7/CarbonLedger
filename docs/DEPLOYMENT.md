@@ -52,6 +52,7 @@ CORS_ORIGINS=
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=独立管理员密码
 PORT=3000
+HOST=127.0.0.1
 EOF
 chmod 600 /opt/carbon-ledger/server/.env
 ```
