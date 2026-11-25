@@ -17,6 +17,11 @@ input { caret-color: var(--v-accent, #334a8a); }
 .lab-title { display: grid; gap: 6px; white-space: nowrap; }
 .lab-title strong { font-size: 17px; font-weight: 650; }
 .lab-title span { font-size: 11px; color: #616772; }
+.lab-title > div:first-child { display: flex; align-items: baseline; gap: 10px; }
+.lab-families { display: flex; gap: 4px; }
+.lab-families button { border: 0; border-radius: 4px; padding: 5px 7px; min-height: 28px; font-size: 11px; color: #616772; background: #f4f5f7; }
+.lab-families button[aria-pressed="true"] { color: #fff; background: #303944; }
+.lab-families button:hover { background: #dfe4ec; color: #20242c; }
 .lab-variants { display: flex; gap: 4px; }
 .lab-variants button { position: relative; display: flex; align-items: center; gap: 9px; min-height: 56px; padding: 9px 13px; border: 1px solid transparent; background: #fff; color: #565c66; border-radius: 7px; text-align: left; }
 .lab-variants button:hover { background: #f5f6f8; }
@@ -33,6 +38,7 @@ input { caret-color: var(--v-accent, #334a8a); }
 .lab-current:hover { text-decoration: underline; }
 .lab-current svg { width: 14px; }
 .preview-content { color: var(--v-text); font-family: var(--v-font, inherit); font-size: 14px; line-height: 1.6; min-width: 0; }
+.design-lab > [class*="variant"], .design-lab .page-login { min-height: calc(100svh - var(--lab-toolbar-height, 96px)); }
 .preview-content h1, .preview-content h2, .preview-content p { margin: 0; }
 .content-heading { display: flex; justify-content: space-between; gap: 24px; align-items: center; margin-bottom: 30px; }
 .content-heading h1 { font-size: var(--v-title-size, 30px); font-weight: var(--v-title-weight, 600); line-height: 1.35; letter-spacing: -.025em; overflow-wrap: anywhere; }

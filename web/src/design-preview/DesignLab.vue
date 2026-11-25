@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Check, TopRight } from '@element-plus/icons-vue'
 import IbmVariant from './variants/IbmVariant.vue'
 import SapVariant from './variants/SapVariant.vue'
 import NotionVariant from './variants/NotionVariant.vue'
 import StripeVariant from './variants/StripeVariant.vue'
+import OuraVariant from './variants/OuraVariant.vue'
+import FigmaVariant from './variants/FigmaVariant.vue'
+import WiredVariant from './variants/WiredVariant.vue'
+import ClayVariant from './variants/ClayVariant.vue'
 import { providePreview } from './state'
 import type { PageId, StyleId } from './types'
 
@@ -14,6 +18,10 @@ const styles = [
   { id: 'sap', letter: 'B', name: 'SAP', detail: '业务管理台', component: SapVariant },
   { id: 'notion', letter: 'C', name: 'Notion', detail: '轻量文档式', component: NotionVariant },
   { id: 'stripe', letter: 'D', name: 'Stripe', detail: '清晰分析台', component: StripeVariant },
+  { id: 'oura', letter: 'E', name: 'Oura', detail: '建筑画册', component: OuraVariant },
+  { id: 'figma', letter: 'F', name: 'Figma', detail: '色块构成', component: FigmaVariant },
+  { id: 'wired', letter: 'G', name: 'WIRED', detail: '黑白刊物', component: WiredVariant },
+  { id: 'clay', letter: 'H', name: 'Clay', detail: '艺术工作室', component: ClayVariant },
 ] as const
 const pages: { id: PageId; name: string }[] = [
   { id: 'overview', name: '项目概览' }, { id: 'materials', name: '建材清单' },
@@ -32,6 +40,19 @@ readUrl()
 window.addEventListener('popstate', readUrl)
 onBeforeUnmount(() => window.removeEventListener('popstate', readUrl))
 const activeStyle = computed(() => styles.find(item => item.id === style.value)!)
+const artistic = computed(() => ['oura', 'figma', 'wired', 'clay'].includes(style.value))
+const visibleStyles = computed(() => artistic.value ? styles.slice(4) : styles.slice(0, 4))
+const labRoot = ref<HTMLElement>()
+const toolbar = ref<HTMLElement>()
+let toolbarObserver: ResizeObserver | undefined
+onMounted(() => {
+  toolbarObserver = new ResizeObserver(entries => {
+    const height = entries[0]?.target.getBoundingClientRect().height
+    if (height) labRoot.value?.style.setProperty('--lab-toolbar-height', `${height}px`)
+  })
+  if (toolbar.value) toolbarObserver.observe(toolbar.value)
+})
+onBeforeUnmount(() => toolbarObserver?.disconnect())
 watch([page, style], () => {
   document.title = `${activeStyle.value.name} · ${pages.find(item => item.id === page.value)?.name} · 方案对比`
 }, { immediate: true })
@@ -63,11 +84,11 @@ function savePreference() {
 </script>
 
 <template>
-  <div class="design-lab">
-    <header class="lab-toolbar" aria-label="设计方案比较工具">
-      <div class="lab-title"><strong>方案对比</strong><span>示例数据 · 可试用</span></div>
+  <div ref="labRoot" class="design-lab">
+    <header ref="toolbar" class="lab-toolbar" aria-label="设计方案比较工具">
+      <div class="lab-title"><div><strong>方案对比</strong><span>示例数据</span></div><div class="lab-families" role="group" aria-label="方案分组"><button :aria-pressed="!artistic" @click="navigate(page, 'ibm')">工作台 A–D</button><button :aria-pressed="artistic" @click="navigate(page, 'oura')">艺术 E–H</button></div></div>
       <div class="lab-variants" role="group" aria-label="选择设计方案">
-        <button v-for="item in styles" :key="item.id" :aria-pressed="style === item.id" :class="{ selected: style === item.id }" @click="navigate(page, item.id)">
+        <button v-for="item in visibleStyles" :key="item.id" :aria-label="`${item.letter} ${item.name} ${item.detail}`" :aria-pressed="style === item.id" :class="{ selected: style === item.id }" @click="navigate(page, item.id)">
           <span class="lab-letter">{{ item.letter }}</span><span><b>{{ item.name }}</b><small>{{ item.detail }}</small></span>
           <Check v-if="preference === item.id" class="lab-check" aria-label="首选方案" />
         </button>
