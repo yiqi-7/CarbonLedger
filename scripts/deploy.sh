@@ -8,6 +8,14 @@ BRANCH="${BRANCH:-main}"
 
 cd "$APP_DIR"
 
+if [[ ! -r server/.env ]]; then
+  echo "错误：缺少可读的 server/.env 生产配置。" >&2
+  exit 1
+fi
+set -a
+source server/.env
+set +a
+
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "错误：工作树存在未提交改动；为避免覆盖服务器数据或运维修复，停止部署。" >&2
   exit 1
