@@ -314,7 +314,7 @@ export class RecordsService {
     if (!existing) throw new NotFoundException('施工记录不存在')
 
     // 旧版：导入行仅台班数与单价可编辑；自定义行可编辑机械名/台班数/能源/能耗/单价
-    const energyType = (dto.energyType ?? existing.energyType) as ConstructionEnergyType
+    const energyType = (existing.isCustomMaterial ? dto.energyType ?? existing.energyType : existing.energyType) as ConstructionEnergyType
     const energy = CONSTRUCTION_ENERGY_TYPES[energyType]
     const machineryName = existing.isCustomMaterial
       ? (dto.machineryName ?? existing.machineryName)

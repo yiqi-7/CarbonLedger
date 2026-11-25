@@ -187,6 +187,22 @@ describe('CarbonLedger API (e2e)', () => {
       expect(recycling.body).toHaveLength(1)
       expect(recycling.body[0].recyclingQuantity).toBe(100)
       expect(recycling.body[0].sourceBuildMaterialId).toBe(material.body.id)
+      const protectedRecycle = await server()
+        .patch(`/api/projects/${projectId}/recycling-records/${recycling.body[0].id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ materialName: '篡改名称', materialType: '玻璃', recyclingFactor: 999, recyclingCoefficient: 9, recyclingQuantity: 200 })
+        .expect(200)
+      expect(protectedRecycle.body).toMatchObject({
+        materialName: material.body.materialName,
+        materialType: '金属',
+        recyclingFactor: material.body.recyclingFactor,
+        recyclingCoefficient: material.body.recyclingCoefficient,
+        recyclingQuantity: 100,
+      })
+      await server()
+        .delete(`/api/projects/${projectId}/recycling-records/${recycling.body[0].id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(400)
     }
 
     // 建材用量改小 → 回收量收缩
@@ -257,6 +273,29 @@ describe('CarbonLedger API (e2e)', () => {
     expect(record.body.totalEnergy).toBe(1000)
     expect(record.body.emissionAmount).toBeCloseTo(581)
     expect(record.body.totalPrice).toBeCloseTo(0.5)
+
+    const importedWorkbook = new ExcelJS.Workbook()
+    const importedSheet = importedWorkbook.addWorksheet('工程台班清单')
+    importedSheet.addRow(['机械名称', '台班数', '能源类型', '单位台班能耗', '碳排放因子', '台班单价（元）'])
+    importedSheet.addRow(['进口塔吊', 2, '电力', 80, 0.581, 600])
+    const importedBytes = Buffer.from((await importedWorkbook.xlsx.writeBuffer()) as ArrayBuffer)
+    const imported = await server()
+      .post(`/api/projects/${projectId}/imports/construction-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .attach('file', importedBytes, { filename: 'construction.xlsx', contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      .expect(201)
+    expect(imported.body).toMatchObject({ imported: 1, skippedRows: 0 })
+    const constructionList = await server()
+      .get(`/api/projects/${projectId}/construction-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    const importedRecord = constructionList.body.find((item: any) => item.machineryName === '进口塔吊')
+    const patchedImported = await server()
+      .patch(`/api/projects/${projectId}/construction-records/${importedRecord.id}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ machineryName: '不应改名', energyType: '柴油', energyPerShift: 999, shiftCount: 3, shiftUnitPrice: 700 })
+      .expect(200)
+    expect(patchedImported.body).toMatchObject({ machineryName: '进口塔吊', energyType: '电力', energyPerShift: 80, emissionFactor: 0.581, shiftCount: 3, shiftUnitPrice: 700 })
   })
 
   it('分析接口返回旧版口径汇总', async () => {
