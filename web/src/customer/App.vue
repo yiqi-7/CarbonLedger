@@ -107,10 +107,10 @@ const transportEnergyTypeNames = transportEnergyTypes
 const transportVehicleConfigurations = computed(() => transportConfigList.toArray())
 const buildMaterialCategories = ['混凝土', '金属', '砌体', '保温材料', '水泥及砂浆', '玻璃', '其他']
 const analysisStages = ['建材碳排放', '运输碳排放', '施工碳排放', '回收碳排放']
-const analysisColors = ['#347bf2', '#55a7ff', '#f5a623', '#b457ed', '#20c9dc', '#f05b64', '#f2cf31', '#41c99a']
+const analysisColors = ['#3974ae', '#528576', '#758ca8', '#8b9ba7', '#4d8290', '#9c886b', '#727d96', '#80998c']
 const analysisSelectedStage = ref(analysisStages[0])
 const costAnalysisStages = ['建材', '运输', '施工']
-const costAnalysisColors = ['#4c97e9', '#4c97e9', '#f4a323', '#a84ded', '#20c9dc', '#40c99a']
+const costAnalysisColors = ['#3974ae', '#6688aa', '#758ca8', '#528576', '#8b9ba7', '#4d8290']
 const costAnalysisSelectedStage = ref(costAnalysisStages[0])
 const provinces = Object.keys(chinaCities)
 const cities = computed(() => chinaCities[draft.province] ?? [])
@@ -433,7 +433,6 @@ async function navigateToPage(page) {
 
   document.activeElement?.blur?.()
   activePage.value = page
-  sidebarCollapsed.value = page === '首页'
 }
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
@@ -540,10 +539,10 @@ const analysisPieGradient = computed(() => {
   return `conic-gradient(${segments.join(', ')})`
 })
 const analysisLifecycleStages = computed(() => [
-  { name: '建材碳排放', emission: buildCarbonInfo.totalEmission, color: '#347bf2' },
-  { name: '运输碳排放', emission: transportCarbonInfo.totalEmission, color: '#55a7ff' },
-  { name: '施工碳排放', emission: constructionCarbonInfo.totalEmission / 1000, color: '#f5a623' },
-  { name: '回收碳计算', emission: -recyclingCarbonInfo.totalReduction, color: '#20c9dc' }
+  { name: '建材碳排放', emission: buildCarbonInfo.totalEmission, color: '#3974ae' },
+  { name: '运输碳排放', emission: transportCarbonInfo.totalEmission, color: '#6688aa' },
+  { name: '施工碳排放', emission: constructionCarbonInfo.totalEmission / 1000, color: '#8b9ba7' },
+  { name: '回收碳计算', emission: -recyclingCarbonInfo.totalReduction, color: '#528576' }
 ])
 const analysisNetEmission = computed(() =>
   analysisLifecycleStages.value.reduce((total, stage) => total + stage.emission, 0)
@@ -631,10 +630,10 @@ const costAnalysisBuildDetails = computed(() =>
     .sort((left, right) => right.totalPrice - left.totalPrice)
 )
 const indicators = [
-  { name: '建材生产阶段', description: '材料生产与加工阶段' },
-  { name: '建材运输阶段', description: '从工厂运输至施工现场' },
-  { name: '施工建造阶段', description: '机械台班与施工能耗' },
-  { name: '回收减碳阶段', description: '材料回收减碳与残值估算' }
+  { name: '建材生产', description: '材料生产与加工产生的排放' },
+  { name: '材料运输', description: '材料运至施工现场产生的排放' },
+  { name: '施工能耗', description: '施工机械能源消耗产生的排放' },
+  { name: '材料回收', description: '回收减碳量与残值估算' }
 ]
 
 onMounted(async () => {
@@ -1252,10 +1251,10 @@ onBeforeUnmount(() => {
 
     <main class="main-content" :class="{ 'main-content-expanded': sidebarCollapsed }">
       <header v-if="activePage === '项目信息'" class="top-header">
-        <div class="breadcrumb"><span>项目</span><b>›</b><strong>{{ activePage }}</strong></div>
+        <div class="breadcrumb"><span>{{ ProjectInfo.projectName || '当前项目' }}</span><b>›</b><strong>项目信息</strong></div>
         <div class="header-actions">
           <button v-if="activePage === '项目信息'" class="button button-primary" type="submit" form="project-form" :disabled="navigationLocked">
-            <span aria-hidden="true">✓</span> 保存
+            <span aria-hidden="true">✓</span> 保存项目信息
           </button>
         </div>
       </header>
@@ -1263,7 +1262,7 @@ onBeforeUnmount(() => {
       <header v-else-if="activePage === '建材碳排放'" class="top-header material-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>建材碳排放计算</h1><p>{{ ProjectInfo.projectName }} · 材料清单与用量录入</p></div>
+          <div><h1>建材碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
           <button class="button button-outline" type="button" @click="materialFileInput?.click()"><span aria-hidden="true">⇧</span> 导入清单</button>
@@ -1276,12 +1275,12 @@ onBeforeUnmount(() => {
       <header v-else-if="activePage === '运输碳排放'" class="top-header material-header transport-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>运输碳排放计算</h1><p>{{ ProjectInfo.projectName }} · 建材运输进场 · 车辆能耗核算</p></div>
+          <div><h1>运输碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-outline" type="button" @click="transportFileInput?.click()"><span aria-hidden="true">⇧</span> 导入运输清单</button>
-          <button class="button button-outline" type="button" @click="exportTransportMaterials"><span aria-hidden="true">⇩</span> 导出运输清单</button>
-          <button class="button button-primary" type="button" @click="addTransportMaterial"><span aria-hidden="true">＋</span> 手动录入</button>
+          <button class="button button-outline" type="button" @click="transportFileInput?.click()"><span aria-hidden="true">⇧</span> 导入清单</button>
+          <button class="button button-outline" type="button" @click="exportTransportMaterials"><span aria-hidden="true">⇩</span> 导出清单</button>
+          <button class="button button-primary" type="button" @click="addTransportMaterial"><span aria-hidden="true">＋</span> 新增运输记录</button>
           <input ref="transportFileInput" class="visually-hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" @change="importTransportMaterials" />
         </div>
       </header>
@@ -1289,19 +1288,19 @@ onBeforeUnmount(() => {
       <header v-else-if="activePage === '回收碳计算'" class="top-header material-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>回收碳计算</h1><p>{{ ProjectInfo.projectName }} · 回收阶段材料减碳核算</p></div>
+          <div><h1>回收减碳</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
       </header>
 
       <header v-else-if="activePage === '施工碳排放'" class="top-header material-header construction-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>施工阶段碳排放计算</h1><p>{{ ProjectInfo.projectName }} · 施工建造阶段 · 工程台班核算</p></div>
+          <div><h1>施工碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-outline" type="button" @click="constructionFileInput?.click()"><span aria-hidden="true">⇧</span> 导入工程台班</button>
-          <button class="button button-outline" type="button" @click="exportConstructionMaterials"><span aria-hidden="true">⇩</span> 导出工程台班</button>
-          <button class="button button-primary" type="button" @click="addConstructionMaterial"><span aria-hidden="true">＋</span> 手动录入</button>
+          <button class="button button-outline" type="button" @click="constructionFileInput?.click()"><span aria-hidden="true">⇧</span> 导入清单</button>
+          <button class="button button-outline" type="button" @click="exportConstructionMaterials"><span aria-hidden="true">⇩</span> 导出清单</button>
+          <button class="button button-primary" type="button" @click="addConstructionMaterial"><span aria-hidden="true">＋</span> 新增工程台班</button>
           <input ref="constructionFileInput" class="visually-hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" @change="importConstructionMaterials" />
         </div>
       </header>
@@ -1309,17 +1308,17 @@ onBeforeUnmount(() => {
       <header v-else-if="activePage === '碳排放分析'" class="top-header material-header analysis-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>碳排放分析</h1><p>{{ ProjectInfo.projectName }} · 建造阶段碳排放与回收减碳分析</p></div>
+          <div><h1>排放分析</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-primary" type="button" :disabled="navigationLocked" @click="exportProjectReport"><span aria-hidden="true">⇩</span> 导出报告书</button>
+          <button class="button button-primary" type="button" :disabled="navigationLocked" @click="exportProjectReport"><span aria-hidden="true">⇩</span> 导出报告</button>
         </div>
       </header>
 
       <header v-else-if="activePage === '成本分析'" class="top-header material-header cost-analysis-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>成本分析</h1><p>{{ ProjectInfo.projectName }} · 建材、运输与施工成本对比</p></div>
+          <div><h1>成本分析</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
       </header>
 
@@ -1335,6 +1334,7 @@ onBeforeUnmount(() => {
         :construction-emission="constructionCarbonInfo.totalEmission / 1000"
         :recycling-emission="recyclingCarbonInfo.totalReduction"
         :net-emission="analysisNetEmission"
+        @edit-project="navigateToPage('项目信息')"
       />
 
       <section v-else class="page-container">
@@ -1342,14 +1342,13 @@ onBeforeUnmount(() => {
           <div class="page-heading">
             <div>
               <h1>项目信息</h1>
-              <p class="page-subtitle">填写项目基础信息，系统将自动更新项目碳排放核算模型</p>
             </div>
           </div>
 
           <form id="project-form" class="project-layout" @submit.prevent="createProject">
             <div class="project-main-column">
               <section class="surface-card project-card basic-card">
-                <div class="section-title"><span class="section-icon">▧</span><h2>项目基本信息</h2></div>
+                <div class="section-title"><h2>基本信息</h2></div>
                 <div class="field-grid">
                   <label class="field full-field required">项目名称
                     <input v-model="draft.projectName" required placeholder="请输入项目名称" />
@@ -1392,17 +1391,22 @@ onBeforeUnmount(() => {
               </section>
 
               <section class="surface-card project-card upload-card">
-                <div class="section-title"><span class="section-icon">▧</span><h2>导入模型图片</h2></div>
+                <div class="section-title"><h2>项目图片</h2></div>
+                <p>用于项目概览，可选。</p>
                 <label class="upload-zone">
                   <input type="file" accept="image/png,image/jpeg,image/webp" @change="handleFileChange" />
                   <span class="upload-icon">⇧</span>
-                  <strong>{{ draft.modelImageName || '点击或拖拽上传模型图片' }}</strong>
-                  <small>支持 JPG、PNG 格式，单张图片不超过 10MB</small>
+                  <strong>{{ draft.modelImageName || '点击选择项目图片' }}</strong>
+                  <small>支持 JPG、PNG、WebP，单张不超过 10MB</small>
                 </label>
+                <div v-if="uploadedImageUrl" class="project-image-preview">
+                  <img :src="uploadedImageUrl" :alt="draft.modelImageName || '项目图片'" />
+                  <button class="button button-outline" type="button" @click="removeUploadedImage">移除图片</button>
+                </div>
               </section>
 
               <section class="surface-card project-card timeline-card">
-                <div class="section-title"><span class="section-icon">▦</span><h2>项目周期与责任人</h2></div>
+                <div class="section-title"><h2>项目周期与负责人</h2></div>
                 <div class="field-grid">
                   <label class="field">开工日期<input v-model="draft.startDate" type="date" /></label>
                   <label class="field">计划竣工日期<input v-model="draft.plannedCompletionDate" type="date" /></label>
@@ -1418,40 +1422,23 @@ onBeforeUnmount(() => {
 
             <aside class="project-side-column">
               <section class="surface-card project-card indicator-card">
-                <div class="section-title"><span class="section-icon">▦</span><h2>核算范围</h2></div>
-                <label v-for="indicator in indicators" :key="indicator.name" class="indicator-option">
-                  <span class="indicator-check" role="img" aria-label="已纳入核算范围">✓</span>
+                <div class="section-title"><h2>核算范围</h2></div>
+                <div v-for="indicator in indicators" :key="indicator.name" class="indicator-option">
                   <span class="indicator-copy"><strong>{{ indicator.name }}</strong><small>{{ indicator.description }}</small></span>
-                  <span class="indicator-arrow">›</span>
-                </label>
+                </div>
               </section>
 
               <section class="surface-card project-card hint-card">
-                <div class="section-title"><span class="hint-bulb">♧</span><h2>计算说明</h2></div>
-                <p>保存项目信息后，可在「建材碳排放」页面录入材料清单与用量，系统将自动进行碳排计算。</p>
+                <div class="section-title"><h2>填写说明</h2></div>
+                <p>建筑面积用于计算单位面积指标。保存后，可填写建材、运输和施工记录。</p>
               </section>
-
-              <div class="architecture-preview" role="img" aria-label="现代建筑项目预览">
-                <template v-if="uploadedImageUrl">
-                  <img class="uploaded-preview-image" :src="uploadedImageUrl" :alt="draft.modelImageName" />
-                  <button class="remove-preview-button" type="button" aria-label="移除已上传图片" @click="removeUploadedImage">×</button>
-                </template>
-                <template v-else>
-                  <div class="skyline"><i></i><i></i><i></i><i></i><i></i></div>
-                  <div class="preview-building">
-                    <div class="building-wing"></div>
-                    <div class="building-front"><i></i><i></i><i></i><i></i></div>
-                  </div>
-                  <div class="preview-ground"></div>
-                </template>
-              </div>
             </aside>
           </form>
         </template>
 
         <template v-else-if="activePage === '运输碳排放'">
           <section class="material-stats transport-stats">
-            <article class="material-stat-card"><span>运输阶段碳排放量</span><strong>{{ formatNumber(transportCarbonInfo.totalEmission, 1) }}<small> tCO₂e</small></strong></article>
+            <article class="material-stat-card"><span>运输碳排放</span><strong>{{ formatNumber(transportCarbonInfo.totalEmission, 1) }}<small> tCO₂e</small></strong></article>
           </section>
 
           <section class="construction-energy-card transport-energy-card">
@@ -1563,7 +1550,7 @@ onBeforeUnmount(() => {
 
         <template v-else-if="activePage === '施工碳排放'">
           <section class="material-stats construction-stats">
-            <article class="material-stat-card"><span>施工阶段碳排放总量</span><strong class="construction-emission-stat">{{ formatConstructionEmission(constructionCarbonInfo.totalEmission) }}<small> tCO₂e</small></strong></article>
+            <article class="material-stat-card"><span>施工碳排放</span><strong class="construction-emission-stat">{{ formatConstructionEmission(constructionCarbonInfo.totalEmission) }}<small> tCO₂e</small></strong></article>
             <article class="material-stat-card"><span>机械台班总数</span><strong>{{ formatNumber(constructionCarbonInfo.totalShiftCount) }}<small> 台班</small></strong></article>
             <article class="material-stat-card"><span>电力消耗</span><strong class="electricity-stat">{{ formatNumber(constructionCarbonInfo.energyTotals['电力'].energyTotal) }}<small> kWh</small></strong></article>
             <article class="material-stat-card"><span>柴油消耗</span><strong class="diesel-stat">{{ formatNumber(constructionCarbonInfo.energyTotals['柴油'].energyTotal) }}<small> kg</small></strong></article>
@@ -1667,7 +1654,7 @@ onBeforeUnmount(() => {
 
         <template v-else-if="activePage === '回收碳计算'">
           <section class="material-stats recycling-stats">
-            <article class="material-stat-card"><span>可回收阶段总减碳排量</span><strong class="recycling-emission-stat">{{ formatNumber(recyclingCarbonInfo.totalReduction, 1) }}<small> tCO₂e</small></strong></article>
+            <article class="material-stat-card"><span>回收减碳量</span><strong class="recycling-emission-stat">{{ formatNumber(recyclingCarbonInfo.totalReduction, 1) }}<small> tCO₂e</small></strong></article>
             <article class="material-stat-card"><span>回收量（按单位）</span><strong v-for="group in recyclingQuantityGroups" :key="group.unit">{{ formatNumber(group.quantity, 3) }}<small> {{ group.unit }}</small></strong><strong v-if="recyclingQuantityGroups.length === 0">—</strong></article>
             <article class="material-stat-card"><span>回收减碳占建材排放比</span><strong>{{ buildCarbonInfo.totalEmission > 0 ? formatNumber(recyclingCarbonInfo.recyclingUtilizationRate, 1) : '—' }}<small v-if="buildCarbonInfo.totalEmission > 0"> %</small></strong></article>
             <article class="material-stat-card"><span>回收残值估算</span><strong class="recycling-value-stat">{{ formatResidualValue(recyclingCarbonInfo.estimatedResidualValue) }}</strong></article>
@@ -1992,13 +1979,13 @@ onBeforeUnmount(() => {
           <div class="analysis-main-grid">
             <section class="surface-card analysis-card analysis-breakdown-card">
               <header class="analysis-card-heading">
-                <div><h2>分阶段碳排放构成</h2><p>按所选阶段查看材料 / 设备排放贡献</p></div>
+                <div><h2>排放构成</h2><p>选择阶段，查看各条记录的贡献。</p></div>
                 <select v-model="analysisSelectedStage" aria-label="选择碳排放阶段">
-                  <option v-for="stage in analysisStages" :key="stage" :value="stage">{{ stage }}</option>
+                  <option v-for="stage in analysisStages" :key="stage" :value="stage">{{ stage === '回收碳排放' ? '回收减碳' : stage }}</option>
                 </select>
               </header>
               <div class="analysis-pie-layout">
-                <div class="analysis-donut" :style="{ backgroundImage: analysisPieGradient }" role="img" :aria-label="`${analysisSelectedStage}，总排放${formatNumber(analysisPieTotal, 3)}吨`">
+                <div class="analysis-donut" :style="{ backgroundImage: analysisPieGradient }" role="img" :aria-label="`${analysisSelectedStage === '回收碳计算' ? '回收减碳，总减碳量' : `${analysisSelectedStage}，总排放`}${formatNumber(analysisPieTotal, 3)}吨`">
                   <div class="analysis-donut-center"><strong>{{ formatNumber(analysisPieTotal, 3) }}</strong><span>tCO₂e</span></div>
                 </div>
                 <div class="analysis-legend">
@@ -2012,7 +1999,7 @@ onBeforeUnmount(() => {
               </div>
               <div class="analysis-pie-table-scroll">
                 <table class="analysis-compact-table">
-                  <thead><tr><th>材料 / 设备</th><th>用量</th><th>碳排放因子</th><th>排放量 (t)</th></tr></thead>
+                  <thead><tr><th>材料 / 设备</th><th>用量</th><th>{{ analysisSelectedStage === '回收碳计算' ? '回收因子' : '碳排放因子' }}</th><th>{{ analysisSelectedStage === '回收碳计算' ? '减碳量 (t)' : '排放量 (t)' }}</th></tr></thead>
                   <tbody>
                     <tr v-for="(item, index) in analysisPieItems" :key="`detail-${item.name}-${index}`">
                       <td><i :style="{ backgroundColor: analysisColors[index % analysisColors.length] }"></i>{{ item.name }}</td>
@@ -2028,11 +2015,11 @@ onBeforeUnmount(() => {
 
             <section class="surface-card analysis-card analysis-lifecycle-card">
               <header class="analysis-card-heading">
-                <div><h2>建造阶段碳排放与回收减碳</h2><p>回收阶段减排以负值计入净排放</p></div>
+                <div><h2>各阶段排放与回收减碳</h2><p>净排放已扣除回收减碳量。</p></div>
               </header>
               <div class="analysis-stage-list">
                 <article v-for="stage in analysisLifecycleStages" :key="stage.name" class="analysis-stage-row">
-                  <div class="analysis-stage-label"><span><i :style="{ backgroundColor: stage.color }"></i>{{ stage.name }}</span><strong :class="{ 'analysis-reduction-value': stage.emission < 0 }">{{ formatNumber(stage.emission, 3) }} <small>tCO₂e</small></strong></div>
+                  <div class="analysis-stage-label"><span><i :style="{ backgroundColor: stage.color }"></i>{{ stage.name === '回收碳计算' ? '回收减碳' : stage.name }}</span><strong :class="{ 'analysis-reduction-value': stage.emission < 0 }">{{ formatNumber(stage.emission, 3) }} <small>tCO₂e</small></strong></div>
                   <div class="analysis-stage-track"><span :style="{ width: `${analysisMaxStageEmission > 0 ? Math.abs(stage.emission) / analysisMaxStageEmission * 100 : 0}%`, backgroundColor: stage.color }"></span></div>
                 </article>
               </div>
@@ -2043,7 +2030,7 @@ onBeforeUnmount(() => {
 
           <section class="surface-card analysis-card analysis-material-details">
             <header class="analysis-card-heading">
-              <div><h2>建筑碳排明细</h2><p>建材碳排放材料清单 · 共 {{ analysisBuildMaterialDetails.length }} 项</p></div>
+              <div><h2>建材排放明细</h2><p>共 {{ analysisBuildMaterialDetails.length }} 条记录</p></div>
               <strong class="analysis-detail-total">{{ formatNumber(buildCarbonInfo.totalEmission, 3) }} <small>tCO₂e</small></strong>
             </header>
             <div class="analysis-details-scroll">
@@ -2121,7 +2108,7 @@ onBeforeUnmount(() => {
 
           <section class="surface-card cost-detail-card">
             <header class="cost-detail-heading">
-              <div><h2>建材成本明细</h2><p>建材碳排放材料信息 · 共 {{ costAnalysisBuildDetails.length }} 项</p></div>
+              <div><h2>建材成本明细</h2><p>共 {{ costAnalysisBuildDetails.length }} 条记录</p></div>
               <strong>{{ formatNumber(costAnalysisBuildDetails.reduce((total, material) => total + material.totalPrice, 0), 4) }} 万元</strong>
             </header>
             <div class="cost-detail-scroll">

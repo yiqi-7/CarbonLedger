@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import './styles/base.css'
 import './styles/typography.css'
-import './styles/liquid-glass.css'
+import './styles/workspace.css'
 
 // Render the customer's app in its own document, without platform CSS.
 window.addEventListener('carbon-ledger-unauthorized', () => {

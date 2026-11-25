@@ -14,6 +14,7 @@ defineProps({
 const emit = defineEmits(['navigate', 'toggle', 'exit'])
 
 const icons = [House, Document, Box, Van, Tools, Refresh, DataAnalysis, TrendCharts]
+const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '碳排放分析': '排放分析' }
 </script>
 
 <template>
@@ -28,7 +29,7 @@ const icons = [House, Document, Box, Van, Tools, Refresh, DataAnalysis, TrendCha
       @click.prevent="!navigationLocked && emit('navigate', '首页')"
     >
       <span class="brand-mark" aria-hidden="true"><OfficeBuilding class="brand-icon" /></span>
-      <span class="brand-copy"><strong>碳建智算平台</strong><small>CarbonBuild</small></span>
+      <span class="brand-copy"><strong>碳建智算平台</strong></span>
     </a>
 
     <nav class="sidebar-nav" aria-label="主导航">
@@ -37,14 +38,14 @@ const icons = [House, Document, Box, Van, Tools, Refresh, DataAnalysis, TrendCha
         :key="item"
         class="nav-item"
         :class="{ active: activePage === item }"
-        :aria-label="item"
-        :title="item"
+        :aria-label="labels[item] || item"
+        :title="labels[item] || item"
         :aria-current="activePage === item ? 'page' : undefined"
         :disabled="navigationLocked"
         @click="emit('navigate', item)"
       >
         <span class="nav-icon" aria-hidden="true"><component :is="icons[index]" /></span>
-        <span>{{ item }}</span>
+        <span>{{ labels[item] || item }}</span>
       </button>
     </nav>
 
@@ -77,15 +78,15 @@ const icons = [House, Document, Box, Van, Tools, Refresh, DataAnalysis, TrendCha
   min-height: 36px;
   margin-top: 18px;
   padding: 7px 10px;
-  border: 1px solid #315279;
+  border: 1px solid transparent;
   border-radius: 6px;
-  background: #142c4b;
-  color: #c1d8f4;
+  background: transparent;
+  color: #4e5e72;
   font-size: 13px;
   text-decoration: none;
 }
-.project-directory-link:hover { background: #1c3d64; color: #fff; }
-.project-directory-link:focus-visible { outline: 2px solid #90c4ff; outline-offset: 3px; }
+.project-directory-link:hover { background: #e3e8ee; color: #174f8c; }
+.project-directory-link:focus-visible { outline: 2px solid #2563a6; outline-offset: 3px; }
 .sidebar-collapsed .project-directory-link {
   position: fixed;
   top: 12px;

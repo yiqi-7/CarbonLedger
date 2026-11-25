@@ -16,12 +16,14 @@ const props = defineProps({
   netEmission: { type: Number, default: 0 }
 })
 
+const emit = defineEmits(['edit-project'])
+const hasModelImage = computed(() => typeof props.projectInfo.modelImage === 'string' && !!props.projectInfo.modelImage)
 const stats = computed(() => [
-  { label: '建材生产碳排放', value: props.buildEmission, color: '#55add8' },
-  { label: '运输碳排放', value: props.transportEmission, color: '#62b6d2' },
-  { label: '施工碳排放', value: props.constructionEmission, color: '#f19b43' },
-  { label: '回收减碳量', value: props.recyclingEmission, color: '#67bd79' },
-  { label: '净碳排放', value: props.netEmission, color: '#f4b64e' }
+  { label: '净碳排放', value: props.netEmission },
+  { label: '建材生产碳排放', value: props.buildEmission },
+  { label: '运输碳排放', value: props.transportEmission },
+  { label: '施工碳排放', value: props.constructionEmission },
+  { label: '回收减碳量', value: props.recyclingEmission }
 ])
 
 function aggregate(items, labelFor, valueFor) {
@@ -85,10 +87,10 @@ const constructionPriceTotal = computed(() =>
   constructionPriceItems.value.reduce((total, item) => total + item.value, 0)
 )
 const lifecycleItems = computed(() => [
-  { label: '建材生产', value: props.buildEmission, color: '#f39821' },
-  { label: '运输', value: props.transportEmission, color: '#4b8bea' },
-  { label: '施工', value: props.constructionEmission, color: '#eea34b' },
-  { label: '回收', value: -props.recyclingEmission, color: '#53b06e' }
+  { label: '建材生产', value: props.buildEmission, color: '#2563a6' },
+  { label: '运输', value: props.transportEmission, color: '#5b83ad' },
+  { label: '施工', value: props.constructionEmission, color: '#8395a8' },
+  { label: '回收', value: -props.recyclingEmission, color: '#3e8069' }
 ])
 const lifecycleScale = computed(() => createChartScale(lifecycleItems.value.map(item => item.value), 28, 155))
 const recyclingCategories = computed(() =>
@@ -99,11 +101,11 @@ const recyclingTotal = computed(() =>
   recyclingCategories.value.reduce((total, item) => total + item.value, 0)
 )
 const recyclingGradient = computed(() => createPieGradient(recyclingCategories.value, item => item.value))
-const dashboardColors = ['#4d8fe9', '#69c4c7', '#63b36c', '#eba943', '#a777d2', '#8196ad']
+const dashboardColors = ['#2563a6', '#3e8069', '#7c91a7', '#6e9ab8', '#8aafa1', '#b2bdc9']
 
 function createPieGradient(items, valueFor) {
   const total = items.reduce((sum, item) => sum + Math.max(0, valueFor(item)), 0)
-  if (total <= 0) return 'conic-gradient(#243b58 0deg 360deg)'
+  if (total <= 0) return 'conic-gradient(#e8edf2 0deg 360deg)'
   let angle = 0
   const segments = items.map((item, index) => {
     const start = angle
@@ -150,25 +152,93 @@ function format(value, digits = 2) {
 </script>
 
 <template>
-  <div class="dashboard-home">
-    <header class="dashboard-title">碳建智算平台</header>
+  <div class="dashboard-home dashboard-workbench">
+    <header class="dashboard-heading">
+      <div><h1>项目概览</h1><p>{{ projectInfo.projectName || '未命名项目' }}</p></div>
+      <button class="dashboard-project-link" type="button" @click="emit('edit-project')">查看项目信息</button>
+    </header>
 
-    <section class="dashboard-top">
+    <section class="dashboard-top" aria-label="项目碳排放汇总">
       <article v-for="stat in stats" :key="stat.label" class="dashboard-stat">
         <span>{{ stat.label }}</span>
-        <strong :style="{ color: stat.color }">
-          {{ format(stat.value) }}<small> tCO₂e</small>
-        </strong>
+        <strong>{{ format(stat.value) }}<small> tCO₂e</small></strong>
       </article>
     </section>
 
-    <section class="dashboard-grid">
+    <section class="dashboard-overview-row" :class="{ 'has-model-image': hasModelImage }" aria-label="阶段总览">
+      <article class="dashboard-panel dashboard-lifecycle">
+        <header class="dashboard-panel-title"><h2>阶段碳排放</h2><span>回收减碳以负值计入 · tCO₂e</span></header>
+        <div class="dashboard-lifecycle-chart">
+
+          <svg viewBox="0 0 440 190" role="img" aria-label="建造阶段碳排放与回收减碳柱状图">
+            <g v-for="tick in lifecycleScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+              <line x1="42" x2="430" :y1="tick.y" :y2="tick.y" />
+              <text x="35" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
+            </g>
+            <line class="dashboard-zero-line" x1="42" x2="430" :y1="lifecycleScale.zeroY" :y2="lifecycleScale.zeroY" />
+            <g v-for="(item, index) in lifecycleItems" :key="item.label">
+              <rect :class="item.value < 0 ? 'dashboard-lifecycle-negative' : 'dashboard-lifecycle-bar'" :x="chartX(index, lifecycleItems.length, 95, 375) - 23" :y="lifecycleScale.bar(item.value).y" width="46" :height="lifecycleScale.bar(item.value).height" :fill="item.color" />
+              <text class="dashboard-value-label" :x="chartX(index, lifecycleItems.length, 95, 375)" :y="lifecycleScale.y(item.value) + (item.value < 0 ? 10 : -5)">{{ format(item.value, 1) }}</text>
+              <text class="dashboard-category-label" :x="chartX(index, lifecycleItems.length, 95, 375)" y="180">{{ item.label }}</text>
+            </g>
+          </svg>
+        </div>
+      </article>
+      <figure v-if="hasModelImage" class="dashboard-model">
+        <img :src="projectInfo.modelImage" :alt="`${projectInfo.projectName}项目图片`" />
+        <figcaption>项目模型<button class="dashboard-project-link" type="button" @click="emit('edit-project')">查看</button></figcaption>
+      </figure>
+    </section>
+    <button v-if="!hasModelImage" class="dashboard-image-link" type="button" @click="emit('edit-project')">可在项目信息中添加项目模型图片</button>
+
+    <section class="dashboard-detail-grid" aria-label="分阶段明细">
+      <article class="dashboard-panel dashboard-build">
+        <header class="dashboard-panel-title"><h2>建材生产</h2></header>
+        <div class="dashboard-build-charts">
+          <section class="dashboard-mini-chart">
+            <header><i class="dashboard-legend-emission"></i>碳排放量（tCO₂e）</header>
+            <svg viewBox="0 0 360 170" role="img" aria-label="建材碳排放柱状图">
+              <g v-for="tick in buildScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+                <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
+                <text x="29" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
+              </g>
+              <g v-for="(item, index) in buildVisibleItems" :key="item.label">
+                <rect class="dashboard-build-bar" :x="chartX(index, buildVisibleItems.length, 55, 335) - 18" :y="buildScale.y(item.value)" width="36" :height="142 - buildScale.y(item.value)" />
+                <text class="dashboard-value-label" :x="chartX(index, buildVisibleItems.length, 55, 335)" :y="buildScale.y(item.value) - 5">{{ format(item.value, 1) }}</text>
+                <text class="dashboard-category-label" :x="chartX(index, buildVisibleItems.length, 55, 335)" y="158">{{ item.label }}</text>
+              </g>
+              <text v-if="buildItems.length === 0" class="dashboard-empty-label" x="180" y="90">暂无建材数据</text>
+            </svg>
+          </section>
+          <section class="dashboard-mini-chart dashboard-line-chart">
+            <header><i class="dashboard-legend-market"></i>市场价（元） <i class="dashboard-legend-deal"></i>成交价（元）</header>
+            <svg viewBox="0 0 360 170" role="img" aria-label="建材市场价与成交价折线图">
+              <g v-for="tick in buildPriceScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+                <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
+              </g>
+              <template v-if="buildPriceItems.length">
+                <polyline class="dashboard-market-line" :points="linePoints(buildPriceItems, 'marketPrice', buildPriceScale)" />
+                <polyline class="dashboard-deal-line" :points="linePoints(buildPriceItems, 'dealPrice', buildPriceScale)" />
+                <g v-for="(item, index) in buildPriceItems" :key="`${item.label}-${index}`">
+                  <circle v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-point" :cx="chartX(index, buildPriceItems.length)" :cy="buildPriceScale.y(item.marketPrice)" r="3" />
+                  <text v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-label" :x="chartX(index, buildPriceItems.length)" :y="buildPriceScale.y(item.marketPrice) - 6">{{ formatPrice(item.marketPrice) }}</text>
+                  <circle class="dashboard-deal-point" :cx="chartX(index, buildPriceItems.length)" :cy="buildPriceScale.y(item.dealPrice)" r="3" />
+                  <text class="dashboard-deal-label" :x="chartX(index, buildPriceItems.length)" :y="buildPriceScale.y(item.dealPrice) + 12">{{ formatPrice(item.dealPrice) }}</text>
+                  <text class="dashboard-category-label" :x="chartX(index, buildPriceItems.length)" y="158">{{ item.label }}</text>
+                </g>
+              </template>
+              <text v-else class="dashboard-empty-label" x="180" y="90">暂无建材价格数据</text>
+            </svg>
+          </section>
+        </div>
+      </article>
+
       <article class="dashboard-panel dashboard-construction">
-        <header class="dashboard-panel-title"><i></i>施工碳排放</header>
+        <header class="dashboard-panel-title"><h2>施工</h2></header>
         <div class="dashboard-construction-charts">
           <section class="dashboard-mini-chart">
             <header><i class="dashboard-legend-emission"></i>碳排放量（tCO₂e）</header>
-            <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="施工机械碳排放柱状图">
+            <svg viewBox="0 0 360 170" role="img" aria-label="施工机械碳排放柱状图">
               <g v-for="tick in constructionScale.ticks" :key="tick.value" class="dashboard-grid-tick">
                 <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
                 <text x="29" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
@@ -198,61 +268,12 @@ function format(value, digits = 2) {
         </div>
       </article>
 
-      <article class="dashboard-panel dashboard-hero">
-        <div class="dashboard-image">
-          <img v-if="typeof projectInfo.modelImage === 'string' && projectInfo.modelImage" :src="projectInfo.modelImage" :alt="`${projectInfo.projectName}项目图片`" />
-          <div v-else class="dashboard-image-empty"><span>⌂</span><strong>{{ projectInfo.projectName || '项目信息' }}</strong><small>请在项目信息中导入项目图片</small></div>
-        </div>
-        <div class="dashboard-project-name">{{ projectInfo.projectName || '项目碳排放概览' }}</div>
-      </article>
-
-      <article class="dashboard-panel dashboard-build">
-        <header class="dashboard-panel-title"><i></i>建材生产碳排放</header>
-        <div class="dashboard-build-charts">
-          <section class="dashboard-mini-chart">
-            <header><i class="dashboard-legend-emission"></i>碳排放量（tCO₂e）</header>
-            <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="建材碳排放柱状图">
-              <g v-for="tick in buildScale.ticks" :key="tick.value" class="dashboard-grid-tick">
-                <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
-                <text x="29" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
-              </g>
-              <g v-for="(item, index) in buildVisibleItems" :key="item.label">
-                <rect class="dashboard-build-bar" :x="chartX(index, buildVisibleItems.length, 55, 335) - 18" :y="buildScale.y(item.value)" width="36" :height="142 - buildScale.y(item.value)" />
-                <text class="dashboard-value-label" :x="chartX(index, buildVisibleItems.length, 55, 335)" :y="buildScale.y(item.value) - 5">{{ format(item.value, 1) }}</text>
-                <text class="dashboard-category-label" :x="chartX(index, buildVisibleItems.length, 55, 335)" y="158">{{ item.label }}</text>
-              </g>
-              <text v-if="buildItems.length === 0" class="dashboard-empty-label" x="180" y="90">暂无建材数据</text>
-            </svg>
-          </section>
-          <section class="dashboard-mini-chart dashboard-line-chart">
-            <header><i class="dashboard-legend-market"></i>市场价（元） <i class="dashboard-legend-deal"></i>成交价（元）</header>
-            <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="建材市场价与成交价折线图">
-              <g v-for="tick in buildPriceScale.ticks" :key="tick.value" class="dashboard-grid-tick">
-                <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
-              </g>
-              <template v-if="buildPriceItems.length">
-                <polyline class="dashboard-market-line" :points="linePoints(buildPriceItems, 'marketPrice', buildPriceScale)" />
-                <polyline class="dashboard-deal-line" :points="linePoints(buildPriceItems, 'dealPrice', buildPriceScale)" />
-                <g v-for="(item, index) in buildPriceItems" :key="`${item.label}-${index}`">
-                  <circle v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-point" :cx="chartX(index, buildPriceItems.length)" :cy="buildPriceScale.y(item.marketPrice)" r="3" />
-                  <text v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-label" :x="chartX(index, buildPriceItems.length)" :y="buildPriceScale.y(item.marketPrice) - 6">{{ formatPrice(item.marketPrice) }}</text>
-                  <circle class="dashboard-deal-point" :cx="chartX(index, buildPriceItems.length)" :cy="buildPriceScale.y(item.dealPrice)" r="3" />
-                  <text class="dashboard-deal-label" :x="chartX(index, buildPriceItems.length)" :y="buildPriceScale.y(item.dealPrice) + 12">{{ formatPrice(item.dealPrice) }}</text>
-                  <text class="dashboard-category-label" :x="chartX(index, buildPriceItems.length)" y="158">{{ item.label }}</text>
-                </g>
-              </template>
-              <text v-else class="dashboard-empty-label" x="180" y="90">暂无建材价格数据</text>
-            </svg>
-          </section>
-        </div>
-      </article>
-
       <article class="dashboard-panel dashboard-transport">
-        <header class="dashboard-panel-title"><i></i>运输碳排放</header>
+        <header class="dashboard-panel-title"><h2>运输</h2></header>
         <div class="dashboard-transport-charts">
           <section class="dashboard-mini-chart">
             <header><i class="dashboard-legend-emission"></i>碳排放量（左轴 tCO₂e） <i class="dashboard-legend-deal"></i>运输总价（右轴 万元）</header>
-            <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="运输碳排放柱状图与运输总价折线图">
+            <svg viewBox="0 0 360 170" role="img" aria-label="运输碳排放柱状图与运输总价折线图">
               <g v-for="(tick, index) in transportScale.ticks" :key="tick.value" class="dashboard-grid-tick">
                 <line x1="36" x2="329" :y1="tick.y" :y2="tick.y" />
                 <text x="29" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
@@ -278,27 +299,8 @@ function format(value, digits = 2) {
         </div>
       </article>
 
-      <article class="dashboard-panel dashboard-lifecycle">
-        <header class="dashboard-panel-title"><i></i>项目碳排放总览</header>
-        <div class="dashboard-lifecycle-chart">
-          <div class="dashboard-lifecycle-total">净碳排放量 <strong>{{ format(netEmission, 1) }}</strong><small>tCO₂e</small></div>
-          <svg viewBox="0 0 440 190" preserveAspectRatio="none" role="img" aria-label="建造阶段碳排放与回收减碳柱状图">
-            <g v-for="tick in lifecycleScale.ticks" :key="tick.value" class="dashboard-grid-tick">
-              <line x1="42" x2="430" :y1="tick.y" :y2="tick.y" />
-              <text x="35" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
-            </g>
-            <line class="dashboard-zero-line" x1="42" x2="430" :y1="lifecycleScale.zeroY" :y2="lifecycleScale.zeroY" />
-            <g v-for="(item, index) in lifecycleItems" :key="item.label">
-              <rect :class="item.value < 0 ? 'dashboard-lifecycle-negative' : 'dashboard-lifecycle-bar'" :x="chartX(index, lifecycleItems.length, 95, 375) - 23" :y="lifecycleScale.bar(item.value).y" width="46" :height="lifecycleScale.bar(item.value).height" :fill="item.color" />
-              <text class="dashboard-value-label" :x="chartX(index, lifecycleItems.length, 95, 375)" :y="lifecycleScale.y(item.value) + (item.value < 0 ? 10 : -5)">{{ format(item.value, 1) }}</text>
-              <text class="dashboard-category-label" :x="chartX(index, lifecycleItems.length, 95, 375)" y="180">{{ item.label }}</text>
-            </g>
-          </svg>
-        </div>
-      </article>
-
       <article class="dashboard-panel dashboard-recycling">
-        <header class="dashboard-panel-title"><i></i>回收减碳量</header>
+        <header class="dashboard-panel-title"><h2>回收减碳</h2></header>
         <div class="dashboard-recycling-content">
           <div class="dashboard-donut" :style="{ backgroundImage: recyclingGradient }">
             <div><strong>{{ format(recyclingTotal) }}</strong><small>tCO₂e</small></div>
@@ -314,3 +316,97 @@ function format(value, digits = 2) {
     </section>
   </div>
 </template>
+
+<style scoped>
+.dashboard-workbench {
+  width: 100%;
+  max-width: 1360px;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 32px 32px 48px;
+  overflow: visible;
+  color: #18263a;
+  background: transparent;
+}
+.dashboard-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.dashboard-heading h1 { margin: 0; color: #18263a; font-size: 26px; line-height: 1.4; font-weight: 600; }
+.dashboard-heading p { margin: 7px 0 0; color: #5f6d7d; font-size: 14px; overflow-wrap: anywhere; }
+.dashboard-project-link, .dashboard-image-link { border: 0; padding: 4px 0; color: #2563a6; background: transparent; font: inherit; font-size: 13px; cursor: pointer; text-align: left; }
+.dashboard-project-link:hover, .dashboard-image-link:hover { text-decoration: underline; }
+.dashboard-project-link:focus-visible, .dashboard-image-link:focus-visible { outline: 2px solid #2563a6; outline-offset: 4px; }
+.dashboard-heading > .dashboard-project-link { flex-shrink: 0; margin-top: 6px; }
+.dashboard-workbench .dashboard-top { width: 100%; max-width: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 0 0 24px; padding: 20px 0; border: 1px solid #dce2e9; border-radius: 6px; background: #fff; }
+.dashboard-workbench .dashboard-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 20px; border: 0; border-radius: 0; background: transparent; box-shadow: none; text-align: left; }
+.dashboard-workbench .dashboard-stat + .dashboard-stat { border-left: 1px solid #dce2e9; }
+.dashboard-workbench .dashboard-stat > span { color: #5f6d7d; font-size: 13px; line-height: 1.5; white-space: normal; }
+.dashboard-workbench .dashboard-stat > strong { max-width: 100%; color: #18263a; font-size: 24px; line-height: 1.3; font-weight: 600; overflow-wrap: anywhere; }
+.dashboard-workbench .dashboard-stat:first-child > strong { color: #2563a6; }
+.dashboard-workbench .dashboard-stat small { color: #5f6d7d; font-size: 11px; font-weight: 400; white-space: nowrap; }
+.dashboard-overview-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.dashboard-overview-row.has-model-image { grid-template-columns: minmax(0, 1fr) 260px; }
+.dashboard-workbench .dashboard-panel { min-width: 0; min-height: 0; margin: 0; grid-column: auto; grid-row: auto; border: 1px solid #dce2e9; border-radius: 6px; background: #fff; box-shadow: none; overflow: hidden; }
+.dashboard-workbench .dashboard-panel-title { min-height: 53px; height: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #dce2e9; background: transparent; }
+.dashboard-panel-title h2 { margin: 0; color: #18263a; font-size: 15px; line-height: 1.4; font-weight: 600; }
+.dashboard-panel-title > span { color: #5f6d7d; font-size: 12px; line-height: 1.5; }
+.dashboard-workbench .dashboard-lifecycle-chart { height: auto; display: flex; padding: 8px 20px 14px; }
+.dashboard-workbench .dashboard-lifecycle-chart svg { flex: none; width: 100%; height: 240px; }
+.dashboard-model { min-width: 0; margin: 0; display: flex; flex-direction: column; border: 1px solid #dce2e9; border-radius: 6px; overflow: hidden; background: #fff; }
+.dashboard-model img { width: 100%; height: 252px; padding: 12px; object-fit: contain; background: #f5f6f8; }
+.dashboard-model figcaption { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; color: #5f6d7d; font-size: 13px; }
+.dashboard-image-link { margin: 10px 0 0; color: #5f6d7d; font-size: 12px; }
+.dashboard-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 24px; }
+.dashboard-workbench .dashboard-construction-charts, .dashboard-workbench .dashboard-build-charts { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; height: auto; }
+.dashboard-workbench .dashboard-transport-charts { display: block; height: auto; }
+.dashboard-workbench .dashboard-mini-chart { min-height: 0; height: auto; padding: 16px 18px; background: transparent; }
+.dashboard-workbench .dashboard-mini-chart + .dashboard-mini-chart { border-top: 1px solid #dce2e9; }
+.dashboard-workbench .dashboard-mini-chart > header { height: auto; min-height: 20px; justify-content: flex-start; gap: 6px; color: #5f6d7d; font-size: 12px; line-height: 1.5; flex-wrap: wrap; white-space: normal; }
+.dashboard-workbench .dashboard-mini-chart > svg { width: 100%; height: 210px; margin-top: 4px; }
+.dashboard-workbench .dashboard-pie-row { height: 214px; justify-content: flex-start; gap: 24px; padding: 12px 8px; }
+.dashboard-workbench .dashboard-pie, .dashboard-workbench .dashboard-donut { width: 150px; height: 150px; max-width: none; flex-shrink: 0; aspect-ratio: 1; }
+.dashboard-workbench .dashboard-pie > div, .dashboard-workbench .dashboard-donut > div { background: #fff; }
+.dashboard-workbench .dashboard-pie-legend, .dashboard-workbench .dashboard-recycling-legend { min-width: 0; flex: 1; gap: 9px; }
+.dashboard-workbench .dashboard-pie-legend > span, .dashboard-workbench .dashboard-recycling-legend > span { color: #5f6d7d; font-size: 12px; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 8px; overflow-wrap: anywhere; }
+.dashboard-workbench .dashboard-pie-legend b, .dashboard-workbench .dashboard-recycling-legend b { color: #18263a; font-size: 12px; font-weight: 500; }
+.dashboard-workbench .dashboard-pie-legend > small, .dashboard-workbench .dashboard-recycling-legend > small { color: #5f6d7d; font-size: 12px; line-height: 1.5; }
+.dashboard-workbench .dashboard-recycling-content { min-height: 266px; height: auto; justify-content: flex-start; gap: 24px; padding: 24px; }
+@media (max-width: 1000px) {
+  .dashboard-workbench { padding: 28px 24px 40px; }
+  .dashboard-workbench .dashboard-stat { padding-inline: 14px; }
+  .dashboard-workbench .dashboard-stat > strong { font-size: 21px; }
+  .dashboard-overview-row.has-model-image { grid-template-columns: minmax(0, 1fr) 220px; }
+  .dashboard-workbench .dashboard-pie-row, .dashboard-workbench .dashboard-recycling-content { gap: 16px; padding-inline: 12px; }
+  .dashboard-workbench .dashboard-pie, .dashboard-workbench .dashboard-donut { width: 120px; height: 120px; }
+}
+@media (max-width: 760px) {
+  .dashboard-workbench { padding: 24px 18px 36px; }
+  .dashboard-heading h1 { font-size: 23px; }
+  .dashboard-workbench .dashboard-top { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 20px; padding: 18px 0; }
+  .dashboard-workbench .dashboard-stat:first-child { grid-column: 1 / -1; padding-bottom: 18px; border-bottom: 1px solid #dce2e9; }
+  .dashboard-workbench .dashboard-stat:nth-child(even) { border-left: 0; }
+  .dashboard-workbench .dashboard-stat:last-child { grid-column: auto; }
+  .dashboard-overview-row.has-model-image, .dashboard-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-model { display: grid; grid-template-columns: 140px minmax(0, 1fr); align-items: center; }
+  .dashboard-model img { height: 100px; }
+  .dashboard-model figcaption { gap: 12px; }
+  .dashboard-workbench .dashboard-panel-title { flex-wrap: wrap; padding: 14px 16px; }
+  .dashboard-workbench .dashboard-lifecycle-chart { padding-inline: 8px; }
+  .dashboard-workbench .dashboard-lifecycle-chart { overflow-x: auto; }
+  .dashboard-workbench .dashboard-lifecycle-chart svg { min-width: 400px; height: 190px; }
+  .dashboard-workbench .dashboard-mini-chart { padding: 14px 12px; overflow-x: auto; }
+  .dashboard-workbench .dashboard-mini-chart > svg { min-width: 360px; height: 180px; }
+  .dashboard-workbench svg .dashboard-grid-tick text,
+  .dashboard-workbench svg .dashboard-value-label,
+  .dashboard-workbench svg .dashboard-category-label,
+  .dashboard-workbench svg .dashboard-market-label,
+  .dashboard-workbench svg .dashboard-deal-label { font-size: 11px; }
+  .dashboard-workbench svg .dashboard-empty-label { font-size: 12px; }
+  .dashboard-workbench .dashboard-pie, .dashboard-workbench .dashboard-donut { width: 140px; height: 140px; }
+}
+@media (max-width: 400px) {
+  .dashboard-workbench { padding-inline: 12px; }
+  .dashboard-heading { gap: 12px; }
+  .dashboard-heading > .dashboard-project-link { max-width: 80px; }
+  .dashboard-workbench .dashboard-pie, .dashboard-workbench .dashboard-donut { width: 110px; height: 110px; }
+  .dashboard-workbench .dashboard-pie-row, .dashboard-workbench .dashboard-recycling-content { gap: 12px; }
+}
+</style>

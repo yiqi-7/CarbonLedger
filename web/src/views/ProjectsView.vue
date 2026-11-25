@@ -17,18 +17,60 @@ async function remove(project: ProjectSummary) { if (removing.value !== null) re
 onMounted(load)
 </script>
 <template>
-  <div class="content-wrap projects-page"><div class="page-heading"><div><h1>我的项目</h1><p class="muted">管理项目基础信息、核算记录和历史版本</p></div><el-button type="primary" class="primary-button" @click="openCreate">＋ 新建项目</el-button></div><el-alert v-if="pageError" :title="pageError" type="error" show-icon :closable="false" class="project-load-error"><template #default><el-button link type="primary" @click="load">重试</el-button></template></el-alert>
-    <div v-loading="loading" class="project-grid"><article v-for="project in projects" :key="project.id" class="project-card" role="link" tabindex="0" :aria-label="`打开项目：${project.projectName}`" @keydown.enter.self.prevent="router.push(`/projects/${project.id}`)" @click="router.push(`/projects/${project.id}`)"><div class="project-card-top"><span class="project-status">核算中</span><el-dropdown @click.stop><el-button text class="more-button" :aria-label="`${project.projectName}的项目操作`">•••</el-button><template #dropdown><el-dropdown-menu><el-dropdown-item @click="router.push(`/projects/${project.id}/tools`)">因子配置</el-dropdown-item><el-dropdown-item @click="router.push(`/projects/${project.id}/tools?tab=versions`)">核算版本与报告</el-dropdown-item><el-dropdown-item @click="remove(project)">永久删除</el-dropdown-item></el-dropdown-menu></template></el-dropdown></div><h3>{{ project.projectName }}</h3><p class="project-location">{{ [project.province, project.cityDistrict].filter(Boolean).join(' · ') || '未填写项目地点' }}</p><div class="project-metrics"><div><strong>{{ Number(project.buildingArea || 0).toLocaleString() }}</strong><span>建筑面积 / ㎡</span></div><div><strong>{{ project.recordCounts?.buildMaterials || 0 }}</strong><span>建材记录</span></div><div><strong>v{{ project.latestVersion?.versionNumber || 0 }}</strong><span>最新版本</span></div></div><div class="project-card-foot"><span>最近更新 {{ new Date(project.updatedAt).toLocaleDateString() }}</span><span class="arrow">→</span></div></article><div v-if="!loading && !pageError && projects.length === 0" class="empty-state"><div class="empty-icon">+</div><h3>还没有项目</h3><p>创建第一个项目，开始记录碳排放数据。</p><el-button type="primary" @click="openCreate">新建项目</el-button></div></div>
-    <el-dialog v-model="dialog" title="新建项目" width="min(620px, calc(100% - 32px))" :close-on-click-modal="!saving" :close-on-press-escape="!saving" :show-close="!saving"><el-form id="create-project-form" label-position="top" :disabled="saving" @submit.prevent="create"><el-form-item label="项目名称" required><el-input v-model="form.projectName" placeholder="例如：中心大厦 A 座建设工程" /></el-form-item><div class="form-grid"><el-form-item label="建筑面积（㎡）" required><el-input-number v-model="form.buildingArea" :min="0.000001" :controls="false" class="full-width" /></el-form-item><el-form-item label="建筑类型"><el-select v-model="form.buildingType"><el-option label="商业综合体" value="商业综合体"/><el-option label="住宅" value="住宅"/><el-option label="公共建筑" value="公共建筑"/></el-select></el-form-item><el-form-item label="省份"><el-select v-model="form.province" filterable placeholder="选择省份" @change="syncDistrict"><el-option v-for="item in provinces" :key="item" :label="item" :value="item"/></el-select></el-form-item><el-form-item label="城市/区县"><el-select v-model="form.cityDistrict" filterable placeholder="先选择省份"><el-option v-for="item in cityOptions" :key="item" :label="item" :value="item"/></el-select></el-form-item><el-form-item label="结构类型"><el-input v-model="form.structureType" /></el-form-item><el-form-item label="楼层数"><el-input v-model="form.floorCount" /></el-form-item><el-form-item label="设计使用年限"><el-input v-model="form.designLife" /></el-form-item><el-form-item label="项目负责人"><el-input v-model="form.projectManager" /></el-form-item><el-form-item label="开工日期"><el-input v-model="form.startDate" type="date" /></el-form-item><el-form-item label="计划竣工日期"><el-input v-model="form.plannedCompletionDate" type="date" /></el-form-item></div><el-form-item label="项目地址"><el-input v-model="form.address" /></el-form-item><el-form-item label="核算标准"><el-input v-model="form.accountingStandard" /></el-form-item></el-form><template #footer><el-button :disabled="saving" @click="dialog = false">取消</el-button><el-button type="primary" :loading="saving" native-type="submit" form="create-project-form">创建项目</el-button></template></el-dialog>
+  <div class="content-wrap projects-page">
+    <div class="page-heading">
+      <div><h1>我的项目</h1><p class="muted">查看项目资料、核算记录和已保存的版本。</p></div>
+      <el-button type="primary" class="primary-button" @click="openCreate">新建项目</el-button>
+    </div>
+    <el-alert v-if="pageError" :title="pageError" type="error" show-icon :closable="false" class="project-load-error">
+      <template #default><el-button link type="primary" @click="load">重新加载</el-button></template>
+    </el-alert>
+    <div v-loading="loading" class="project-directory">
+      <el-table v-if="loading || projects.length" :data="projects" class="projects-table" empty-text="正在读取项目">
+        <el-table-column label="项目名称" min-width="250">
+          <template #default="scope">
+            <button class="project-name-link" :aria-label="'打开项目：' + scope.row.projectName" @click="router.push('/projects/' + scope.row.id)">{{ scope.row.projectName }}</button>
+            <p class="project-location">{{ [scope.row.province, scope.row.cityDistrict].filter(Boolean).join(' · ') || '未填写项目地点' }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="建筑面积（㎡）" min-width="145" align="right"><template #default="scope">{{ Number(scope.row.buildingArea || 0).toLocaleString() }}</template></el-table-column>
+        <el-table-column label="建材记录" width="100" align="right"><template #default="scope">{{ scope.row.recordCounts?.buildMaterials || 0 }} 条</template></el-table-column>
+        <el-table-column label="最新版本" width="110"><template #default="scope">{{ scope.row.latestVersion ? 'v' + scope.row.latestVersion.versionNumber : '无版本' }}</template></el-table-column>
+        <el-table-column label="更新日期" width="130"><template #default="scope">{{ new Date(scope.row.updatedAt).toLocaleDateString() }}</template></el-table-column>
+        <el-table-column label="操作" width="180">
+          <template #default="scope">
+            <div class="project-actions">
+              <el-button link type="primary" @click="router.push('/projects/' + scope.row.id)">打开项目</el-button>
+              <el-dropdown>
+                <el-button text class="more-button" :aria-label="scope.row.projectName + '的更多操作'">更多</el-button>
+                <template #dropdown><el-dropdown-menu>
+                  <el-dropdown-item @click="router.push('/projects/' + scope.row.id + '/tools')">因子配置</el-dropdown-item>
+                  <el-dropdown-item @click="router.push('/projects/' + scope.row.id + '/tools?tab=versions')">核算版本与报告</el-dropdown-item>
+                  <el-dropdown-item :disabled="removing !== null" divided @click="remove(scope.row)">删除项目</el-dropdown-item>
+                </el-dropdown-menu></template>
+              </el-dropdown>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div v-else-if="!pageError" class="empty-state">
+        <h3>暂无项目</h3><p>新建项目后，可以填写工程信息并录入核算数据。</p>
+        <el-button type="primary" @click="openCreate">新建项目</el-button>
+      </div>
+    </div>
+    <el-dialog v-model="dialog" title="新建项目" width="min(620px, calc(100% - 32px))" :close-on-click-modal="!saving" :close-on-press-escape="!saving" :show-close="!saving"><el-form id="create-project-form" label-position="top" :disabled="saving" @submit.prevent="create"><el-form-item label="项目名称" required><el-input v-model="form.projectName" placeholder="例如：中心大厦 A 座建设工程" /></el-form-item><div class="form-grid"><el-form-item label="建筑面积（㎡）" required><el-input-number v-model="form.buildingArea" :min="0" :controls="false" class="full-width" /></el-form-item><el-form-item label="建筑类型"><el-select v-model="form.buildingType" placeholder="选择建筑类型"><el-option label="商业综合体" value="商业综合体"/><el-option label="住宅" value="住宅"/><el-option label="公共建筑" value="公共建筑"/></el-select></el-form-item><el-form-item label="省份"><el-select v-model="form.province" filterable placeholder="选择省份" @change="syncDistrict"><el-option v-for="item in provinces" :key="item" :label="item" :value="item"/></el-select></el-form-item><el-form-item label="城市/区县"><el-select v-model="form.cityDistrict" filterable placeholder="先选择省份"><el-option v-for="item in cityOptions" :key="item" :label="item" :value="item"/></el-select></el-form-item><el-form-item label="结构类型"><el-input v-model="form.structureType" /></el-form-item><el-form-item label="楼层数"><el-input v-model="form.floorCount" /></el-form-item><el-form-item label="设计使用年限"><el-input v-model="form.designLife" /></el-form-item><el-form-item label="项目负责人"><el-input v-model="form.projectManager" /></el-form-item><el-form-item label="开工日期"><el-input v-model="form.startDate" type="date" /></el-form-item><el-form-item label="计划竣工日期"><el-input v-model="form.plannedCompletionDate" type="date" /></el-form-item></div><el-form-item label="项目地址"><el-input v-model="form.address" /></el-form-item><el-form-item label="核算标准"><el-input v-model="form.accountingStandard" /></el-form-item></el-form><template #footer><el-button :disabled="saving" @click="dialog = false">取消</el-button><el-button type="primary" :loading="saving" native-type="submit" form="create-project-form">创建项目</el-button></template></el-dialog>
   </div>
 </template>
 
 <style scoped>
 :global(body:has(.projects-page)) { min-width: 0; }
-.project-card { min-width: 0; }
-.project-card:focus-visible { outline: 3px solid #0e7772; outline-offset: 3px; }
-.project-card h3, .project-location, .project-metrics strong { overflow-wrap: anywhere; }
-.project-location { height: auto; min-height: 38px; }
-.project-metrics { grid-template-columns: 1.4fr 1fr 1fr; }
-.project-metrics > div { min-width: 0; }
+.project-directory { min-height: 200px; }
+.project-name-link { display: block; max-width: 100%; padding: 2px 0; border: 0; background: transparent; color: #2563a6; font-size: 14px; font-weight: 500; text-align: left; line-height: 1.6; overflow-wrap: anywhere; cursor: pointer; }
+.project-name-link:hover { text-decoration: underline; }
+.project-name-link:focus-visible { outline: 2px solid #2563a6; outline-offset: 3px; }
+.project-location { height: auto; margin: 4px 0 0; color: #5f6d7d; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.project-actions { display: flex; align-items: center; gap: 8px; }
+.projects-table :deep(.el-table__cell .cell) { padding-inline: 18px; }
+.empty-state { padding: 60px 24px; }
+.empty-state p { margin-bottom: 24px; }
 </style>

@@ -82,8 +82,8 @@ onUnmounted(() => { clearTimeout(loadTimer); window.removeEventListener('message
   <iframe ref="frame" :key="`${source}:${attempt}`" :src="source" :inert="loading || !!loadError || sessionExpired" :aria-hidden="loading || !!loadError || sessionExpired" class="customer-workspace" title="碳建智算项目工作区" />
   <section v-if="sessionExpired" class="workspace-state session-recovery" role="dialog" aria-modal="true" aria-labelledby="session-title">
     <form class="session-form" @submit.prevent="restoreSession">
-      <h1 id="session-title">登录已过期</h1>
-      <p>当前编辑内容已保留。重新登录后，请继续保存尚未提交的修改。</p>
+      <h1 id="session-title">请重新登录</h1>
+      <p>登录状态已失效。页面中的编辑内容仍在，重新登录后可继续保存，请勿刷新页面。</p>
       <label>账号<input :value="sessionUsername" autocomplete="username" readonly /></label>
       <label>密码<input ref="passwordInput" v-model="sessionPassword" type="password" autocomplete="current-password" required /></label>
       <p v-if="sessionError" role="alert">{{ sessionError }}</p>
@@ -112,7 +112,7 @@ onUnmounted(() => { clearTimeout(loadTimer); window.removeEventListener('message
   width: 100%;
   height: 100%;
   border: 0;
-  background: #061924;
+  background: #f5f6f8;
 }
 .workspace-state {
   position: fixed;
@@ -121,29 +121,34 @@ onUnmounted(() => { clearTimeout(loadTimer); window.removeEventListener('message
   display: grid;
   place-items: center;
   padding: 24px;
-  color: #edf9fc;
-  background: linear-gradient(145deg, #061924, #0c3441);
+  color: #18263a;
+  background: #f5f6f8;
   text-align: center;
 }
-.workspace-state h1 { font-size: 22px; }
-.workspace-state p { color: #b2cfd9; line-height: 1.6; }
+.workspace-state h1 { margin: 0 0 12px; font-size: 24px; font-weight: 600; }
+.workspace-state p { color: #5f6d7d; line-height: 1.7; }
+.workspace-state > div { width: min(100%, 460px); padding: 32px; border: 1px solid #dce2e9; border-radius: 12px; background: #fff; }
 .workspace-state-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 24px; }
 .workspace-state-actions a, .workspace-state-actions button {
   padding: 9px 16px;
-  border: 1px solid #5f8797;
-  border-radius: 12px;
-  background: #244550;
-  color: #edf9fc;
+  border: 1px solid #cbd3dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #2563a6;
   font: inherit;
   text-decoration: none;
   cursor: pointer;
 }
-.workspace-state-actions a:focus-visible, .workspace-state-actions button:focus-visible { outline: 2px solid #90c4ff; outline-offset: 3px; }
-.session-recovery { background: #061924eb; backdrop-filter: blur(16px); }
-.session-form { width: min(100%, 460px); padding: 28px; border: 1px solid #5f8797; border-radius: 24px; background: linear-gradient(145deg, #244550, #173743); }
+.workspace-state-actions button { background: #2563a6; border-color: #2563a6; color: #fff; }
+.workspace-state-actions a:hover { background: #f5f6f8; }
+.workspace-state-actions button:hover { background: #1e5087; }
+.workspace-state-actions a:focus-visible, .workspace-state-actions button:focus-visible { outline: 2px solid #2563a6; outline-offset: 3px; }
+.session-recovery { background: #f5f6f8; }
+.session-form { width: min(100%, 460px); padding: 32px; border: 1px solid #dce2e9; border-radius: 12px; background: #fff; }
 .session-form label { display: grid; gap: 7px; margin: 18px 0; text-align: left; }
-.session-form input { width: 100%; padding: 10px 12px; border: 1px solid #5f8797; border-radius: 10px; background: #122f3b; color: #edf9fc; font: inherit; }
-.session-form input:focus { outline: 2px solid #90c4ff; outline-offset: 1px; }
-.session-form [role="alert"] { color: #ffb7c4; }
+.session-form input { width: 100%; padding: 10px 12px; border: 1px solid #cbd3dd; border-radius: 8px; background: #fff; color: #18263a; font: inherit; }
+.session-form input[readonly] { background: #f5f6f8; color: #5f6d7d; }
+.session-form input:focus { outline: 2px solid #2563a6; outline-offset: 1px; }
+.session-form [role="alert"] { color: #a53333; }
 .session-form button:disabled { opacity: .6; cursor: wait; }
 </style>
