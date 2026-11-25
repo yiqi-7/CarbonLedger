@@ -120,6 +120,16 @@ export class RecordsService {
     })
     if (!existing) throw new NotFoundException('建材记录不存在')
 
+    const changeConfig = existing.isCustomMaterial && dto.factorConfigId != null
+    const config = changeConfig
+      ? await this.prisma.buildFactorConfig.findFirst({
+          where: { id: dto.factorConfigId, projectId },
+        })
+      : null
+    if (changeConfig && !config) throw new NotFoundException('建材因子配置不存在')
+    const emissionFactor = config?.emissionFactor ?? existing.emissionFactor
+    const recyclingFactor = config?.recyclingFactor ?? existing.recyclingFactor
+
     const quantity = dto.quantity == null ? existing.quantity : Number(dto.quantity)
     const unitPrice = dto.unitPrice == null ? existing.unitPrice : Number(dto.unitPrice)
     const marketPrice =
@@ -132,10 +142,17 @@ export class RecordsService {
     const updated = await this.prisma.buildMaterial.update({
       where: { id: materialId },
       data: {
+        materialName: config?.name ?? existing.materialName,
+        type: config?.category ?? existing.type,
+        unit: config?.materialUnit ?? existing.unit,
+        emissionFactor,
+        recyclingFactor,
+        recyclingCoefficient: config?.recyclingCoefficient ?? existing.recyclingCoefficient,
+        isParticipatingInRecyclingCalculation: recyclingFactor > 0,
         quantity,
         unitPrice,
         marketPrice,
-        emissionAmount: (quantity * existing.emissionFactor) / 1000,
+        emissionAmount: (quantity * emissionFactor) / 1000,
         totalPrice: (quantity * unitPrice) / 10000,
       },
     })
@@ -227,6 +244,19 @@ export class RecordsService {
     })
     if (!existing) throw new NotFoundException('运输记录不存在')
 
+    let vehicleName = existing.vehicleName
+    let energyType = existing.energyType
+    let emissionFactor = existing.emissionFactor
+    if (existing.isCustomMaterial && dto.factorConfigId != null) {
+      const config = await this.prisma.transportFactorConfig.findFirst({
+        where: { id: dto.factorConfigId, projectId },
+      })
+      if (!config) throw new NotFoundException('车辆配置不存在，请先在因子配置中添加运输方式')
+      vehicleName = config.vehicleName
+      energyType = config.energyType
+      emissionFactor = config.emissionFactor
+    }
+
     const quantity = dto.transportQuantity == null ? existing.transportQuantity : Number(dto.transportQuantity)
     const distance = dto.transportDistance == null ? existing.transportDistance : Number(dto.transportDistance)
     const unitPrice =
@@ -234,11 +264,14 @@ export class RecordsService {
     const updated = await this.prisma.transportRecord.update({
       where: { id: recordId },
       data: {
+        vehicleName,
+        energyType,
+        emissionFactor,
         transportedMaterial: dto.transportedMaterial ?? existing.transportedMaterial,
         transportQuantity: quantity,
         transportDistance: distance,
         transportUnitPrice: unitPrice,
-        emissionAmount: (distance * quantity * existing.emissionFactor) / 1000,
+        emissionAmount: (distance * quantity * emissionFactor) / 1000,
         transportTotalPrice: (distance * unitPrice) / 10000,
       },
     })

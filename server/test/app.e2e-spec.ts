@@ -17,6 +17,8 @@ describe('CarbonLedger API (e2e)', () => {
   let projectId: number
   let factorConfigId: number
   let transportFactorId: number
+  let transportRecordId: number
+  let configurableBuildId: number
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile()
@@ -254,6 +256,123 @@ describe('CarbonLedger API (e2e)', () => {
     if (withRecycling) expect(afterUpdate.body[0].recyclingQuantity).toBe(40)
   })
 
+  it('建材：自定义行换配置保留数量价格，联动创建、更新及移除回收记录', async () => {
+    const noRecyclingFactor = await server()
+      .post(`/api/projects/${projectId}/build-factors`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ name: '换配置初始材料', category: '混凝土', materialUnit: 'm³', emissionFactor: 100 })
+      .expect(201)
+    const recyclingFactor = await server()
+      .post(`/api/projects/${projectId}/build-factors`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ name: '换配置玻璃', category: '玻璃', materialUnit: 'm²', emissionFactor: 60, recyclingFactor: 50, recyclingCoefficient: 0.8 })
+      .expect(201)
+    const created = await server()
+      .post(`/api/projects/${projectId}/build-materials`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: noRecyclingFactor.body.id, quantity: 20, marketPrice: 30, unitPrice: 25 })
+      .expect(201)
+    configurableBuildId = created.body.id
+    const updated = await server()
+      .patch(`/api/projects/${projectId}/build-materials/${configurableBuildId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: recyclingFactor.body.id, emissionFactor: 999 })
+      .expect(200)
+    expect(updated.body).toMatchObject({
+      materialName: '换配置玻璃', type: '玻璃', unit: 'm²', emissionFactor: 60,
+      recyclingFactor: 50, recyclingCoefficient: 0.8, isParticipatingInRecyclingCalculation: true,
+      quantity: 20, marketPrice: 30, unitPrice: 25, isCustomMaterial: true,
+    })
+    expect(updated.body.emissionAmount).toBeCloseTo(1.2)
+    expect(updated.body.totalPrice).toBeCloseTo(0.05)
+    const recyclingList = await server()
+      .get(`/api/projects/${projectId}/recycling-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    const linked = recyclingList.body.find((item: { sourceBuildMaterialId: number }) => item.sourceBuildMaterialId === configurableBuildId)
+    expect(linked).toMatchObject({ materialName: '换配置玻璃', materialType: '玻璃', unit: 'm²', recyclingQuantity: 20, reductionAmount: 0.8 })
+    await server()
+      .patch(`/api/projects/${projectId}/recycling-records/${linked.id}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ recyclingQuantity: 12, recyclingUnitPrice: 5 })
+      .expect(200)
+
+    // 修改因子库不会偷偷改写已有记录；只有显式重选配置才带入新因子。
+    await server()
+      .patch(`/api/projects/${projectId}/build-factors/${recyclingFactor.body.id}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ name: '换配置金属', category: '金属', materialUnit: 'kg', emissionFactor: 90, recyclingFactor: 30, recyclingCoefficient: 0.5 })
+      .expect(200)
+    const quantityOnly = await server()
+      .patch(`/api/projects/${projectId}/build-materials/${configurableBuildId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ quantity: 10 })
+      .expect(200)
+    expect(quantityOnly.body).toMatchObject({ materialName: '换配置玻璃', emissionFactor: 60, recyclingFactor: 50, quantity: 10 })
+    expect(quantityOnly.body.emissionAmount).toBeCloseTo(0.6)
+    await server()
+      .patch(`/api/projects/${projectId}/build-materials/${configurableBuildId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: recyclingFactor.body.id })
+      .expect(200)
+    const synced = await server()
+      .get(`/api/projects/${projectId}/recycling-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    expect(synced.body.find((item: { id: number }) => item.id === linked.id)).toMatchObject({
+      materialName: '换配置金属', materialType: '金属', unit: 'kg', recyclingQuantity: 10,
+      recyclingFactor: 30, recyclingCoefficient: 0.5, recyclingUnitPrice: 5,
+      reductionAmount: 0.15, residualValue: 0.005,
+    })
+    const reset = await server()
+      .patch(`/api/projects/${projectId}/build-materials/${configurableBuildId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: noRecyclingFactor.body.id })
+      .expect(200)
+    expect(reset.body).toMatchObject({ recyclingFactor: 0, recyclingCoefficient: 0, isParticipatingInRecyclingCalculation: false })
+    const afterReset = await server()
+      .get(`/api/projects/${projectId}/recycling-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    expect(afterReset.body.some((item: { sourceBuildMaterialId: number }) => item.sourceBuildMaterialId === configurableBuildId)).toBe(false)
+  })
+
+  it('建材：导入行不可重选配置，修改数量价格保留原始因子', async () => {
+    const factor = await server()
+      .post(`/api/projects/${projectId}/build-factors`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ name: '导入保护建材', category: '金属', materialUnit: 't', emissionFactor: 100 })
+      .expect(201)
+    const workbook = new ExcelJS.Workbook()
+    const sheet = workbook.addWorksheet('材料清单')
+    sheet.addRow(['材料名称', '材料类别', '用量', '碳排放因子', '市场价', '成交价', '回收因子', '回收系数'])
+    sheet.addRow(['导入保护建材', '金属', 10, 7, 9, 5, 3, 0.5])
+    const bytes = Buffer.from((await workbook.xlsx.writeBuffer()) as ArrayBuffer)
+    const imported = await server()
+      .post(`/api/projects/${projectId}/imports/build-materials`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .attach('file', bytes, { filename: 'build.xlsx', contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      .expect(201)
+    expect(imported.body).toMatchObject({ imported: 1, skippedRows: 0 })
+    const records = await server()
+      .get(`/api/projects/${projectId}/build-materials`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    const record = records.body.find((item: { materialName: string }) => item.materialName === '导入保护建材')
+    const updated = await server()
+      .patch(`/api/projects/${projectId}/build-materials/${record.id}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: factor.body.id, quantity: 8, unitPrice: 6 })
+      .expect(200)
+    expect(updated.body).toMatchObject({
+      materialName: '导入保护建材', type: '金属', unit: 't', emissionFactor: 7,
+      recyclingFactor: 3, recyclingCoefficient: 0.5, quantity: 8, marketPrice: 9,
+      unitPrice: 6, isCustomMaterial: false,
+    })
+    expect(updated.body.emissionAmount).toBeCloseTo(0.056)
+    expect(updated.body.totalPrice).toBeCloseTo(0.0048)
+  })
+
   it('运输：必须使用已有车辆配置；缺配置时拒绝创建', async () => {
     await server()
       .post(`/api/projects/${projectId}/transport-records`)
@@ -280,6 +399,150 @@ describe('CarbonLedger API (e2e)', () => {
       .expect(201)
     // 排放 = 50 × 10 × 因子 ÷ 1000；总价 = 50 × 0.8 ÷ 10000（旧版式子）
     expect(record.body.transportTotalPrice).toBeCloseTo(0.004)
+    transportRecordId = record.body.id
+  })
+
+  it('运输：自定义行换车联动能源与因子，并用最新数量、运距和单价重算', async () => {
+    const factor = await server()
+      .post(`/api/projects/${projectId}/transport-factors`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ vehicleName: '回归测试汽油车', energyType: '汽油', emissionFactor: 0.42 })
+      .expect(201)
+    const updated = await server()
+      .patch(`/api/projects/${projectId}/transport-records/${transportRecordId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        factorConfigId: String(factor.body.id),
+        transportedMaterial: '水泥',
+        transportQuantity: 20,
+        transportDistance: 80,
+        transportUnitPrice: 2.5,
+        // 派生属性不可由客户端覆盖。
+        energyType: '柴油',
+        emissionFactor: 999,
+        emissionAmount: 999,
+        transportTotalPrice: 999,
+      })
+      .expect(200)
+    expect(updated.body).toMatchObject({
+      vehicleName: '回归测试汽油车', energyType: '汽油', emissionFactor: 0.42,
+      transportedMaterial: '水泥', transportQuantity: 20, transportDistance: 80,
+      transportUnitPrice: 2.5, isCustomMaterial: true,
+    })
+    expect(updated.body.emissionAmount).toBeCloseTo(0.672)
+    // 旧版总价不乘运输量。
+    expect(updated.body.transportTotalPrice).toBeCloseTo(0.02)
+
+    const quantityOnly = await server()
+      .patch(`/api/projects/${projectId}/transport-records/${transportRecordId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ transportQuantity: 30 })
+      .expect(200)
+    expect(quantityOnly.body).toMatchObject({
+      vehicleName: '回归测试汽油车', energyType: '汽油', emissionFactor: 0.42,
+      transportDistance: 80, transportUnitPrice: 2.5,
+    })
+    expect(quantityOnly.body.emissionAmount).toBeCloseTo(1.008)
+    expect(quantityOnly.body.transportTotalPrice).toBeCloseTo(0.02)
+  })
+
+  it('运输：Excel 导入行保留车辆和原始因子，仍可修改货物与数量价格', async () => {
+    const workbook = new ExcelJS.Workbook()
+    const sheet = workbook.addWorksheet('运输记录清单')
+    sheet.addRow(['车辆名称', '运输货物', '运输量', '运距', '能源类型', '碳排放因子', '运输单价（元）'])
+    sheet.addRow(['导入柴油车', '砂石', 10, 50, '柴油', 0.18, 2])
+    const bytes = Buffer.from((await workbook.xlsx.writeBuffer()) as ArrayBuffer)
+    const imported = await server()
+      .post(`/api/projects/${projectId}/imports/transport-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .attach('file', bytes, { filename: 'transport.xlsx', contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      .expect(201)
+    expect(imported.body).toMatchObject({ imported: 1, skippedRows: 0 })
+    const records = await server()
+      .get(`/api/projects/${projectId}/transport-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    const record = records.body.find((item: { vehicleName: string }) => item.vehicleName === '导入柴油车')
+    expect(record.isCustomMaterial).toBe(false)
+    const updated = await server()
+      .patch(`/api/projects/${projectId}/transport-records/${record.id}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: transportFactorId, transportedMaterial: '碎石', transportQuantity: 25, transportDistance: 60, transportUnitPrice: 3 })
+      .expect(200)
+    expect(updated.body).toMatchObject({
+      vehicleName: '导入柴油车', energyType: '柴油', emissionFactor: 0.18,
+      transportedMaterial: '碎石', transportQuantity: 25, transportDistance: 60,
+      transportUnitPrice: 3, isCustomMaterial: false,
+    })
+    expect(updated.body.emissionAmount).toBeCloseTo(0.27)
+    expect(updated.body.transportTotalPrice).toBeCloseTo(0.018)
+  })
+
+  it('建材与运输：拒绝无效或其他项目的配置，不能通过其他项目路径修改记录', async () => {
+    const otherProject = await server()
+      .post('/api/projects')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ projectName: '运输配置隔离测试', buildingArea: 100 })
+      .expect(201)
+    const otherFactors = await server()
+      .get(`/api/projects/${otherProject.body.id}/transport-factors`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    const before = await server()
+      .get(`/api/projects/${projectId}/transport-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    for (const factorConfigId of [999999, otherFactors.body[0].id]) {
+      await server()
+        .patch(`/api/projects/${projectId}/transport-records/${transportRecordId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ factorConfigId, transportQuantity: 999 })
+        .expect(404)
+    }
+    await server()
+      .patch(`/api/projects/${projectId}/transport-records/${transportRecordId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: 1.5 })
+      .expect(400)
+    await server()
+      .patch(`/api/projects/${otherProject.body.id}/transport-records/${transportRecordId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: otherFactors.body[0].id, transportQuantity: 999 })
+      .expect(404)
+    const after = await server()
+      .get(`/api/projects/${projectId}/transport-records`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    expect(after.body).toEqual(before.body)
+    const otherBuildFactors = await server()
+      .get(`/api/projects/${otherProject.body.id}/build-factors`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    const buildBefore = await server()
+      .get(`/api/projects/${projectId}/build-materials`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    for (const factorConfigId of [999999, otherBuildFactors.body[0].id]) {
+      await server()
+        .patch(`/api/projects/${projectId}/build-materials/${configurableBuildId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ factorConfigId, quantity: 999 })
+        .expect(404)
+    }
+    await server()
+      .patch(`/api/projects/${otherProject.body.id}/build-materials/${configurableBuildId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ factorConfigId: otherBuildFactors.body[0].id, quantity: 999 })
+      .expect(404)
+    const buildAfter = await server()
+      .get(`/api/projects/${projectId}/build-materials`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
+    expect(buildAfter.body).toEqual(buildBefore.body)
+    await server()
+      .delete(`/api/projects/${otherProject.body.id}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(200)
   })
 
   it('施工：台班数必须整数，排放按 kg 存储', async () => {
@@ -332,6 +595,50 @@ describe('CarbonLedger API (e2e)', () => {
       .send({ machineryName: '不应改名', energyType: '柴油', energyPerShift: 999, shiftCount: 3, shiftUnitPrice: 700 })
       .expect(200)
     expect(patchedImported.body).toMatchObject({ machineryName: '进口塔吊', energyType: '电力', energyPerShift: 80, emissionFactor: 0.581, shiftCount: 3, shiftUnitPrice: 700 })
+  })
+
+  it('运输货物、施工机械和自定义回收名称去除首尾空白，拒绝清空且保留原记录', async () => {
+    const cases = [
+      { kind: 'transport-records', field: 'transportedMaterial', name: '校验货物', data: { factorConfigId: transportFactorId, transportQuantity: 10, transportDistance: 20, transportUnitPrice: 2 } },
+      { kind: 'construction-records', field: 'machineryName', name: '校验机械', data: { energyType: '电力', shiftCount: 2, energyPerShift: 100, shiftUnitPrice: 500 } },
+      { kind: 'recycling-records', field: 'materialName', name: '校验回收材料', data: { materialType: '金属', recyclingQuantity: 10, recyclingFactor: 100, recyclingCoefficient: 0.5, recyclingUnitPrice: 10 } },
+    ]
+    for (const { kind, field, name, data } of cases) {
+      const url = `/api/projects/${projectId}/${kind}`
+      await server()
+        .post(url)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ ...data, [field]: ' \t\n　 ' })
+        .expect(400)
+      const created = await server()
+        .post(url)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ ...data, [field]: `  ${name}　` })
+        .expect(201)
+      expect(created.body[field]).toBe(name)
+      for (const blank of ['', ' \t\n　 ']) {
+        await server()
+          .patch(`${url}/${created.body.id}`)
+          .set('Authorization', `Bearer ${userToken}`)
+          .send({ [field]: blank })
+          .expect(400)
+      }
+      const records = await server()
+        .get(url)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200)
+      expect(records.body.find((record: { id: number }) => record.id === created.body.id)).toEqual(created.body)
+      const renamed = await server()
+        .patch(`${url}/${created.body.id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ [field]: `  ${name}更新　` })
+        .expect(200)
+      expect(renamed.body[field]).toBe(`${name}更新`)
+      await server()
+        .delete(`${url}/${created.body.id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200)
+    }
   })
 
   it('分析接口返回旧版口径汇总', async () => {
@@ -477,6 +784,11 @@ describe('CarbonLedger API (e2e)', () => {
     await server()
       .get(`/api/projects/${projectId}/analysis`)
       .set('Authorization', `Bearer ${otherToken}`)
+      .expect(403)
+    await server()
+      .patch(`/api/projects/${projectId}/transport-records/${transportRecordId}`)
+      .set('Authorization', `Bearer ${otherToken}`)
+      .send({ factorConfigId: transportFactorId, transportQuantity: 999 })
       .expect(403)
 
     // 管理员也不能浏览他人项目内容

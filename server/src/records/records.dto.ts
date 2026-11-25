@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import {
   IsIn,
   IsInt,
@@ -48,6 +48,12 @@ export class CreateBuildMaterialDto {
 }
 
 export class UpdateBuildMaterialDto {
+  /** 旧版：自定义行可重选建材配置，并联动类别、单位与核算因子 */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  factorConfigId?: number
+
   @IsOptional()
   @Type(() => Number)
   @IsNumber({}, { message: '用量必须是数字' })
@@ -75,7 +81,8 @@ export class CreateTransportRecordDto {
   @IsInt()
   factorConfigId!: number
 
-  @IsString() @IsNotEmpty() @MaxLength(120) transportedMaterial!: string
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @IsString() @IsNotEmpty({ message: '运输货物不能为空' }) @MaxLength(120) transportedMaterial!: string
   @IsOptional() @IsString() @MaxLength(50) source?: string
 
   @Type(() => Number)
@@ -92,7 +99,14 @@ export class CreateTransportRecordDto {
 }
 
 export class UpdateTransportRecordDto {
-  @IsOptional() @IsString() @MaxLength(120) transportedMaterial?: string
+  /** 旧版：自定义行可改选车辆，能源类型与碳排因子随之联动 */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  factorConfigId?: number
+
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @IsOptional() @IsString() @IsNotEmpty({ message: '运输货物不能为空' }) @MaxLength(120) transportedMaterial?: string
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0.000001) transportQuantity?: number
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0.000001) transportDistance?: number
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0) transportUnitPrice?: number
@@ -101,7 +115,8 @@ export class UpdateTransportRecordDto {
 // ---------- 施工 ----------
 
 export class CreateConstructionRecordDto {
-  @IsString() @IsNotEmpty() @MaxLength(120) machineryName!: string
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @IsString() @IsNotEmpty({ message: '机械名称不能为空' }) @MaxLength(120) machineryName!: string
   @IsIn(CONSTRUCTION_ENERGY, { message: '能源类型仅支持 电力 / 柴油 / 汽油' })
   energyType!: (typeof CONSTRUCTION_ENERGY)[number]
 
@@ -125,7 +140,8 @@ export class CreateConstructionRecordDto {
 }
 
 export class UpdateConstructionRecordDto {
-  @IsOptional() @IsString() @MaxLength(120) machineryName?: string
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @IsOptional() @IsString() @IsNotEmpty({ message: '机械名称不能为空' }) @MaxLength(120) machineryName?: string
   @IsOptional()
   @IsIn(CONSTRUCTION_ENERGY, { message: '能源类型仅支持 电力 / 柴油 / 汽油' })
   energyType?: (typeof CONSTRUCTION_ENERGY)[number]
@@ -137,7 +153,8 @@ export class UpdateConstructionRecordDto {
 // ---------- 回收 ----------
 
 export class CreateRecyclingRecordDto {
-  @IsString() @IsNotEmpty() @MaxLength(120) materialName!: string
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @IsString() @IsNotEmpty({ message: '回收材料名称不能为空' }) @MaxLength(120) materialName!: string
   @IsIn(RECYCLING_CATEGORIES, { message: '回收类别仅支持 金属 / 保温材料 / 玻璃 / 其他' })
   materialType!: (typeof RECYCLING_CATEGORIES)[number]
 
@@ -156,7 +173,8 @@ export class CreateRecyclingRecordDto {
 }
 
 export class UpdateRecyclingRecordDto {
-  @IsOptional() @IsString() @MaxLength(120) materialName?: string
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @IsOptional() @IsString() @IsNotEmpty({ message: '回收材料名称不能为空' }) @MaxLength(120) materialName?: string
   @IsOptional() @IsIn(RECYCLING_CATEGORIES) materialType?: (typeof RECYCLING_CATEGORIES)[number]
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0.000001) recyclingQuantity?: number
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0) recyclingFactor?: number

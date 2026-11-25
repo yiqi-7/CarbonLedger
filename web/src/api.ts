@@ -54,20 +54,24 @@ export type ProjectSummary = {
 export type Project = ProjectSummary & Record<string, unknown>
 
 export type BuildMaterial = {
+  isCustomMaterial: boolean
   id: number; materialName: string; type: string; quantity: number; unit: string
   emissionFactor: number; marketPrice: number | null; unitPrice: number; emissionAmount: number; totalPrice: number
   recyclingFactor: number; recyclingCoefficient: number
 }
 export type TransportRecord = {
+  isCustomMaterial: boolean
   id: number; vehicleName: string; transportedMaterial: string; transportQuantity: number
   transportDistance: number; energyType: string; emissionFactor: number; transportUnitPrice: number
   emissionAmount: number; transportTotalPrice: number
 }
 export type ConstructionRecord = {
+  isCustomMaterial: boolean; energyUnit: string
   id: number; machineryName: string; shiftCount: number; energyType: string; energyPerShift: number
   emissionFactor: number; shiftUnitPrice: number; totalEnergy: number; emissionAmount: number; totalPrice: number
 }
 export type RecyclingRecord = {
+  unit: string; recyclingUnitPrice: number
   id: number; materialName: string; materialType: string; recyclingQuantity: number
   recyclingFactor: number; recyclingCoefficient: number; reductionAmount: number; residualValue: number
   sourceBuildMaterialId: number | null; isCustomMaterial: boolean
