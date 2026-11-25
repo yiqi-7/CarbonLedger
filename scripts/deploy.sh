@@ -8,20 +8,33 @@ BRANCH="${BRANCH:-main}"
 
 cd "$APP_DIR"
 
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "错误：工作树存在未提交改动；为避免覆盖服务器数据或运维修复，停止部署。" >&2
+  exit 1
+fi
+
 echo "==> 1/7 拉取代码 ($BRANCH)"
 git fetch --all --prune
+if ! git show-ref --verify --quiet "refs/remotes/origin/$BRANCH"; then
+  echo "错误：远端分支 origin/$BRANCH 不存在。" >&2
+  exit 1
+fi
+PREVIOUS_COMMIT="$(git rev-parse HEAD)"
+NEXT_COMMIT="$(git rev-parse "origin/$BRANCH")"
+echo "    当前版本：$PREVIOUS_COMMIT"
+echo "    目标版本：$NEXT_COMMIT"
 git reset --hard "origin/$BRANCH"
 
 echo "==> 2/7 安装依赖"
 npm ci
 
-echo "==> 3/7 切换 Prisma provider 为 postgresql"
-SCHEMA="server/prisma/schema.prisma"
+echo "==> 3/7 准备生产 Prisma schema"
+SCHEMA="server/prisma/schema.production.prisma"
+trap 'rm -f -- "$SCHEMA"' EXIT
+sed 's/provider = "sqlite"/provider = "postgresql"/' server/prisma/schema.prisma > "$SCHEMA"
 if grep -q 'provider = "sqlite"' "$SCHEMA"; then
-  sed -i 's/provider = "sqlite"/provider = "postgresql"/' "$SCHEMA"
-  echo "    已切换为 postgresql"
-else
-  echo "    已是 postgresql，跳过"
+  echo "错误：无法将 Prisma provider 切换为 postgresql。" >&2
+  exit 1
 fi
 
 echo "==> 4/7 生成 Prisma Client"

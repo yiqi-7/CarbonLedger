@@ -63,15 +63,14 @@ sudo -u postgres createuser --pwprompt carbonledger
 sudo -u postgres createdb -O carbonledger carbonledger
 ```
 
-5. 日常发布使用一键脚本，它会自动把 Prisma provider 切换为 `postgresql`、同步结构、构建并重启服务：
+5. 日常发布使用一键脚本。脚本会先拒绝存在未提交改动的工作树，再记录当前/目标 commit，生成临时 PostgreSQL Prisma schema（退出时删除），同步结构、构建并重启服务；仓库中的 SQLite schema 不会被改写：
 
 ```bash
 cd /opt/carbon-ledger
 bash scripts/deploy.sh
 ```
 
-> 注意：脚本会在服务器上把 `server/prisma/schema.prisma` 的 provider 改为 `postgresql`。
-> 这是本地与线上共用一个 schema 文件的已知取舍，改动只发生在服务器的检出副本中。
+> 注意：脚本从跟踪的 SQLite schema 生成临时 `server/prisma/schema.production.prisma`，仅用于 Prisma 生成与数据库同步，脚本退出时删除；跟踪文件不会被改写。
 
 API 默认关闭 CORS；本部署通过 Nginx 同源提供前端与 `/api`，无需额外跨域配置。若独立前端域名确有需要，在 `.env` 中将 `CORS_ORIGINS` 设为逗号分隔的精确来源（含协议和端口），不要使用 `*`；认证使用 Bearer token，不依赖跨站 Cookie。
 
