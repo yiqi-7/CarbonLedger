@@ -112,7 +112,7 @@ onUnmounted(() => { clearTimeout(loadTimer); window.removeEventListener('message
   width: 100%;
   height: 100%;
   border: 0;
-  background: #f5f6f8;
+  background: var(--platform-canvas);
 }
 .workspace-state {
   position: fixed;
@@ -121,34 +121,35 @@ onUnmounted(() => { clearTimeout(loadTimer); window.removeEventListener('message
   display: grid;
   place-items: center;
   padding: 24px;
-  color: #18263a;
-  background: #f5f6f8;
+  color: var(--platform-ink);
+  background: var(--platform-canvas);
   text-align: center;
 }
-.workspace-state h1 { margin: 0 0 12px; font-size: 24px; font-weight: 600; }
-.workspace-state p { color: #5f6d7d; line-height: 1.7; }
-.workspace-state > div { width: min(100%, 460px); padding: 32px; border: 1px solid #dce2e9; border-radius: 12px; background: #fff; }
+.workspace-state h1 { margin: 0 0 12px; font-size: 28px; font-weight: 700; }
+.workspace-state p { color: var(--platform-muted); font-size: 15px; line-height: 1.7; }
+.workspace-state > div { width: min(100%, 480px); padding: 32px; border: 1px solid var(--platform-line); border-radius: 12px; background: #fff; }
 .workspace-state-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 24px; }
 .workspace-state-actions a, .workspace-state-actions button {
-  padding: 9px 16px;
-  border: 1px solid #cbd3dd;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #c5d2e1;
   border-radius: 8px;
   background: #fff;
-  color: #2563a6;
+  color: var(--el-color-primary);
   font: inherit;
   text-decoration: none;
   cursor: pointer;
 }
-.workspace-state-actions button { background: #2563a6; border-color: #2563a6; color: #fff; }
-.workspace-state-actions a:hover { background: #f5f6f8; }
+.workspace-state-actions button { background: var(--el-color-primary); border-color: var(--el-color-primary); color: #fff; }
+.workspace-state-actions a:hover { background: var(--platform-tint); }
 .workspace-state-actions button:hover { background: #1e5087; }
-.workspace-state-actions a:focus-visible, .workspace-state-actions button:focus-visible { outline: 2px solid #2563a6; outline-offset: 3px; }
-.session-recovery { background: #f5f6f8; }
-.session-form { width: min(100%, 460px); padding: 32px; border: 1px solid #dce2e9; border-radius: 12px; background: #fff; }
-.session-form label { display: grid; gap: 7px; margin: 18px 0; text-align: left; }
-.session-form input { width: 100%; padding: 10px 12px; border: 1px solid #cbd3dd; border-radius: 8px; background: #fff; color: #18263a; font: inherit; }
-.session-form input[readonly] { background: #f5f6f8; color: #5f6d7d; }
-.session-form input:focus { outline: 2px solid #2563a6; outline-offset: 1px; }
+.workspace-state-actions a:focus-visible, .workspace-state-actions button:focus-visible { outline: 2px solid var(--el-color-primary); outline-offset: 3px; }
+.session-recovery { background: var(--platform-canvas); }
+.session-form { width: min(100%, 480px); padding: 32px; border: 1px solid var(--platform-line); border-radius: 12px; background: #fff; }
+.session-form label { display: grid; gap: 9px; margin: 22px 0; text-align: left; }
+.session-form input { width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid #c5d2e1; border-radius: 8px; background: #fff; color: var(--platform-ink); font: inherit; }
+.session-form input[readonly] { background: var(--platform-canvas); color: var(--platform-muted); }
+.session-form input:focus { outline: 2px solid var(--el-color-primary); outline-offset: 1px; }
 .session-form [role="alert"] { color: #a53333; }
 .session-form button:disabled { opacity: .6; cursor: wait; }
 </style>

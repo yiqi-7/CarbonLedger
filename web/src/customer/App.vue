@@ -1,5 +1,6 @@
 <script setup>
-import { computed, markRaw, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
 import { api, apiMessage, downloadApiFile } from '@/api'
 import { createProjectPersistence } from './apiPersistence.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
@@ -433,6 +434,8 @@ async function navigateToPage(page) {
 
   document.activeElement?.blur?.()
   activePage.value = page
+  await nextTick()
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
 }
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
@@ -1251,73 +1254,73 @@ onBeforeUnmount(() => {
 
     <main class="main-content" :class="{ 'main-content-expanded': sidebarCollapsed }">
       <header v-if="activePage === '项目信息'" class="top-header">
-        <div class="breadcrumb"><span>{{ ProjectInfo.projectName || '当前项目' }}</span><b>›</b><strong>项目信息</strong></div>
+        <div class="breadcrumb"><span>{{ ProjectInfo.projectName || '当前项目' }}</span><ArrowRight class="action-icon" aria-hidden="true" /><strong>项目信息</strong></div>
         <div class="header-actions">
           <button v-if="activePage === '项目信息'" class="button button-primary" type="submit" form="project-form" :disabled="navigationLocked">
-            <span aria-hidden="true">✓</span> 保存项目信息
+            <Check class="action-icon" aria-hidden="true" /> 保存项目信息
           </button>
         </div>
       </header>
 
       <header v-else-if="activePage === '建材碳排放'" class="top-header material-header">
         <div class="material-page-title">
-          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
+          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
           <div><h1>建材碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-outline" type="button" @click="materialFileInput?.click()"><span aria-hidden="true">⇧</span> 导入清单</button>
-          <button class="button button-outline" type="button" @click="exportMaterials"><span aria-hidden="true">⇩</span> 导出清单</button>
-          <button class="button button-primary" type="button" @click="addMaterial"><span aria-hidden="true">＋</span> 新增建材</button>
+          <button class="button button-outline" type="button" @click="materialFileInput?.click()"><Upload class="action-icon" aria-hidden="true" /> 导入清单</button>
+          <button class="button button-outline" type="button" @click="exportMaterials"><Download class="action-icon" aria-hidden="true" /> 导出清单</button>
+          <button class="button button-primary" type="button" @click="addMaterial"><Plus class="action-icon" aria-hidden="true" /> 新增建材</button>
           <input ref="materialFileInput" class="visually-hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" @change="importMaterials" />
         </div>
       </header>
 
       <header v-else-if="activePage === '运输碳排放'" class="top-header material-header transport-header">
         <div class="material-page-title">
-          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
+          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
           <div><h1>运输碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-outline" type="button" @click="transportFileInput?.click()"><span aria-hidden="true">⇧</span> 导入清单</button>
-          <button class="button button-outline" type="button" @click="exportTransportMaterials"><span aria-hidden="true">⇩</span> 导出清单</button>
-          <button class="button button-primary" type="button" @click="addTransportMaterial"><span aria-hidden="true">＋</span> 新增运输记录</button>
+          <button class="button button-outline" type="button" @click="transportFileInput?.click()"><Upload class="action-icon" aria-hidden="true" /> 导入清单</button>
+          <button class="button button-outline" type="button" @click="exportTransportMaterials"><Download class="action-icon" aria-hidden="true" /> 导出清单</button>
+          <button class="button button-primary" type="button" @click="addTransportMaterial"><Plus class="action-icon" aria-hidden="true" /> 新增运输记录</button>
           <input ref="transportFileInput" class="visually-hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" @change="importTransportMaterials" />
         </div>
       </header>
 
       <header v-else-if="activePage === '回收碳计算'" class="top-header material-header">
         <div class="material-page-title">
-          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
+          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
           <div><h1>回收减碳</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
       </header>
 
       <header v-else-if="activePage === '施工碳排放'" class="top-header material-header construction-header">
         <div class="material-page-title">
-          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
+          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
           <div><h1>施工碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-outline" type="button" @click="constructionFileInput?.click()"><span aria-hidden="true">⇧</span> 导入清单</button>
-          <button class="button button-outline" type="button" @click="exportConstructionMaterials"><span aria-hidden="true">⇩</span> 导出清单</button>
-          <button class="button button-primary" type="button" @click="addConstructionMaterial"><span aria-hidden="true">＋</span> 新增工程台班</button>
+          <button class="button button-outline" type="button" @click="constructionFileInput?.click()"><Upload class="action-icon" aria-hidden="true" /> 导入清单</button>
+          <button class="button button-outline" type="button" @click="exportConstructionMaterials"><Download class="action-icon" aria-hidden="true" /> 导出清单</button>
+          <button class="button button-primary" type="button" @click="addConstructionMaterial"><Plus class="action-icon" aria-hidden="true" /> 新增工程台班</button>
           <input ref="constructionFileInput" class="visually-hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" @change="importConstructionMaterials" />
         </div>
       </header>
 
       <header v-else-if="activePage === '碳排放分析'" class="top-header material-header analysis-header">
         <div class="material-page-title">
-          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
+          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
           <div><h1>排放分析</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-primary" type="button" :disabled="navigationLocked" @click="exportProjectReport"><span aria-hidden="true">⇩</span> 导出报告</button>
+          <button class="button button-primary" type="button" :disabled="navigationLocked" @click="exportProjectReport"><Download class="action-icon" aria-hidden="true" /> 导出报告</button>
         </div>
       </header>
 
       <header v-else-if="activePage === '成本分析'" class="top-header material-header cost-analysis-header">
         <div class="material-page-title">
-          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
+          <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
           <div><h1>成本分析</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
       </header>
@@ -1395,7 +1398,7 @@ onBeforeUnmount(() => {
                 <p>用于项目概览，可选。</p>
                 <label class="upload-zone">
                   <input type="file" accept="image/png,image/jpeg,image/webp" @change="handleFileChange" />
-                  <span class="upload-icon">⇧</span>
+                  <Upload class="upload-icon" aria-hidden="true" />
                   <strong>{{ draft.modelImageName || '点击选择项目图片' }}</strong>
                   <small>支持 JPG、PNG、WebP，单张不超过 10MB</small>
                 </label>
@@ -1438,7 +1441,7 @@ onBeforeUnmount(() => {
 
         <template v-else-if="activePage === '运输碳排放'">
           <section class="material-stats transport-stats">
-            <article class="material-stat-card"><span>运输碳排放</span><strong>{{ formatNumber(transportCarbonInfo.totalEmission, 1) }}<small> tCO₂e</small></strong></article>
+            <article class="material-stat-card"><span>运输碳排放</span><strong class="emission-stat">{{ formatNumber(transportCarbonInfo.totalEmission, 1) }}<small> tCO₂e</small></strong></article>
           </section>
 
           <section class="construction-energy-card transport-energy-card">
@@ -1465,7 +1468,7 @@ onBeforeUnmount(() => {
 
           <section class="material-toolbar transport-toolbar">
             <label class="material-search">
-              <span aria-hidden="true">⌕</span>
+              <Search class="action-icon" aria-hidden="true" />
               <input v-model="transportSearch" type="search" placeholder="搜索车辆编号、运输货物..." />
             </label>
             <div class="material-filters" aria-label="按能源类型筛选">
@@ -1560,7 +1563,7 @@ onBeforeUnmount(() => {
           <section class="construction-energy-card">
             <header class="construction-energy-heading">
               <h2>碳排放构成（按能源）</h2>
-              <span>ⓘ　能源碳排放因子：电力 0.581 kg/kWh · 柴油 2.632 kg/kg · 汽油 2.340 kg/kg</span>
+              <span>能源碳排放因子：电力 0.581 kg/kWh · 柴油 2.632 kg/kg · 汽油 2.340 kg/kg</span>
             </header>
             <div class="construction-energy-bar" role="img" :aria-label="`电力 ${formatNumber(constructionCarbonInfo.energyTotals['电力'].share, 1)}%，柴油 ${formatNumber(constructionCarbonInfo.energyTotals['柴油'].share, 1)}%，汽油 ${formatNumber(constructionCarbonInfo.energyTotals['汽油'].share, 1)}%`">
               <span
@@ -1584,7 +1587,7 @@ onBeforeUnmount(() => {
 
           <section class="material-toolbar construction-toolbar">
             <label class="material-search">
-              <span aria-hidden="true">⌕</span>
+              <Search class="action-icon" aria-hidden="true" />
               <input v-model="constructionSearch" type="search" placeholder="搜索机械名称..." />
             </label>
             <div class="material-filters" aria-label="按能源类型筛选">
@@ -1662,7 +1665,7 @@ onBeforeUnmount(() => {
 
           <section class="material-toolbar recycling-toolbar">
             <label class="material-search">
-              <span aria-hidden="true">⌕</span>
+              <Search class="action-icon" aria-hidden="true" />
               <input v-model="recyclingSearch" type="search" placeholder="搜索回收材料名称..." />
             </label>
             <div class="material-filters" aria-label="按回收材料类别筛选">
@@ -1780,14 +1783,14 @@ onBeforeUnmount(() => {
         <template v-else-if="activePage === '建材碳排放'">
           <section class="material-stats">
             <article class="material-stat-card"><span>材料条目</span><strong>{{ materialList.count }}<small> 条</small></strong></article>
-            <article class="material-stat-card"><span>碳排放总量</span><strong>{{ formatNumber(buildCarbonInfo.totalEmission, 3) }}<small> tCO₂e</small></strong></article>
+            <article class="material-stat-card"><span>碳排放总量</span><strong class="emission-stat">{{ formatNumber(buildCarbonInfo.totalEmission, 3) }}<small> tCO₂e</small></strong></article>
             <article class="material-stat-card"><span>建材总成本</span><strong>{{ formatNumber(buildCarbonInfo.totalMaterialCost, 4) }}<small> 万元</small></strong></article>
             <article class="material-stat-card"><span>单位面积碳排</span><strong>{{ formatNumber(buildCarbonInfo.emissionPerArea, 1) }}<small> kg/m²</small></strong></article>
           </section>
 
           <section class="material-toolbar">
             <label class="material-search">
-              <span aria-hidden="true">⌕</span>
+              <Search class="action-icon" aria-hidden="true" />
               <input v-model="materialSearch" type="search" placeholder="搜索建材名称（完整名称匹配）..." />
             </label>
             <a class="guidance-price-link" href="https://www.zjzj.net/" target="_blank" rel="noopener noreferrer">指导价格</a>
@@ -1967,11 +1970,9 @@ onBeforeUnmount(() => {
         <template v-else-if="activePage === '碳排放分析'">
           <div class="analysis-summary-grid">
             <section class="analysis-metric-card">
-              <div class="analysis-metric-icon">⌂</div>
               <div><span>单位建筑面积净碳排放</span><strong>{{ formatNumber(analysisUnitAreaEmission, 2) }} <small>kgCO₂e/m²</small></strong></div>
             </section>
             <section class="analysis-metric-card net-emission-card">
-              <div class="analysis-metric-icon">↗</div>
               <div><span>净碳排放</span><strong>{{ formatNumber(analysisNetEmission, 3) }} <small>tCO₂e</small></strong></div>
             </section>
           </div>
