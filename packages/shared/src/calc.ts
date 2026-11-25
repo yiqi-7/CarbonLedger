@@ -294,7 +294,7 @@ export function computeCostAnalysis(
           shareOfBuildCost: buildCost > 0 ? (topBuild.totalPrice / buildCost) * 100 : 0,
         }
       : null,
-    unitAreaCost: buildingArea > 0 ? totalCost / buildingArea : 0,
+    unitAreaBuildCost: buildingArea > 0 ? buildCost / buildingArea : 0,
     unitCostEmission: totalCost > 0 ? netEmission / totalCost : 0,
     buildDetails: materials
       .map(material => ({

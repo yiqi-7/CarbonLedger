@@ -91,7 +91,7 @@ export class ReportsService {
       F10: snapshot.summary.emission.unitAreaNetEmission,
       G10: snapshot.summary.cost.totalCost,
       H10: snapshot.summary.cost.unitCostEmission,
-      I10: snapshot.summary.cost.unitAreaCost,
+      I10: snapshot.summary.cost.unitAreaBuildCost,
     })
 
     this.fillBuildSheet(workbook.getWorksheet('建材生产碳排放量'), snapshot)
@@ -162,7 +162,7 @@ export class ReportsService {
     document.fontSize(14).text('二、成本汇总')
     document.fontSize(10)
     document.text(`总成本：${snapshot.summary.cost.totalCost.toFixed(6)} 万元`)
-    document.text(`单位面积成本：${snapshot.summary.cost.unitAreaCost.toFixed(6)} 元/㎡`)
+    document.text(`单位面积建材成本：${snapshot.summary.cost.unitAreaBuildCost.toFixed(6)} 万元/㎡`)
     document.text(`单位成本碳排：${snapshot.summary.cost.unitCostEmission.toFixed(6)} tCO₂e/万元`)
 
     this.pdfTable(document, '三、建材生产清单', ['材料', '类别', '用量', '碳排（t）'], snapshot.buildMaterials.map(item => [

@@ -273,18 +273,20 @@ describe('排放与成本分析', () => {
     expect(analysis.buildMaterialDetails[0].share).toBeCloseTo(75)
   })
 
-  it('成本分析：总成本、单位面积成本、单位成本碳排放、成本碳强度', () => {
+  it('成本分析：总成本、单位面积建材成本、单位成本碳排放、成本碳强度', () => {
     const cost = computeCostAnalysis(materials, transport, construction, 1.581, 100)
     expect(cost.buildCost).toBeCloseTo(4)
     expect(cost.totalCost).toBeCloseTo(4.504)
     expect(cost.topBuildMaterial?.materialName).toBe('A')
-    expect(cost.unitAreaCost).toBeCloseTo(0.04504)
+    // 旧版报告书 I9 表头为“单位面积建材成本（万元/㎡）”：分子是建材成本，不是总成本
+    expect(cost.unitAreaBuildCost).toBeCloseTo(4 / 100)
+    expect(cost.unitAreaBuildCost).not.toBeCloseTo(cost.totalCost / 100)
     expect(cost.unitCostEmission).toBeCloseTo(1.581 / 4.504)
     expect(cost.buildDetails[0].carbonCostIntensity).toBeCloseTo(
       (0.25 * 1000) / (3 * 10000),
     )
-    // 面积为 0 时单位面积成本安全处理
-    expect(computeCostAnalysis(materials, transport, construction, 1, 0).unitAreaCost).toBe(0)
+    // 面积为 0 时单位面积建材成本安全处理
+    expect(computeCostAnalysis(materials, transport, construction, 1, 0).unitAreaBuildCost).toBe(0)
   })
 })
 

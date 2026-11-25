@@ -180,7 +180,8 @@ export interface CostAnalysis {
   totalCost: number
   buildCost: number
   topBuildMaterial: { id: number; materialName: string; totalPrice: number; shareOfBuildCost: number } | null
-  unitAreaCost: number
+  /** 单位面积建材成本（万元/㎡）= 建材成本 ÷ 建筑面积，旧版成本分析指标卡与报告书 I10 口径 */
+  unitAreaBuildCost: number
   unitCostEmission: number
   buildDetails: Array<{
     id: number
