@@ -1,5 +1,7 @@
 <script setup>
 import { computed } from 'vue'
+import { formatDisplayNumber } from '../formatDisplayNumber.js'
+import { chartX, createChartScale, groupPieItems, linePoints } from '../utils/dashboardCharts.js'
 
 const props = defineProps({
   projectInfo: { type: Object, required: true },
@@ -67,8 +69,17 @@ const transportItems = computed(() => {
 const transportPriceItems = computed(() =>
   transportItems.value.slice(0, 6).map(item => ({ label: item.label, value: item.totalPrice }))
 )
+const constructionVisibleItems = computed(() => constructionItems.value.slice(0, 6))
+const buildVisibleItems = computed(() => buildItems.value.slice(0, 6))
+const transportVisibleItems = computed(() => transportItems.value.slice(0, 6))
+const constructionScale = computed(() => createChartScale(constructionVisibleItems.value.map(item => item.value), 28, 142))
+const buildScale = computed(() => createChartScale(buildVisibleItems.value.map(item => item.value), 28, 142))
+const buildPriceScale = computed(() => createChartScale(buildPriceItems.value.flatMap(item => [item.marketPrice, item.dealPrice]), 28, 137))
+const transportScale = computed(() => createChartScale(transportVisibleItems.value.map(item => item.emission), 34, 142))
+const transportPriceScale = computed(() => createChartScale(transportPriceItems.value.map(item => item.value), 34, 142))
+const constructionPieItems = computed(() => groupPieItems(constructionPriceItems.value))
 const constructionPieGradient = computed(() =>
-  createPieGradient(constructionPriceItems.value, item => item.value)
+  createPieGradient(constructionPieItems.value, item => item.value)
 )
 const constructionPriceTotal = computed(() =>
   constructionPriceItems.value.reduce((total, item) => total + item.value, 0)
@@ -79,6 +90,7 @@ const lifecycleItems = computed(() => [
   { label: '施工', value: props.constructionEmission, color: '#eea34b' },
   { label: '回收', value: -props.recyclingEmission, color: '#53b06e' }
 ])
+const lifecycleScale = computed(() => createChartScale(lifecycleItems.value.map(item => item.value), 28, 155))
 const recyclingCategories = computed(() =>
   aggregate(props.recyclingMaterials, item => item.materialType, item => item.reductionAmount)
     .sort((left, right) => right.value - left.value)
@@ -87,7 +99,7 @@ const recyclingTotal = computed(() =>
   recyclingCategories.value.reduce((total, item) => total + item.value, 0)
 )
 const recyclingGradient = computed(() => createPieGradient(recyclingCategories.value, item => item.value))
-const dashboardColors = ['#4d8fe9', '#69c4c7', '#63b36c', '#eba943', '#a777d2']
+const dashboardColors = ['#4d8fe9', '#69c4c7', '#63b36c', '#eba943', '#a777d2', '#8196ad']
 
 function createPieGradient(items, valueFor) {
   const total = items.reduce((sum, item) => sum + Math.max(0, valueFor(item)), 0)
@@ -101,18 +113,14 @@ function createPieGradient(items, valueFor) {
   return `conic-gradient(${segments.join(', ')})`
 }
 
-function chartX(index, count, left = 42, right = 348) {
-  return count < 2 ? (left + right) / 2 : left + index * (right - left) / (count - 1)
-}
-
-function wrapTransportLabel(label, index, count) {
-  const center = chartX(index, count, 55, 335)
+function wrapTransportLabel(label, index, count, right = 310) {
+  const center = chartX(index, count, 55, right)
   const leftBound = index === 0
     ? 36
-    : (chartX(index - 1, count, 55, 335) + center) / 2
+    : (chartX(index - 1, count, 55, right) + center) / 2
   const rightBound = index === count - 1
-    ? 350
-    : (center + chartX(index + 1, count, 55, 335)) / 2
+    ? right + 19
+    : (center + chartX(index + 1, count, 55, right)) / 2
   const maxWidth = 2 * Math.min(center - leftBound, rightBound - center)
   const lines = []
   let line = ''
@@ -132,25 +140,12 @@ function wrapTransportLabel(label, index, count) {
   return lines
 }
 
-function chartY(value, max, top = 22, bottom = 142) {
-  return bottom - Math.max(0, value) / (max || 1) * (bottom - top)
-}
-
-function linePoints(items, field, max, left = 42, right = 348) {
-  return items
-    .map((item, index) => item[field] === null || item[field] === undefined
-      ? null
-      : `${chartX(index, items.length, left, right)},${chartY(item[field], max, 28, 137)}`)
-    .filter(Boolean)
-    .join(' ')
-}
-
 function formatPrice(value) {
   return format(value, 2)
 }
 
 function format(value, digits = 2) {
-  return new Intl.NumberFormat('zh-CN', { maximumFractionDigits: digits }).format(value)
+  return formatDisplayNumber(value, digits)
 }
 </script>
 
@@ -174,14 +169,14 @@ function format(value, digits = 2) {
           <section class="dashboard-mini-chart">
             <header><i class="dashboard-legend-emission"></i>碳排放量（tCO₂e）</header>
             <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="施工机械碳排放柱状图">
-              <g v-for="tick in [0, 0.25, 0.5, 0.75, 1]" :key="tick" class="dashboard-grid-tick">
-                <line x1="36" x2="350" :y1="142 - tick * 110" :y2="142 - tick * 110" />
-                <text x="29" :y="145 - tick * 110">{{ format(Math.max(...constructionItems.map(item => item.value), 0) * tick, 1) }}</text>
+              <g v-for="tick in constructionScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+                <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
+                <text x="29" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
               </g>
-              <g v-for="(item, index) in constructionItems.slice(0, 6)" :key="item.label">
-                <rect class="dashboard-construction-bar" :x="chartX(index, Math.min(constructionItems.length, 6), 55, 335) - 18" :y="chartY(item.value, Math.max(...constructionItems.slice(0, 6).map(row => row.value), 1), 28, 142)" width="36" :height="142 - chartY(item.value, Math.max(...constructionItems.slice(0, 6).map(row => row.value), 1), 28, 142)" />
-                <text class="dashboard-value-label" :x="chartX(index, Math.min(constructionItems.length, 6), 55, 335)" :y="chartY(item.value, Math.max(...constructionItems.slice(0, 6).map(row => row.value), 1), 28, 142) - 5">{{ format(item.value, 1) }}</text>
-                <text class="dashboard-category-label" :x="chartX(index, Math.min(constructionItems.length, 6), 55, 335)" y="158">{{ item.label }}</text>
+              <g v-for="(item, index) in constructionVisibleItems" :key="item.label">
+                <rect class="dashboard-construction-bar" :x="chartX(index, constructionVisibleItems.length, 55, 335) - 18" :y="constructionScale.y(item.value)" width="36" :height="142 - constructionScale.y(item.value)" />
+                <text class="dashboard-value-label" :x="chartX(index, constructionVisibleItems.length, 55, 335)" :y="constructionScale.y(item.value) - 5">{{ format(item.value, 1) }}</text>
+                <text class="dashboard-category-label" :x="chartX(index, constructionVisibleItems.length, 55, 335)" y="158">{{ item.label }}</text>
               </g>
               <text v-if="constructionItems.length === 0" class="dashboard-empty-label" x="180" y="90">暂无施工数据</text>
             </svg>
@@ -193,7 +188,7 @@ function format(value, digits = 2) {
                 <div><strong>{{ format(constructionPriceTotal, 2) }}</strong><small>万元</small></div>
               </div>
               <div class="dashboard-pie-legend">
-                <span v-for="(item, index) in constructionPriceItems.slice(0, 6)" :key="item.label">
+                <span v-for="(item, index) in constructionPieItems" :key="item.label">
                   <i :style="{ background: dashboardColors[index % dashboardColors.length] }"></i>{{ item.label }} <b>{{ formatPrice(item.value) }}</b>
                 </span>
                 <small v-if="constructionPriceItems.length === 0">暂无台班总价数据</small>
@@ -217,14 +212,14 @@ function format(value, digits = 2) {
           <section class="dashboard-mini-chart">
             <header><i class="dashboard-legend-emission"></i>碳排放量（tCO₂e）</header>
             <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="建材碳排放柱状图">
-              <g v-for="tick in [0, 0.25, 0.5, 0.75, 1]" :key="tick" class="dashboard-grid-tick">
-                <line x1="36" x2="350" :y1="142 - tick * 110" :y2="142 - tick * 110" />
-                <text x="29" :y="145 - tick * 110">{{ format(Math.max(...buildItems.map(item => item.value), 0) * tick, 1) }}</text>
+              <g v-for="tick in buildScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+                <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
+                <text x="29" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
               </g>
-              <g v-for="(item, index) in buildItems.slice(0, 6)" :key="item.label">
-                <rect class="dashboard-build-bar" :x="chartX(index, Math.min(buildItems.length, 6), 55, 335) - 18" :y="chartY(item.value, Math.max(...buildItems.slice(0, 6).map(row => row.value), 1), 28, 142)" width="36" :height="142 - chartY(item.value, Math.max(...buildItems.slice(0, 6).map(row => row.value), 1), 28, 142)" />
-                <text class="dashboard-value-label" :x="chartX(index, Math.min(buildItems.length, 6), 55, 335)" :y="chartY(item.value, Math.max(...buildItems.slice(0, 6).map(row => row.value), 1), 28, 142) - 5">{{ format(item.value, 1) }}</text>
-                <text class="dashboard-category-label" :x="chartX(index, Math.min(buildItems.length, 6), 55, 335)" y="158">{{ item.label }}</text>
+              <g v-for="(item, index) in buildVisibleItems" :key="item.label">
+                <rect class="dashboard-build-bar" :x="chartX(index, buildVisibleItems.length, 55, 335) - 18" :y="buildScale.y(item.value)" width="36" :height="142 - buildScale.y(item.value)" />
+                <text class="dashboard-value-label" :x="chartX(index, buildVisibleItems.length, 55, 335)" :y="buildScale.y(item.value) - 5">{{ format(item.value, 1) }}</text>
+                <text class="dashboard-category-label" :x="chartX(index, buildVisibleItems.length, 55, 335)" y="158">{{ item.label }}</text>
               </g>
               <text v-if="buildItems.length === 0" class="dashboard-empty-label" x="180" y="90">暂无建材数据</text>
             </svg>
@@ -232,17 +227,17 @@ function format(value, digits = 2) {
           <section class="dashboard-mini-chart dashboard-line-chart">
             <header><i class="dashboard-legend-market"></i>市场价（元） <i class="dashboard-legend-deal"></i>成交价（元）</header>
             <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="建材市场价与成交价折线图">
-              <g v-for="tick in [0, 0.25, 0.5, 0.75, 1]" :key="tick" class="dashboard-grid-tick">
-                <line x1="36" x2="350" :y1="142 - tick * 110" :y2="142 - tick * 110" />
+              <g v-for="tick in buildPriceScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+                <line x1="36" x2="350" :y1="tick.y" :y2="tick.y" />
               </g>
               <template v-if="buildPriceItems.length">
-                <polyline class="dashboard-market-line" :points="linePoints(buildPriceItems, 'marketPrice', Math.max(...buildPriceItems.flatMap(item => [item.marketPrice ?? 0, item.dealPrice]), 1))" />
-                <polyline class="dashboard-deal-line" :points="linePoints(buildPriceItems, 'dealPrice', Math.max(...buildPriceItems.flatMap(item => [item.marketPrice ?? 0, item.dealPrice]), 1))" />
+                <polyline class="dashboard-market-line" :points="linePoints(buildPriceItems, 'marketPrice', buildPriceScale)" />
+                <polyline class="dashboard-deal-line" :points="linePoints(buildPriceItems, 'dealPrice', buildPriceScale)" />
                 <g v-for="(item, index) in buildPriceItems" :key="`${item.label}-${index}`">
-                  <circle v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-point" :cx="chartX(index, buildPriceItems.length)" :cy="chartY(item.marketPrice, Math.max(...buildPriceItems.flatMap(row => [row.marketPrice ?? 0, row.dealPrice]), 1), 28, 137)" r="3" />
-                  <text v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-label" :x="chartX(index, buildPriceItems.length)" :y="chartY(item.marketPrice, Math.max(...buildPriceItems.flatMap(row => [row.marketPrice ?? 0, row.dealPrice]), 1), 28, 137) - 6">{{ formatPrice(item.marketPrice) }}</text>
-                  <circle class="dashboard-deal-point" :cx="chartX(index, buildPriceItems.length)" :cy="chartY(item.dealPrice, Math.max(...buildPriceItems.flatMap(row => [row.marketPrice ?? 0, row.dealPrice]), 1), 28, 137)" r="3" />
-                  <text class="dashboard-deal-label" :x="chartX(index, buildPriceItems.length)" :y="chartY(item.dealPrice, Math.max(...buildPriceItems.flatMap(row => [row.marketPrice ?? 0, row.dealPrice]), 1), 28, 137) + 12">{{ formatPrice(item.dealPrice) }}</text>
+                  <circle v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-point" :cx="chartX(index, buildPriceItems.length)" :cy="buildPriceScale.y(item.marketPrice)" r="3" />
+                  <text v-if="item.marketPrice !== null && item.marketPrice !== undefined" class="dashboard-market-label" :x="chartX(index, buildPriceItems.length)" :y="buildPriceScale.y(item.marketPrice) - 6">{{ formatPrice(item.marketPrice) }}</text>
+                  <circle class="dashboard-deal-point" :cx="chartX(index, buildPriceItems.length)" :cy="buildPriceScale.y(item.dealPrice)" r="3" />
+                  <text class="dashboard-deal-label" :x="chartX(index, buildPriceItems.length)" :y="buildPriceScale.y(item.dealPrice) + 12">{{ formatPrice(item.dealPrice) }}</text>
                   <text class="dashboard-category-label" :x="chartX(index, buildPriceItems.length)" y="158">{{ item.label }}</text>
                 </g>
               </template>
@@ -256,24 +251,25 @@ function format(value, digits = 2) {
         <header class="dashboard-panel-title"><i></i>运输碳排放</header>
         <div class="dashboard-transport-charts">
           <section class="dashboard-mini-chart">
-            <header><i class="dashboard-legend-emission"></i>碳排放量（tCO₂e） <i class="dashboard-legend-deal"></i>运输总价（万元）</header>
+            <header><i class="dashboard-legend-emission"></i>碳排放量（左轴 tCO₂e） <i class="dashboard-legend-deal"></i>运输总价（右轴 万元）</header>
             <svg viewBox="0 0 360 170" preserveAspectRatio="none" role="img" aria-label="运输碳排放柱状图与运输总价折线图">
-              <g v-for="tick in [0, 0.25, 0.5, 0.75, 1]" :key="tick" class="dashboard-grid-tick">
-                <line x1="36" x2="350" :y1="148 - tick * 110" :y2="148 - tick * 110" />
-                <text x="29" :y="151 - tick * 110">{{ format(Math.max(...transportItems.map(item => item.emission), 0) * tick, 1) }}</text>
+              <g v-for="(tick, index) in transportScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+                <line x1="36" x2="329" :y1="tick.y" :y2="tick.y" />
+                <text x="29" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
+                <text x="357" :y="tick.y + 3">{{ format(transportPriceScale.ticks[index].value, 4) }}</text>
               </g>
-              <g v-for="(item, index) in transportItems.slice(0, 6)" :key="`bar-${item.label}`">
-                <rect class="dashboard-transport-bar" :x="chartX(index, Math.min(transportItems.length, 6), 55, 335) - 18" :y="chartY(item.emission, Math.max(...transportItems.slice(0, 6).map(row => row.emission), 1), 34, 148)" width="36" :height="148 - chartY(item.emission, Math.max(...transportItems.slice(0, 6).map(row => row.emission), 1), 34, 148)" />
-                <text class="dashboard-value-label" :x="chartX(index, Math.min(transportItems.length, 6), 55, 335)" :y="chartY(item.emission, Math.max(...transportItems.slice(0, 6).map(row => row.emission), 1), 34, 148) - 5">{{ format(item.emission, 1) }}</text>
-                <text class="dashboard-category-label" :x="chartX(index, Math.min(transportItems.length, 6), 55, 335)" y="157">
-                  <tspan v-for="(line, lineIndex) in wrapTransportLabel(item.label, index, Math.min(transportItems.length, 6))" :key="lineIndex" :x="chartX(index, Math.min(transportItems.length, 6), 55, 335)" :dy="lineIndex === 0 ? 0 : 7">{{ line }}</tspan>
+              <g v-for="(item, index) in transportVisibleItems" :key="`bar-${item.label}`">
+                <rect class="dashboard-transport-bar" :x="chartX(index, transportVisibleItems.length, 55, 310) - 18" :y="transportScale.y(item.emission)" width="36" :height="142 - transportScale.y(item.emission)" />
+                <text class="dashboard-value-label" :x="chartX(index, transportVisibleItems.length, 55, 310)" :y="transportScale.y(item.emission) - 5">{{ format(item.emission, 1) }}</text>
+                <text class="dashboard-category-label" :x="chartX(index, transportVisibleItems.length, 55, 310)" y="157">
+                  <tspan v-for="(line, lineIndex) in wrapTransportLabel(item.label, index, transportVisibleItems.length)" :key="lineIndex" :x="chartX(index, transportVisibleItems.length, 55, 310)" :dy="lineIndex === 0 ? 0 : 7">{{ line }}</tspan>
                 </text>
               </g>
               <template v-if="transportPriceItems.length">
-                <polyline class="dashboard-deal-line" :points="linePoints(transportPriceItems.map(item => ({ label: item.label, dealPrice: item.value })), 'dealPrice', Math.max(...transportPriceItems.map(item => item.value), 1), 55, 335)" />
+                <polyline class="dashboard-deal-line" :points="linePoints(transportPriceItems.map(item => ({ label: item.label, dealPrice: item.value })), 'dealPrice', transportPriceScale, 55, 310)" />
                 <g v-for="(item, index) in transportPriceItems" :key="`line-${item.label}`">
-                  <circle class="dashboard-deal-point" :cx="chartX(index, transportPriceItems.length, 55, 335)" :cy="chartY(item.value, Math.max(...transportPriceItems.map(row => row.value), 1), 34, 143)" r="3" />
-                  <text class="dashboard-deal-label dashboard-transport-price-label" :x="chartX(index, transportPriceItems.length, 55, 335)" :y="chartY(item.value, Math.max(...transportPriceItems.map(row => row.value), 1), 34, 143) - 6">{{ formatPrice(item.value) }}</text>
+                  <circle class="dashboard-deal-point" :cx="chartX(index, transportPriceItems.length, 55, 310)" :cy="transportPriceScale.y(item.value)" r="3" />
+                  <text class="dashboard-deal-label dashboard-transport-price-label" :x="chartX(index, transportPriceItems.length, 55, 310)" :y="transportPriceScale.y(item.value) - 6">{{ formatPrice(item.value) }}</text>
                 </g>
               </template>
               <text v-if="transportItems.length === 0" class="dashboard-empty-label" x="180" y="90">暂无运输数据</text>
@@ -285,16 +281,16 @@ function format(value, digits = 2) {
       <article class="dashboard-panel dashboard-lifecycle">
         <header class="dashboard-panel-title"><i></i>项目碳排放总览</header>
         <div class="dashboard-lifecycle-chart">
-          <div class="dashboard-lifecycle-total">碳排放量 <strong>{{ format(netEmission, 1) }}</strong><small>tCO₂e</small></div>
-          <svg viewBox="0 0 440 190" preserveAspectRatio="none" role="img" aria-label="项目生命周期碳排放柱状图">
-            <g v-for="tick in [0, 0.25, 0.5, 0.75, 1]" :key="tick" class="dashboard-grid-tick">
-              <line x1="42" x2="430" :y1="166 - tick * 108" :y2="166 - tick * 108" />
-              <text x="35" :y="169 - tick * 108">{{ format(Math.max(...lifecycleItems.map(item => item.value), 0) * tick, 1) }}</text>
+          <div class="dashboard-lifecycle-total">净碳排放量 <strong>{{ format(netEmission, 1) }}</strong><small>tCO₂e</small></div>
+          <svg viewBox="0 0 440 190" preserveAspectRatio="none" role="img" aria-label="建造阶段碳排放与回收减碳柱状图">
+            <g v-for="tick in lifecycleScale.ticks" :key="tick.value" class="dashboard-grid-tick">
+              <line x1="42" x2="430" :y1="tick.y" :y2="tick.y" />
+              <text x="35" :y="tick.y + 3">{{ format(tick.value, 3) }}</text>
             </g>
-            <line class="dashboard-zero-line" x1="42" x2="430" y1="166" y2="166" />
+            <line class="dashboard-zero-line" x1="42" x2="430" :y1="lifecycleScale.zeroY" :y2="lifecycleScale.zeroY" />
             <g v-for="(item, index) in lifecycleItems" :key="item.label">
-              <rect :class="item.value < 0 ? 'dashboard-lifecycle-negative' : 'dashboard-lifecycle-bar'" :x="chartX(index, lifecycleItems.length, 95, 375) - 23" :y="item.value < 0 ? 166 : chartY(item.value, Math.max(...lifecycleItems.map(row => row.value), 1), 58, 166)" width="46" :height="item.value < 0 ? Math.max(3, Math.abs(item.value) / Math.max(...lifecycleItems.map(row => Math.abs(row.value)), 1) * 18) : 166 - chartY(item.value, Math.max(...lifecycleItems.map(row => row.value), 1), 58, 166)" :fill="item.color" />
-              <text class="dashboard-value-label" :x="chartX(index, lifecycleItems.length, 95, 375)" :y="item.value < 0 ? 188 : chartY(item.value, Math.max(...lifecycleItems.map(row => row.value), 1), 58, 166) - 5">{{ format(item.value, 1) }}</text>
+              <rect :class="item.value < 0 ? 'dashboard-lifecycle-negative' : 'dashboard-lifecycle-bar'" :x="chartX(index, lifecycleItems.length, 95, 375) - 23" :y="lifecycleScale.bar(item.value).y" width="46" :height="lifecycleScale.bar(item.value).height" :fill="item.color" />
+              <text class="dashboard-value-label" :x="chartX(index, lifecycleItems.length, 95, 375)" :y="lifecycleScale.y(item.value) + (item.value < 0 ? 10 : -5)">{{ format(item.value, 1) }}</text>
               <text class="dashboard-category-label" :x="chartX(index, lifecycleItems.length, 95, 375)" y="180">{{ item.label }}</text>
             </g>
           </svg>
@@ -302,14 +298,14 @@ function format(value, digits = 2) {
       </article>
 
       <article class="dashboard-panel dashboard-recycling">
-        <header class="dashboard-panel-title"><i></i>回收碳排放</header>
+        <header class="dashboard-panel-title"><i></i>回收减碳量</header>
         <div class="dashboard-recycling-content">
           <div class="dashboard-donut" :style="{ backgroundImage: recyclingGradient }">
             <div><strong>{{ format(recyclingTotal) }}</strong><small>tCO₂e</small></div>
           </div>
           <div class="dashboard-recycling-legend">
             <span v-for="(item, index) in recyclingCategories" :key="item.label">
-              <i :class="`dashboard-color-${index % 5}`"></i>{{ item.label }} <b>{{ format(item.value) }}</b>
+              <i :style="{ background: dashboardColors[index % dashboardColors.length] }"></i>{{ item.label }} <b>{{ format(item.value) }}</b>
             </span>
             <small v-if="recyclingCategories.length === 0">暂无回收数据</small>
           </div>

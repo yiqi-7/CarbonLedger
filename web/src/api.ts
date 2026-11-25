@@ -31,8 +31,14 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('carbon-ledger-token')
-      window.dispatchEvent(new Event('carbon-ledger-unauthorized'))
+      const currentToken = localStorage.getItem('carbon-ledger-token')
+      const requestAuthorization = axios.AxiosHeaders.from(error.config?.headers ?? {}).get('Authorization')
+      // A request from the expired session can finish after a fresh login.
+      // Only the current session's failure may invalidate the stored token.
+      if (!currentToken || requestAuthorization === `Bearer ${currentToken}`) {
+        localStorage.removeItem('carbon-ledger-token')
+        window.dispatchEvent(new Event('carbon-ledger-unauthorized'))
+      }
     }
     return Promise.reject(error)
   },

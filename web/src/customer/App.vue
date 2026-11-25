@@ -1,7 +1,8 @@
 <script setup>
 import { computed, markRaw, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { api, downloadApiFile } from '@/api'
+import { api, apiMessage, downloadApiFile } from '@/api'
 import { createProjectPersistence } from './apiPersistence.js'
+import { formatDisplayNumber } from './formatDisplayNumber.js'
 import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
 import AppSidebar from './components/AppSidebar.vue'
 import DashboardHome from './components/DashboardHome.vue'
@@ -133,6 +134,7 @@ const persistence = createProjectPersistence({
   onError: notify,
 })
 const creatingBuildMaterials = new Set()
+const rowInputOwners = new WeakMap()
 // Pending numeric inputs use the customer's blur-only binding. Keep their
 // focused text outside reactivity until blur so a render cannot reset typing.
 const pendingBuildInputDrafts = {}
@@ -188,15 +190,32 @@ function flushPendingBuildInput(id) {
   if (originalId === String(id)) active.blur()
 }
 
+function flushCreatedRowInput(kind, id) {
+  const active = document.activeElement
+  const owner = active && rowInputOwners.get(active)
+  if (owner?.kind === kind && owner.id === id) active.blur()
+}
+
 window.addEventListener('beforeunload', onBeforeUnload)
 document.addEventListener('input', capturePendingBuildInput, true)
 // The same-origin platform router consults this before unmounting the iframe.
 window.carbonLedgerCustomer = { hasUnsavedChanges, prepareToLeave }
 
-function onUnauthorized() {
-  window.parent.postMessage({ type: 'carbon-ledger-unauthorized' }, window.location.origin)
+function reportProjectState(state, error = '') {
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'carbon-ledger-project-state', state, message: error }, window.location.origin)
+  }
 }
-window.addEventListener('carbon-ledger-unauthorized', onUnauthorized)
+
+async function returnToProjects() {
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'carbon-ledger-projects' }, window.location.origin)
+    return
+  }
+  if (await prepareToLeave() || window.confirm('还有未保存的内容，确定返回我的项目吗？')) {
+    window.location.assign('/projects')
+  }
+}
 
 function canSave() {
   if (dataReady.value) return true
@@ -207,6 +226,7 @@ function canSave() {
 async function loadProjectData() {
   if (!Number.isSafeInteger(projectId) || projectId <= 0) {
     notify('请从项目列表打开项目')
+    reportProjectState('error', '项目地址无效，请返回我的项目重新打开。')
     return
   }
   try {
@@ -218,8 +238,10 @@ async function loadProjectData() {
     uploadedImageUrl.value = typeof ProjectInfo.modelImage === 'string' ? ProjectInfo.modelImage : ''
     savedProjectDraft = { ...draft, accountingStages: [...draft.accountingStages] }
     dataReady.value = true
+    reportProjectState('ready')
   } catch (error) {
     persistence.report(error)
+    reportProjectState('error', apiMessage(error, '项目数据加载失败，请检查网络后重试。'))
   }
 }
 
@@ -277,6 +299,7 @@ async function saveRow(kind, material, field, updates, drafts, input, target) {
           shiftUnitPrice: material.shiftUnitPrice,
         }
     const { data } = await api.post(`${persistence.path}/${kind}`, payload)
+    flushCreatedRowInput(kind, originalId)
     persistence.adoptCreated(list, material, data, drafts)
     return data
   })
@@ -295,13 +318,19 @@ async function importRows(kind, event, label) {
   if (!file || !canSave()) return
   const form = new FormData()
   form.append('file', file)
+  let configurationRefreshFailed = false
   try {
-    const result = await persistence.enqueue(async () => {
+    await persistence.enqueue(async () => {
       const { data } = await api.post(`${persistence.path}/imports/${kind}`, form)
-      await loadCarbonConfigurations()
+      try {
+        await loadCarbonConfigurations()
+      } catch {
+        configurationRefreshFailed = true
+      }
       return data
+    }, true, result => {
+      if (result) notify(`已导入 ${result.imported} 条${label}${result.skippedRows ? `，跳过 ${result.skippedRows} 行数据` : ''}${configurationRefreshFailed ? '；配置刷新失败，请刷新页面后继续新增' : ''}`)
     })
-    if (result) notify(`已导入 ${result.imported} 条${label}${result.skippedRows ? `，跳过 ${result.skippedRows} 行数据` : ''}`)
   } finally {
     event.target.value = ''
   }
@@ -309,11 +338,31 @@ async function importRows(kind, event, label) {
 
 async function exportRows(kind, filename, label) {
   if (!canSave()) return
+  if (!await prepareExport(kind)) return
   const result = await persistence.enqueue(async () => {
     await downloadApiFile(`${persistence.path}/exports/${kind}`, filename)
     return true
   }, false)
   if (result) notify(`${label}已导出`)
+}
+
+async function prepareExport(kind = null) {
+  document.activeElement?.blur?.()
+  await persistence.waitForIdle()
+  const build = kind === null || kind === 'build-materials'
+  const transport = kind === null || kind === 'transport-records'
+  const construction = kind === null || kind === 'construction-records'
+  const dirty = (kind === null && hasUnsavedChanges())
+    || (build && hasRowDraftChanges(materialEditDrafts, [...materialList.toArray(), ...pendingBuildMaterials.value]))
+    || (transport && hasRowDraftChanges(transportEditDrafts, transportMaterialList.toArray()))
+    || (construction && hasRowDraftChanges(constructionEditDrafts, constructionMaterialList.toArray()))
+    || hasMeaningfulTemporaryRows({
+      build: build ? pendingBuildMaterials.value : [],
+      transport: transport ? transportMaterialList.toArray() : [],
+      construction: construction ? constructionMaterialList.toArray() : [],
+    })
+  if (dirty) notify('还有未保存的内容，请先完成保存或取消未完成的记录，再导出')
+  return !dirty
 }
 
 function parseLimitTime(value) {
@@ -391,11 +440,22 @@ function toggleSidebar() {
 }
 const allMaterials = computed(() => materialList.toArray())
 const allRecyclingMaterials = computed(() => recyclingMaterialList.toArray())
+const recyclingQuantityGroups = computed(() => {
+  const groups = new Map()
+  const aliases = { '㎡': 'm²', m2: 'm²', 'm^2': 'm²', '平方米': 'm²', '㎥': 'm³', m3: 'm³', 'm^3': 'm³', '立方米': 'm³', '吨': 't', '千克': 'kg', '公斤': 'kg' }
+  for (const material of allRecyclingMaterials.value) {
+    const rawUnit = String(material.unit ?? '').trim()
+    const unit = (aliases[rawUnit] ?? rawUnit) || '未标注单位'
+    groups.set(unit, (groups.get(unit) ?? 0) + material.recyclingQuantity)
+  }
+  return [...groups].map(([unit, quantity]) => ({ unit, quantity }))
+})
 const allConstructionMaterials = computed(() => constructionMaterialList.toArray())
 const countedConstructionMaterials = computed(() =>
-  allConstructionMaterials.value.filter(material => material.machineryName.trim())
+  allConstructionMaterials.value.filter(material => material.id > 0 && material.machineryName.trim())
 )
 const allTransportMaterials = computed(() => transportMaterialList.toArray())
+const countedTransportMaterials = computed(() => allTransportMaterials.value.filter(material => material.id > 0))
 const filteredMaterials = computed(() => {
   const query = materialSearch.value.trim().toLocaleLowerCase()
   return allMaterials.value.filter(material => {
@@ -441,7 +501,7 @@ const analysisPieItems = computed(() => {
     }))
   }
   if (analysisSelectedStage.value === '运输碳排放') {
-    return allTransportMaterials.value.map(material => ({
+    return countedTransportMaterials.value.map(material => ({
       name: material.transportedMaterial,
       quantity: material.transportQuantity,
       unit: 't',
@@ -507,7 +567,7 @@ const analysisBuildMaterialDetails = computed(() => {
 })
 const costAnalysisTotal = computed(() =>
   allMaterials.value.reduce((total, material) => total + material.totalPrice, 0) +
-  allTransportMaterials.value.reduce((total, material) => total + material.transportTotalPrice, 0) +
+  countedTransportMaterials.value.reduce((total, material) => total + material.transportTotalPrice, 0) +
   countedConstructionMaterials.value.reduce((total, material) => total + material.totalPrice, 0)
 )
 const costAnalysisBuildTotal = computed(() =>
@@ -521,7 +581,7 @@ const costAnalysisTopBuildMaterial = computed(() =>
 )
 const costAnalysisArea = computed(() => {
   const area = Number(ProjectInfo.buildingArea) || 0
-  return area > 0 ? costAnalysisTotal.value / area : 0
+  return area > 0 ? costAnalysisBuildTotal.value / area : 0
 })
 const costAnalysisCarbonIntensity = computed(() =>
   costAnalysisTotal.value > 0 ? analysisNetEmission.value / costAnalysisTotal.value : 0
@@ -529,7 +589,7 @@ const costAnalysisCarbonIntensity = computed(() =>
 const costAnalysisChartItems = computed(() => {
   let items
   if (costAnalysisSelectedStage.value === '运输') {
-    items = allTransportMaterials.value.map(material => ({
+    items = countedTransportMaterials.value.map(material => ({
       id: material.id,
       name: material.vehicleName,
       detail: material.transportedMaterial,
@@ -571,10 +631,10 @@ const costAnalysisBuildDetails = computed(() =>
     .sort((left, right) => right.totalPrice - left.totalPrice)
 )
 const indicators = [
-  { name: '建造生产阶段', description: '材料生产与加工阶段' },
-  { name: '建造运输阶段', description: '从工厂运输至施工现场' },
-  { name: '施工建造阶段', description: '人工及施工能耗' },
-  { name: '建造日常维护', description: '日常维护能耗与排放' }
+  { name: '建材生产阶段', description: '材料生产与加工阶段' },
+  { name: '建材运输阶段', description: '从工厂运输至施工现场' },
+  { name: '施工建造阶段', description: '机械台班与施工能耗' },
+  { name: '回收减碳阶段', description: '材料回收减碳与残值估算' }
 ]
 
 onMounted(async () => {
@@ -666,9 +726,8 @@ function showBuildConfigSuggestions(material, event) {
 async function selectBuildMaterialConfiguration(material, configuration) {
   if (!canSave()) return
   const originalId = material.id
-  if (creatingBuildMaterials.has(originalId)) return
   const pending = pendingBuildMaterials.value.find(candidate => candidate.id === originalId)
-  const input = materialEditDrafts[originalId]?.materialName
+  const input = configuration.name
   if (!pending && persistence.pendingCount === 0 && material.materialName === configuration.name && material.type === configuration.category
     && material.unit === configuration.materialUnit && material.emissionFactor === configuration.emissionFactor
     && material.recyclingFactor === configuration.recyclingFactor && material.recyclingCoefficient === configuration.recyclingCoefficient) {
@@ -676,9 +735,20 @@ async function selectBuildMaterialConfiguration(material, configuration) {
     activeBuildConfigMaterialId.value = null
     return
   }
-  if (pending) pending.materialName = configuration.name
-  creatingBuildMaterials.add(originalId)
+  if (!materialEditDrafts[originalId]) materialEditDrafts[originalId] = {}
+  materialEditDrafts[originalId].materialName = input
   activeBuildConfigMaterialId.value = null
+  if (creatingBuildMaterials.has(originalId)) {
+    const result = await persistence.enqueue(async () => {
+      const id = persistence.resolveId(originalId)
+      if (!(id > 0)) return false
+      return persistence.patch('build-materials', id, { factorConfigId: configuration.id })
+    })
+    if (result) persistence.clearDraft(materialEditDrafts, originalId, 'materialName', input)
+    return
+  }
+  if (pending) pending.materialName = configuration.name
+  if (pending) creatingBuildMaterials.add(originalId)
   try {
     const result = await persistence.enqueue(async () => {
       if (pending) {
@@ -696,9 +766,9 @@ async function selectBuildMaterialConfiguration(material, configuration) {
       }
       return persistence.patch('build-materials', originalId, { factorConfigId: configuration.id })
     })
-    if (result !== null) persistence.clearDraft(materialEditDrafts, originalId, 'materialName', input)
+    if (result) persistence.clearDraft(materialEditDrafts, originalId, 'materialName', input)
   } finally {
-    creatingBuildMaterials.delete(originalId)
+    if (pending) creatingBuildMaterials.delete(originalId)
   }
 }
 
@@ -812,17 +882,19 @@ function setRecyclingDraft(materialId, field, event) {
 }
 
 function setConstructionDraft(materialId, field, event) {
+  rowInputOwners.set(event.target, { kind: 'construction-records', id: materialId })
   if (!constructionEditDrafts[materialId]) constructionEditDrafts[materialId] = {}
   constructionEditDrafts[materialId][field] = event.target.value
 }
 
 function setTransportDraft(materialId, field, event) {
+  rowInputOwners.set(event.target, { kind: 'transport-records', id: materialId })
   if (!transportEditDrafts[materialId]) transportEditDrafts[materialId] = {}
   transportEditDrafts[materialId][field] = event.target.value
 }
 
 async function updateTransportMaterial(material, field, event) {
-  const inputValue = transportEditDrafts[material.id]?.[field] ?? event.target.value
+  const inputValue = field === 'vehicleName' ? event.target.value : transportEditDrafts[material.id]?.[field] ?? event.target.value
   let updates
 
   if (['transportQuantity', 'transportDistance', 'emissionFactor', 'transportUnitPrice'].includes(field)) {
@@ -856,7 +928,7 @@ async function updateTransportMaterial(material, field, event) {
 }
 
 async function updateConstructionMaterial(material, field, event) {
-  const inputValue = constructionEditDrafts[material.id]?.[field] ?? event.target.value
+  const inputValue = field === 'energyType' ? event.target.value : constructionEditDrafts[material.id]?.[field] ?? event.target.value
   let updates
 
   if (field === 'shiftCount') {
@@ -898,7 +970,7 @@ async function updateConstructionMaterial(material, field, event) {
 }
 
 async function updateRecyclingMaterial(material, field, event) {
-  const inputValue = recyclingEditDrafts[material.id]?.[field] ?? event.target.value
+  const inputValue = field === 'materialType' ? event.target.value : recyclingEditDrafts[material.id]?.[field] ?? event.target.value
   let updates
   if (['recyclingQuantity', 'recyclingFactor', 'recyclingUnitPrice'].includes(field)) {
     let value = Number(inputValue)
@@ -952,6 +1024,7 @@ async function exportProjectReport() {
     return
   }
   if (!canSave()) return
+  if (!await prepareExport()) return
   const result = await persistence.enqueue(async () => {
     await downloadApiFile(`${persistence.path}/reports/current/excel`, `${ProjectInfo.projectName || '项目'}-报告书.xlsx`)
     return true
@@ -962,8 +1035,8 @@ async function exportProjectReport() {
 function handleFileChange(event) {
   const file = event.target.files?.[0]
   if (!file) return
-  if (!file.type.startsWith('image/')) {
-    notify('请选择图片文件')
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+    notify('请选择 PNG、JPG 或 WebP 图片')
     event.target.value = ''
     return
   }
@@ -976,6 +1049,9 @@ function handleFileChange(event) {
   draft.modelImage = markRaw(file)
   draft.modelImageName = file.name
   uploadedImageUrl.value = URL.createObjectURL(file)
+  // Keep the File in the draft, while allowing the same image to be selected
+  // again after the user removes its preview.
+  event.target.value = ''
 }
 
 function removeUploadedImage() {
@@ -1026,7 +1102,7 @@ async function updateMaterial(material, field, event) {
 }
 
 function formatNumber(value, maximumFractionDigits = 0) {
-  return new Intl.NumberFormat('zh-CN', { maximumFractionDigits }).format(value)
+  return formatDisplayNumber(value, maximumFractionDigits)
 }
 
 function formatResidualValue(value) {
@@ -1048,6 +1124,8 @@ function addMaterial() {
 
 function addConstructionMaterial() {
   if (!canSave()) return
+  constructionSearch.value = ''
+  constructionCategory.value = '全部'
   const material = new ConstructionMaterialInfo({
     machineryName: '', shiftCount: 1, energyType: '电力',
     energyPerShift: 1, shiftUnitPrice: 1, isCustomMaterial: true,
@@ -1067,6 +1145,8 @@ function addTransportMaterial() {
     notify('新增失败：没有可用的车辆碳排配置')
     return
   }
+  transportSearch.value = ''
+  transportCategory.value = '全部'
   const material = new TransportMaterialInfo({
     vehicleName: configuration.vehicleName, transportedMaterial: '',
     transportQuantity: 1, transportDistance: 1,
@@ -1143,9 +1223,8 @@ async function createProject(event) {
     saveProjectInfo(data)
     savedProjectDraft = submittedDraft
     return data
-  })
+  }, true, () => notify('项目信息已保存'))
   if (result) {
-    notify('项目信息已保存')
     await navigateToPage('建材碳排放')
   }
 }
@@ -1154,7 +1233,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', onBeforeUnload)
   document.removeEventListener('input', capturePendingBuildInput, true)
   delete window.carbonLedgerCustomer
-  window.removeEventListener('carbon-ledger-unauthorized', onUnauthorized)
   if (uploadedImageUrl.value) URL.revokeObjectURL(uploadedImageUrl.value)
   if (networkTimeTimer !== null) window.clearInterval(networkTimeTimer)
 })
@@ -1169,6 +1247,7 @@ onBeforeUnmount(() => {
       :collapsed="sidebarCollapsed"
       @navigate="navigateToPage"
       @toggle="toggleSidebar"
+      @exit="returnToProjects"
     />
 
     <main class="main-content" :class="{ 'main-content-expanded': sidebarCollapsed }">
@@ -1230,7 +1309,7 @@ onBeforeUnmount(() => {
       <header v-else-if="activePage === '碳排放分析'" class="top-header material-header analysis-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>碳排放分析</h1><p>{{ ProjectInfo.projectName }} · 建筑全生命周期碳排放分析</p></div>
+          <div><h1>碳排放分析</h1><p>{{ ProjectInfo.projectName }} · 建造阶段碳排放与回收减碳分析</p></div>
         </div>
         <div class="header-actions">
           <button class="button button-primary" type="button" :disabled="navigationLocked" @click="exportProjectReport"><span aria-hidden="true">⇩</span> 导出报告书</button>
@@ -1240,7 +1319,7 @@ onBeforeUnmount(() => {
       <header v-else-if="activePage === '成本分析'" class="top-header material-header cost-analysis-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')">‹</button>
-          <div><h1>成本分析</h1><p>{{ ProjectInfo.projectName }} · 建材用量与单价成本对比</p></div>
+          <div><h1>成本分析</h1><p>{{ ProjectInfo.projectName }} · 建材、运输与施工成本对比</p></div>
         </div>
       </header>
 
@@ -1248,7 +1327,7 @@ onBeforeUnmount(() => {
         v-if="activePage === '首页'"
         :project-info="ProjectInfo"
         :build-materials="allMaterials"
-        :transport-materials="allTransportMaterials"
+        :transport-materials="countedTransportMaterials"
         :construction-materials="countedConstructionMaterials"
         :recycling-materials="allRecyclingMaterials"
         :build-emission="buildCarbonInfo.totalEmission"
@@ -1339,9 +1418,9 @@ onBeforeUnmount(() => {
 
             <aside class="project-side-column">
               <section class="surface-card project-card indicator-card">
-                <div class="section-title"><span class="section-icon">▦</span><h2>核算阶段选择</h2></div>
+                <div class="section-title"><span class="section-icon">▦</span><h2>核算范围</h2></div>
                 <label v-for="indicator in indicators" :key="indicator.name" class="indicator-option">
-                  <span class="indicator-check" role="img" aria-label="已选中">✓</span>
+                  <span class="indicator-check" role="img" aria-label="已纳入核算范围">✓</span>
                   <span class="indicator-copy"><strong>{{ indicator.name }}</strong><small>{{ indicator.description }}</small></span>
                   <span class="indicator-arrow">›</span>
                 </label>
@@ -1377,7 +1456,7 @@ onBeforeUnmount(() => {
 
           <section class="construction-energy-card transport-energy-card">
             <header class="construction-energy-heading">
-              <h2>运输能源消耗构成</h2>
+              <h2>碳排放构成（按能源）</h2>
             </header>
             <div class="construction-energy-bar" role="img" :aria-label="transportEnergyTypeNames.map(energyType => `${energyType} ${formatNumber(transportCarbonInfo.energyTotals[energyType].share, 1)}%`).join('，')">
               <span
@@ -1493,7 +1572,7 @@ onBeforeUnmount(() => {
 
           <section class="construction-energy-card">
             <header class="construction-energy-heading">
-              <h2>能源消耗构成</h2>
+              <h2>碳排放构成（按能源）</h2>
               <span>ⓘ　能源碳排放因子：电力 0.581 kg/kWh · 柴油 2.632 kg/kg · 汽油 2.340 kg/kg</span>
             </header>
             <div class="construction-energy-bar" role="img" :aria-label="`电力 ${formatNumber(constructionCarbonInfo.energyTotals['电力'].share, 1)}%，柴油 ${formatNumber(constructionCarbonInfo.energyTotals['柴油'].share, 1)}%，汽油 ${formatNumber(constructionCarbonInfo.energyTotals['汽油'].share, 1)}%`">
@@ -1589,8 +1668,8 @@ onBeforeUnmount(() => {
         <template v-else-if="activePage === '回收碳计算'">
           <section class="material-stats recycling-stats">
             <article class="material-stat-card"><span>可回收阶段总减碳排量</span><strong class="recycling-emission-stat">{{ formatNumber(recyclingCarbonInfo.totalReduction, 1) }}<small> tCO₂e</small></strong></article>
-            <article class="material-stat-card"><span>可回收材料总量</span><strong>{{ formatNumber(recyclingCarbonInfo.totalRecyclingQuantity) }}<small> t</small></strong></article>
-            <article class="material-stat-card"><span>综合回收利用率</span><strong>{{ formatNumber(recyclingCarbonInfo.recyclingUtilizationRate, 1) }}<small> %</small></strong></article>
+            <article class="material-stat-card"><span>回收量（按单位）</span><strong v-for="group in recyclingQuantityGroups" :key="group.unit">{{ formatNumber(group.quantity, 3) }}<small> {{ group.unit }}</small></strong><strong v-if="recyclingQuantityGroups.length === 0">—</strong></article>
+            <article class="material-stat-card"><span>回收减碳占建材排放比</span><strong>{{ buildCarbonInfo.totalEmission > 0 ? formatNumber(recyclingCarbonInfo.recyclingUtilizationRate, 1) : '—' }}<small v-if="buildCarbonInfo.totalEmission > 0"> %</small></strong></article>
             <article class="material-stat-card"><span>回收残值估算</span><strong class="recycling-value-stat">{{ formatResidualValue(recyclingCarbonInfo.estimatedResidualValue) }}</strong></article>
           </section>
 
@@ -1713,8 +1792,8 @@ onBeforeUnmount(() => {
 
         <template v-else-if="activePage === '建材碳排放'">
           <section class="material-stats">
-            <article class="material-stat-card"><span>材料种类</span><strong>{{ materialList.count }}<small> 种</small></strong></article>
-            <article class="material-stat-card"><span>碳排放总量</span><strong>{{ formatNumber(buildCarbonInfo.totalEmission) }}<small> tCO₂e</small></strong></article>
+            <article class="material-stat-card"><span>材料条目</span><strong>{{ materialList.count }}<small> 条</small></strong></article>
+            <article class="material-stat-card"><span>碳排放总量</span><strong>{{ formatNumber(buildCarbonInfo.totalEmission, 3) }}<small> tCO₂e</small></strong></article>
             <article class="material-stat-card"><span>建材总成本</span><strong>{{ formatNumber(buildCarbonInfo.totalMaterialCost, 4) }}<small> 万元</small></strong></article>
             <article class="material-stat-card"><span>单位面积碳排</span><strong>{{ formatNumber(buildCarbonInfo.emissionPerArea, 1) }}<small> kg/m²</small></strong></article>
           </section>
@@ -1949,7 +2028,7 @@ onBeforeUnmount(() => {
 
             <section class="surface-card analysis-card analysis-lifecycle-card">
               <header class="analysis-card-heading">
-                <div><h2>全生命周期各阶段碳排</h2><p>回收阶段减排以负值计入净排放</p></div>
+                <div><h2>建造阶段碳排放与回收减碳</h2><p>回收阶段减排以负值计入净排放</p></div>
               </header>
               <div class="analysis-stage-list">
                 <article v-for="stage in analysisLifecycleStages" :key="stage.name" class="analysis-stage-row">
@@ -1990,11 +2069,11 @@ onBeforeUnmount(() => {
         <template v-else-if="activePage === '成本分析'">
           <div class="cost-analysis-summary">
             <section class="cost-metric-card">
-              <span>总成本</span>
+              <span>总成本（建材＋运输＋施工）</span>
               <strong>{{ formatNumber(costAnalysisTotal, 4) }} <small>万元</small></strong>
             </section>
             <section class="cost-metric-card cost-top-material-card">
-              <span>成本最高建材</span>
+              <span>成本最高建材（占建材成本）</span>
               <strong>{{ costAnalysisTopBuildMaterial?.materialName || '暂无' }} <small>{{ formatNumber(costAnalysisBuildTotal > 0 && costAnalysisTopBuildMaterial ? costAnalysisTopBuildMaterial.totalPrice / costAnalysisBuildTotal * 100 : 0, 1) }}%</small></strong>
             </section>
             <section class="cost-metric-card">
@@ -2047,7 +2126,7 @@ onBeforeUnmount(() => {
             </header>
             <div class="cost-detail-scroll">
               <table class="cost-detail-table">
-                <thead><tr><th>材料名称</th><th>用量</th><th>单价（元）</th><th>总价（万元）</th><th>占比</th><th>成本碳强度</th></tr></thead>
+                <thead><tr><th>材料名称</th><th>用量</th><th>单价（元）</th><th>总价（万元）</th><th>占总成本</th><th>成本碳强度</th></tr></thead>
                 <tbody>
                   <tr v-for="material in costAnalysisBuildDetails" :key="material.id">
                     <td class="cost-material-name">{{ material.materialName }}</td>

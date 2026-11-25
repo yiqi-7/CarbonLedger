@@ -1,0 +1,262 @@
+/* User-approved iOS liquid-glass treatment; original layout and controls remain. */
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --canvas: #061924;
+  --panel: rgb(255 255 255 / 9%);
+  --panel-soft: rgb(255 255 255 / 7%);
+  --field: rgb(4 24 35 / 48%);
+  --text: #edf9fc;
+  --muted: #b2cfd9;
+  --line: rgb(255 255 255 / 15%);
+  --blue: #74d8ef;
+  --glass-fill: linear-gradient(145deg, rgb(255 255 255 / 15%), rgb(255 255 255 / 7%));
+  --glass-shadow: inset 0 1px 0 rgb(255 255 255 / 9%), 0 10px 28px rgb(0 12 22 / 12%);
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+  background: var(--canvas);
+}
+body {
+  min-width: 0;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 84% 2%, rgb(53 138 153 / 34%), transparent 52%),
+    radial-gradient(ellipse at 8% 88%, rgb(24 116 126 / 22%), transparent 52%),
+    linear-gradient(145deg, #061924 4%, #0c3441 62%, #081e2c);
+  background-attachment: fixed;
+}
+::selection { background: #296a7e; color: #fff; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible { outline: 2px solid #b0eefb; outline-offset: 3px; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+* { scrollbar-width: thin; scrollbar-color: #6d98a7 transparent; }
+
+.sidebar {
+  inset: 16px auto 16px 16px;
+  width: 220px;
+  padding: 22px 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 13%), rgb(255 255 255 / 7%));
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(118%);
+  -webkit-backdrop-filter: blur(22px) saturate(118%);
+}
+.brand { gap: 10px; padding: 0 8px 26px; }
+.brand-mark { width: 32px; height: 32px; border-radius: 11px; background: rgb(154 229 244 / 16%); border: 1px solid rgb(205 250 255 / 28%); color: #cdf5ff; }
+.brand-copy strong { font-size: 15px; font-weight: 600; color: #f4fbff; }
+.brand-copy small { margin-top: 3px; font-size: 10px; color: #afcbd5; letter-spacing: .04em; }
+.sidebar-nav { gap: 5px; }
+.nav-item { min-height: 42px; border-radius: 13px; color: #c3dce5; font-size: 14px; }
+.nav-icon { color: #bbdde8; }
+.nav-item:hover { background: rgb(255 255 255 / 8%); color: #fff; }
+.nav-item.active { color: #fff; background: rgb(255 255 255 / 15%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 15%); font-weight: 600; }
+.nav-item.active .nav-icon { color: #a6e9f8; }
+.sidebar-toggle { border-color: var(--line); background: rgb(255 255 255 / 9%); border-radius: 10px; box-shadow: none; }
+.sidebar-toggle:hover { background: rgb(255 255 255 / 15%); border-color: #80afbc; }
+.sidebar-toggle-icon { color: #caecf5; }
+.sidebar .project-directory-link { background: rgb(255 255 255 / 8%); border-color: var(--line); border-radius: 12px; }
+.sidebar-collapsed { width: 0; inset: 0 auto 0 0; padding: 0; border: 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.sidebar-collapsed .project-directory-link { background: #244550; backdrop-filter: blur(16px); }
+.main-content { margin-left: 252px; }
+.main-content-expanded { margin-left: 0; }
+.top-header { min-height: 82px; height: auto; padding-top: 16px; padding-bottom: 16px; border-color: rgb(255 255 255 / 9%); background: rgb(4 22 33 / 16%); }
+.material-page-title h1 { font-size: 23px; font-weight: 600; letter-spacing: -.02em; }
+.material-page-title p, .breadcrumb, .page-subtitle { color: #b2cfd9; font-size: 12px; }
+h1 { color: #f1fbfd; font-weight: 600; }
+.page-heading h1 { font-size: 26px; }
+.page-container { max-width: 1480px; padding-top: 28px; }
+.back-button { border-radius: 11px; border-color: var(--line); background: rgb(255 255 255 / 8%); color: #d7f0f6; }
+.button { min-height: 38px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+.button-outline { border-color: rgb(255 255 255 / 19%); background: rgb(255 255 255 / 7%); color: #d5eaf1; }
+.button-outline:hover { background: rgb(255 255 255 / 14%); border-color: rgb(255 255 255 / 32%); }
+.button-primary { background: #88ddf0; border-color: #a8eafa; color: #073042; }
+.button-primary:hover { background: #b2effb; color: #062a38; }
+.header-actions { align-items: center; }
+
+.surface-card, .material-stat-card, .material-toolbar, .material-table-card,
+.construction-energy-card, .cost-metric-card, .analysis-metric-card,
+.dashboard-panel, .dashboard-stat {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--glass-fill);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(118%);
+  -webkit-backdrop-filter: blur(22px) saturate(118%);
+}
+.project-layout { gap: 18px; }
+.project-main-column, .project-side-column { gap: 16px; }
+.project-card { padding: 20px; }
+.section-title { margin-bottom: 18px; }
+.section-title h2, .material-table-heading h2, .construction-energy-heading h2,
+.cost-chart-heading h2, .cost-detail-heading h2, .analysis-card-heading h2 { color: #f0f9fc; font-size: 15px; font-weight: 600; }
+.field-grid { gap: 15px 16px; }
+.field, .field legend { color: #c8e0e8; font-size: 13px; }
+.field input, .field select, .input-unit { height: 40px; background: var(--field); border-color: rgb(255 255 255 / 13%); border-radius: 11px; color: #edf9fc; font-size: 13px; }
+.input-unit input { border: 0; background: transparent; }
+.field input:focus, .field select:focus { border-color: #95dce9; box-shadow: 0 0 0 2px rgb(149 220 233 / 12%); }
+.field input::placeholder, .material-search input::placeholder { color: #a2beca; }
+select option { color: #edf9fc; background: #153b49; }
+.input-unit small, .upload-zone small, .indicator-copy small, .hint-card p { color: #b5d0da; font-size: 12px; }
+.choice { min-height: 34px; border-color: var(--line); border-radius: 9px; background: rgb(255 255 255 / 6%); color: #d5eaf1; font-size: 12px; }
+.choice:has(input:checked) { border-color: #8cdbea; background: rgb(125 220 238 / 13%); }
+.choice input { width: 13px; height: 13px; accent-color: #88ddf0; }
+.upload-zone { min-height: 98px; border-color: #719aa9; border-radius: 15px; background: rgb(7 31 44 / 18%); }
+.upload-zone:hover { border-color: #a0dce8; background: rgb(255 255 255 / 5%); }
+.upload-zone strong { color: #dceff6; font-size: 13px; }
+.indicator-option { border-color: var(--line); border-radius: 12px; background: rgb(5 28 39 / 24%); }
+.indicator-copy strong { color: #e0f0f6; font-size: 12px; }
+.indicator-check { border-color: #abdce9; background: #88ddf0; color: #063141; box-shadow: none; }
+.architecture-preview { border-radius: 20px; border: 1px solid var(--line); opacity: .9; }
+
+.material-stats { gap: 16px; margin-bottom: 18px; }
+.material-stat-card { min-height: 96px; padding: 17px 20px; gap: 9px; }
+.material-stat-card > span, .cost-metric-card > span, .analysis-metric-card > span { color: #c1dce6; font-size: 12px; }
+.material-stat-card strong, .cost-metric-card > strong { color: #f2fbfe; font-size: clamp(22px, 2vw, 28px); font-weight: 600; }
+.material-stat-card strong small, .cost-metric-card strong small { color: #c1d8e2; font-size: 11px; }
+.material-toolbar { gap: 16px; margin-bottom: 18px; padding: 12px; border-radius: 18px; }
+.material-search { flex: 0 1 34%; min-width: 170px; height: 38px; border-color: rgb(255 255 255 / 18%); border-radius: 11px; background: rgb(3 25 37 / 35%); }
+.material-search input { color: #e6f5fa; font-size: 12px; }
+.guidance-price-link { flex: 1 0 68px; color: #a5e7f4; }
+.material-filters { flex: 0 1 auto; max-width: none; min-width: 0; gap: 5px; padding: 3px; border-radius: 12px; background: rgb(4 23 34 / 22%); }
+.material-filters button { min-height: 32px; border-radius: 9px; border-color: transparent; background: transparent; color: #c3dce5; font-size: 12px; }
+.material-filters button.active { background: rgb(255 255 255 / 19%); border-color: rgb(255 255 255 / 14%); color: #fff; box-shadow: 0 2px 5px rgb(0 12 22 / 9%); }
+.material-filters button:hover { background: rgb(255 255 255 / 10%); color: #fff; }
+.material-table-heading { min-height: 56px; height: auto; padding: 15px 19px; }
+.material-table-heading > span { color: #c3dce5; background: rgb(255 255 255 / 8%); border-radius: 7px; }
+.material-table thead { background: rgb(4 23 34 / 38%); }
+.material-table th { height: 42px; color: #bdd7e2; font-size: 12px; font-weight: 500; }
+.material-table td { height: 62px; border-color: rgb(255 255 255 / 8%); color: #dfedf4; font-size: 12px; }
+.material-table tbody tr:hover { background: rgb(255 255 255 / 3%); }
+.material-property-input, .material-edit-input, .material-type-select { border-color: rgb(255 255 255 / 20%); border-radius: 8px; background: rgb(4 23 34 / 42%); color: #e6f5fa; min-height: 34px; font-size: 12px; }
+.material-property-input:focus, .material-edit-input:focus, .material-type-select:focus { border-color: #98ddeb; box-shadow: 0 0 0 2px rgb(152 221 235 / 12%); }
+.material-type { border-color: var(--line); border-radius: 8px; background: rgb(255 255 255 / 7%); color: #c5e1eb; }
+.material-name-cell strong, .recycling-material-name strong { font-size: 12px; }
+.price-input, .recycling-price-input { color: #f3d49b; }
+.market-price-input { color: #b1e7f3; }
+.material-delete-button { border-color: rgb(255 172 180 / 25%); border-radius: 8px; background: rgb(205 90 111 / 13%); color: #ffbdc4; min-height: 32px; }
+.build-config-suggestions { border-color: #577d8c; border-radius: 13px; background: #173b49; box-shadow: 0 10px 24px #02131b55; padding: 6px; }
+.build-config-suggestions button { border-radius: 8px; min-height: 36px; color: #e4f2f8; }
+.build-config-suggestions button:hover, .build-config-suggestions button:focus-visible { background: rgb(255 255 255 / 12%); }
+.toast { border-color: #81a9b8; border-radius: 13px; background: #214a59; color: #f1fbff; box-shadow: 0 10px 30px #02131b55; font-size: 13px; }
+
+.construction-energy-card { padding: 20px; }
+.construction-energy-item { background: rgb(4 25 36 / 28%); border-color: var(--line); border-radius: 14px; }
+.construction-energy-copy strong, .transport-energy-name { color: #e3f1f7; font-size: 13px; }
+.construction-energy-copy small, .construction-energy-heading > span { color: #b9d3de; font-size: 11px; }
+.analysis-card, .cost-chart-card, .cost-detail-card { border-radius: 22px; }
+.analysis-card:not(.analysis-material-details), .cost-chart-card { padding: 22px; }
+.analysis-metric-card, .cost-metric-card { min-height: 104px; padding: 20px; }
+.cost-top-material-card > strong { font-size: 18px; }
+.analysis-card-heading p, .cost-chart-heading p, .cost-detail-heading p { color: #b5d0da; font-size: 12px; }
+.analysis-card-heading select, .cost-chart-tabs button { border-color: var(--line); border-radius: 10px; background: rgb(5 28 40 / 40%); color: #daedf4; }
+.cost-chart-tabs button.active { background: rgb(255 255 255 / 17%); border-color: #6c9caf; color: #fff; }
+.analysis-donut-center { background: #143746; }
+.analysis-compact-table thead, .analysis-detail-table thead, .cost-detail-table thead { background: rgb(4 23 34 / 32%); }
+.analysis-compact-table td, .analysis-detail-table td, .cost-detail-table td { color: #dcecf4; border-color: rgb(255 255 255 / 10%); }
+.analysis-compact-table th, .analysis-detail-table th, .cost-detail-table th { color: #b9d3de; }
+.analysis-stage-track, .analysis-share-cell > i { background: rgb(4 23 34 / 42%); }
+.analysis-net-total { border-color: var(--line); }
+.analysis-net-total strong { color: #a5e6f4; }
+.cost-chart-gridline { border-color: rgb(255 255 255 / 10%); }
+
+.dashboard-home { background: transparent; padding: 24px 28px 28px; }
+.dashboard-title { min-height: 42px; margin-bottom: 24px; color: #f0fbff; font-size: clamp(23px, 2.3vw, 32px); font-weight: 500; letter-spacing: .02em; text-shadow: none; }
+.dashboard-top { width: 100%; max-width: 1280px; gap: 16px; margin-bottom: 20px; }
+.dashboard-stat { min-height: 92px; padding: 14px 12px; gap: 8px; }
+.dashboard-stat > span { font-size: 12px; color: #c1dbe6; }
+.dashboard-stat > strong { font-size: 25px; font-weight: 600; }
+.dashboard-stat small { color: #bed8e3; font-size: 10px; }
+.dashboard-grid { min-height: calc(100vh - 224px); gap: 18px; grid-template-rows: minmax(340px, 1.3fr) minmax(250px, 1fr); }
+.dashboard-panel { border-radius: 22px; }
+.dashboard-panel-title { height: 43px; padding: 0 17px; background: transparent; border-color: rgb(255 255 255 / 10%); color: #deeff6; font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.dashboard-panel-title > i { width: 5px; height: 5px; border-radius: 50%; background: #aae6f3; box-shadow: none; }
+.dashboard-hero { padding: 10px; }
+.dashboard-image { border-radius: 15px; background: rgb(3 22 32 / 28%); }
+.dashboard-image-empty { gap: 13px; }
+.dashboard-image-empty strong { font-size: 17px; font-weight: 500; }
+.dashboard-image-empty small, .dashboard-project-name { font-size: 12px; color: #b6d2de; }
+.dashboard-project-name { padding: 10px 5px 2px; }
+.dashboard-construction-charts, .dashboard-build-charts, .dashboard-transport-charts, .dashboard-lifecycle-chart { height: calc(100% - 43px); }
+.dashboard-mini-chart { padding: 8px 10px 4px; }
+.dashboard-mini-chart + .dashboard-mini-chart { border-color: rgb(255 255 255 / 10%); }
+.dashboard-mini-chart > header { font-size: 10px; height: 22px; color: #c1dbe6; }
+.dashboard-mini-chart > svg { height: calc(100% - 22px); }
+.dashboard-line-chart { background: rgb(4 23 34 / 12%); }
+.dashboard-grid-tick line { stroke: rgb(198 230 242 / 16%); }
+.dashboard-grid-tick text { fill: #b2ced9; }
+.dashboard-value-label { fill: #c3edf7; }
+.dashboard-category-label { fill: #c5dce6; }
+.dashboard-empty-label { fill: #adc9d6; }
+.dashboard-market-line, .dashboard-deal-line { stroke-width: 2; }
+.dashboard-pie > div, .dashboard-donut > div { background: #1b414e; }
+.dashboard-recycling-content { height: calc(100% - 43px); }
+.dashboard-pie-legend > span, .dashboard-recycling-legend > span { color: #c1d9e5; font-size: 11px; }
+.dashboard-lifecycle-total { font-size: 12px; height: 30px; }
+.dashboard-lifecycle-total strong { font-size: 16px; color: #b2e7f4; }
+.dashboard-lifecycle-total small { font-size: 11px; }
+.dashboard-pie-row { height: calc(100% - 22px); }
+
+input, select, textarea { caret-color: #a6e9f8; }
+.material-table, .material-stat-card, .cost-metric-card, .analysis-metric-card { font-variant-numeric: tabular-nums; }
+.guidance-price-link { text-underline-offset: 4px; }
+@supports not (backdrop-filter: blur(1px)) {
+  .sidebar, .surface-card, .material-stat-card, .material-toolbar, .material-table-card,
+  .construction-energy-card, .cost-metric-card, .analysis-metric-card, .dashboard-panel, .dashboard-stat { background: #173743; }
+}
+@media (max-width: 1100px) {
+  .sidebar { width: 196px; }
+  .main-content { margin-left: 228px; }
+  .main-content-expanded { margin-left: 0; }
+  .sidebar-collapsed { width: 0; }
+  .page-container { padding-inline: 24px; }
+  .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: minmax(290px, auto); }
+  .dashboard-hero { grid-row: span 1; }
+  .material-toolbar { flex-wrap: wrap; }
+  .material-search { flex: 1 1 62%; }
+  .material-filters { width: 100%; flex-basis: 100%; overflow-x: auto; }
+  .guidance-price-link { flex: 1 0 75px; }
+}
+@media (max-width: 760px) {
+  .sidebar { inset: 10px auto 10px 10px; width: 62px; padding: 16px 7px; border-radius: 20px; }
+  .brand { padding: 0 0 20px; }
+  .main-content { margin-left: 84px; }
+  .main-content-expanded { margin-left: 0; }
+  .sidebar-collapsed { width: 0; padding: 0; inset: 0 auto 0 0; }
+  .nav-item { min-height: 44px; }
+  .page-container { padding-inline: 16px; }
+  .top-header { padding-inline: 16px; }
+  .project-layout { grid-template-columns: 1fr; }
+  .dashboard-home { padding: 20px 16px; }
+  .dashboard-title { padding-top: 42px; margin-bottom: 20px; }
+  .dashboard-top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .dashboard-stat:last-child { grid-column: 1 / -1; }
+  .dashboard-grid { grid-template-columns: 1fr; grid-auto-rows: 340px; gap: 16px; }
+  .dashboard-hero { min-height: 260px; grid-row: auto; }
+  .material-header { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
+  .material-header .header-actions { flex-wrap: wrap; }
+  .material-header .header-actions .button { flex: 1 1 auto; white-space: nowrap; min-height: 40px; }
+  .material-page-title h1 { font-size: 20px; }
+}
+@media (max-width: 520px) {
+  .top-header { min-height: 70px; }
+  .project-card { padding: 16px; }
+  .field-grid { grid-template-columns: 1fr; }
+  .material-stats, .construction-stats, .cost-analysis-summary { grid-template-columns: 1fr; }
+  .material-stat-card { min-height: 84px; }
+  .material-toolbar { flex-direction: row; }
+  .material-search { min-width: 0; flex: 1 1 100%; }
+  .guidance-price-link { flex: 0 0 auto; text-align: left; padding: 6px 3px; }
+  .material-filters { flex: 1 1 100%; width: 100%; justify-content: flex-start; }
+  .material-filters button { flex: 0 0 auto; min-height: 36px; }
+  .button { font-size: 12px; padding-inline: 10px; }
+  .construction-energy-breakdown, .transport-energy-breakdown { grid-template-columns: 1fr; }
+  .construction-energy-heading { flex-wrap: wrap; }
+  .construction-energy-heading > span { text-align: left; }
+  .analysis-card-heading { flex-wrap: wrap; gap: 12px; }
+  .analysis-pie-layout { grid-template-columns: 1fr; justify-items: center; }
+  .analysis-legend { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

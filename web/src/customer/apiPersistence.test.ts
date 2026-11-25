@@ -98,8 +98,10 @@ describe('customer project persistence', () => {
     api.get.mockRejectedValue(new Error('offline'))
     const create = vi.fn().mockResolvedValue({ id: 99 })
 
-    expect(await persistence.enqueue(create)).toEqual({ id: 99 })
+    const showSuccess = vi.fn()
+    expect(await persistence.enqueue(create, true, showSuccess)).toEqual({ id: 99 })
     expect(create).toHaveBeenCalledTimes(1)
+    expect(showSuccess).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledWith('数据已保存，但汇总刷新失败，请刷新页面查看最新结果')
   })
 

@@ -36,18 +36,22 @@ export function createProjectPersistence({ projectId, lists, summaries, onError 
     onError(apiMessage(error, error instanceof Error ? error.message : '操作失败，请重试'))
   }
 
-  function enqueue(action, refreshAfter = true) {
+  /** @param {((result: any) => void) | null} onSuccess */
+  function enqueue(action, refreshAfter = true, onSuccess = null) {
     pendingCount += 1
     const operation = queue.then(async () => {
       const result = await action()
+      let refreshed = true
       if (refreshAfter) {
         try {
           await refresh()
         } catch (error) {
+          refreshed = false
           report(error)
           onError('数据已保存，但汇总刷新失败，请刷新页面查看最新结果')
         }
       }
+      if (refreshed && onSuccess) onSuccess(result)
       return result
     }).catch(error => {
       report(error)
