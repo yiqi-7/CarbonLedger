@@ -162,8 +162,13 @@ sudo certbot renew --dry-run
 sudo install -d -m 700 /var/backups/carbon-ledger
 sudo install -m 600 /dev/null /etc/carbon-ledger-backup.env
 sudoedit /etc/carbon-ledger-backup.env
-# 内容：DATABASE_URL=... 和 BACKUP_GPG_RECIPIENT=GPG指纹或邮箱
+# 内容：
+#   DATABASE_URL=...            （可直接使用应用 .env 中的连接串，脚本会去掉 ?schema= 参数）
+#   BACKUP_GPG_RECIPIENT=GPG指纹或邮箱
+#   GPG_PUBLIC_KEY_FILE=/etc/carbonledger-backup-pub.asc   （脚本启动时导入该公钥）
 ```
+
+`GPG_PUBLIC_KEY_FILE` 指向备份专用公钥（ASCII armor 导出文件）。脚本会在加密前导入它，因此公钥无需事先导入运行用户的 GPG keyring。若该变量留空，则要求运行用户 keyring 中已存在对应公钥。
 
 手动验证备份：
 
