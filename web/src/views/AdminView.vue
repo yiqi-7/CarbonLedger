@@ -135,4 +135,9 @@ onMounted(load)
   .admin-back-button { transition: none; }
   .admin-back-button:active { transform: none; }
 }
+/* Apple style admin actions */
+.admin-back-button { border: 0; background: #F5F5F7; color: #0071E3; box-shadow: none; transition: transform 500ms cubic-bezier(0.25, 0.1, 0.25, 1), background-color 500ms cubic-bezier(0.25, 0.1, 0.25, 1); }
+.admin-back-button:hover { border: 0; background: #E8F2FC; color: #0066CC; box-shadow: none; transform: translateY(-2px); }
+.admin-back-button:active { transform: scale(0.96); transition-duration: 110ms; }
+.admin-back-button:focus-visible { outline-color: #0071E3; }
 </style>

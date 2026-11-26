@@ -80,10 +80,10 @@ const transportEnergyTypeNames = transportEnergyTypes
 const transportVehicleConfigurations = computed(() => transportConfigList.toArray())
 const buildMaterialCategories = ['混凝土', '金属', '砌体', '保温材料', '水泥及砂浆', '玻璃', '其他']
 const analysisStages = ['建材碳排放', '运输碳排放', '施工碳排放', '回收碳排放']
-const analysisColors = ['#25414A', '#2C6E58', '#557B79', '#B87B3A', '#476E7A', '#7C9392', '#7E5A68', '#6B9985']
+const analysisColors = ['#0071E3', '#86868B', '#6E6E73', '#34C759', '#A1A1A6', '#5E5E63', '#C7C7CC', '#424245']
 const analysisSelectedStage = ref(analysisStages[0])
 const costAnalysisStages = ['建材', '运输', '施工']
-const costAnalysisColors = ['#25414A', '#557B79', '#2C6E58', '#B87B3A', '#7C9392', '#476E7A']
+const costAnalysisColors = ['#0071E3', '#86868B', '#6E6E73', '#34C759', '#A1A1A6', '#5E5E63']
 const costAnalysisSelectedStage = ref(costAnalysisStages[0])
 const provinces = Object.keys(chinaCities)
 const cities = computed(() => chinaCities[draft.province] ?? [])
@@ -449,10 +449,10 @@ const analysisPieGradient = computed(() => {
   return `conic-gradient(${segments.join(', ')})`
 })
 const analysisLifecycleStages = computed(() => [
-  { name: '建材碳排放', emission: buildCarbonInfo.totalEmission, color: '#25414A' },
-  { name: '运输碳排放', emission: transportCarbonInfo.totalEmission, color: '#557B79' },
-  { name: '施工碳排放', emission: constructionCarbonInfo.totalEmission / 1000, color: '#7C9392' },
-  { name: '回收碳计算', emission: -recyclingCarbonInfo.totalReduction, color: '#2C6E58' }
+  { name: '建材碳排放', emission: buildCarbonInfo.totalEmission, color: '#0071E3' },
+  { name: '运输碳排放', emission: transportCarbonInfo.totalEmission, color: '#86868B' },
+  { name: '施工碳排放', emission: constructionCarbonInfo.totalEmission / 1000, color: '#6E6E73' },
+  { name: '回收碳计算', emission: -recyclingCarbonInfo.totalReduction, color: '#34C759' }
 ])
 const analysisNetEmission = computed(() =>
   analysisLifecycleStages.value.reduce((total, stage) => total + stage.emission, 0)

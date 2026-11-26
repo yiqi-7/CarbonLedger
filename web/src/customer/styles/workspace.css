@@ -44,7 +44,7 @@
   --brand-gradient: linear-gradient(145deg, #2D515C 0%, #1F3942 100%);
   --lg-press-duration: 110ms;
   --lg-spring-duration: 420ms;
-  --lg-spring-ease: cubic-bezier(0.22, 1.4, 0.36, 1);
+  --lg-spring-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 
   /* Radii */
   --radius-pill: 999px;
@@ -63,13 +63,7 @@ body {
   min-width: 0;
   color: var(--text);
   background-color: var(--canvas);
-  background-image:
-    radial-gradient(ellipse 68% 42% at 22% 0%, rgba(228, 239, 235, 0.72), transparent 64%),
-    radial-gradient(ellipse 52% 36% at 88% 10%, rgba(37, 65, 74, 0.055), transparent 60%),
-    linear-gradient(rgba(37, 65, 74, 0.036) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 65, 74, 0.036) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
-  background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+  background-image: none;
   font-size: var(--type-body);
   line-height: 1.55;
 }
@@ -718,4 +712,190 @@ fieldset.required legend::before { content: "*"; margin-right: 3px; color: #B43E
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .nav-item:active, .button:active, .material-filters button:active, .cost-chart-tabs button:active { transform: none !important; }
+}
+
+/* Apple style override: quiet grey canvas, white reading surfaces, one system blue. */
+:root {
+  --color-apple-black: #000000;
+  --color-apple-grey: #F5F5F7;
+  --color-card-white: #FFFFFF;
+  --color-system-blue: #0071E3;
+  --color-success-green: #34C759;
+  --color-alert-red: #FF3B30;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --canvas: #F5F5F7;
+  --sidebar: #FFFFFF;
+  --panel: #FFFFFF;
+  --panel-soft: #F5F5F7;
+  --field: #F5F5F7;
+  --text: #1D1D1F;
+  --muted: #86868B;
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.14);
+  --control-line: rgba(0, 0, 0, 0.12);
+  --selected: #E8F2FC;
+  --selected-line: rgba(0, 113, 227, 0.28);
+  --primary: #0071E3;
+  --primary-hover: #0066CC;
+  --primary-active: #005BB5;
+  --emission: #1D1D1F;
+  --green: #34C759;
+  --blue: #0071E3;
+  --focus-ring: rgba(0, 113, 227, 0.28);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-glass: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --brand-gradient: #000000;
+  --lg-press-duration: 110ms;
+  --lg-spring-duration: 500ms;
+  --lg-spring-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --radius-pill: 999px;
+  --radius-card: 24px;
+  --radius-field: 12px;
+  color: var(--text);
+  background: var(--canvas);
+  font-family: var(--font-sans);
+  font-size: 17px;
+}
+body {
+  min-width: 0;
+  color: var(--text);
+  background: var(--canvas);
+  background-image: none;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+}
+::selection { color: #FFFFFF; background: var(--color-system-blue); }
+* { scrollbar-color: rgba(0, 0, 0, 0.24) transparent; }
+button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue); }
+
+.sidebar {
+  width: 230px;
+  padding: 28px 16px 20px;
+  background: #FFFFFF;
+  border-right: 1px solid rgba(0, 0, 0, 0.10);
+  box-shadow: none;
+}
+.brand { gap: 10px; padding: 0 8px 32px; }
+.brand-mark { width: 32px; height: 32px; flex-basis: 32px; border-radius: 50%; background: #000000; box-shadow: none; }
+.brand-copy strong { color: var(--text); font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
+.sidebar-nav { gap: 4px; }
+.nav-item { min-height: 44px; padding-inline: 12px; border: 0; border-radius: 12px; color: #6E6E73; font-size: 14px; font-weight: 400; transition: background-color 500ms var(--lg-spring-ease), color 500ms var(--lg-spring-ease), transform 500ms var(--lg-spring-ease); }
+.nav-icon { color: #86868B; }
+.nav-item:hover { background: #F5F5F7; color: var(--text); box-shadow: none; }
+.nav-item:hover .nav-icon { color: var(--text); }
+.nav-item.active { background: #E8F2FC; border: 0; color: var(--color-system-blue); font-weight: 500; box-shadow: none; }
+.nav-item.active .nav-icon { color: var(--color-system-blue); }
+.nav-item:active, .nav-item[data-lg-pressed="true"] { transition-duration: 110ms; transform: scale(0.96); }
+.sidebar .project-directory-link { min-height: 44px; padding-inline: 12px; background: #F5F5F7; border: 0; border-radius: 999px; color: #6E6E73; box-shadow: none; transition: background-color 500ms var(--lg-spring-ease), color 500ms var(--lg-spring-ease), transform 500ms var(--lg-spring-ease); }
+.sidebar .project-directory-link:hover { background: #E8F2FC; color: var(--color-system-blue); border: 0; box-shadow: none; }
+.sidebar .project-directory-link:active { transform: scale(0.96); transition-duration: 110ms; }
+.sidebar-toggle { margin-top: 16px; background: #F5F5F7; border: 0; border-radius: 999px; box-shadow: none; }
+.sidebar-toggle:hover { background: #E8F2FC; border: 0; }
+.sidebar-toggle-icon { color: #6E6E73; }
+.sidebar-collapsed { width: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.sidebar-collapsed .project-directory-link { background: #FFFFFF; border: 0; box-shadow: var(--shadow-sm); }
+.main-content { margin-left: 230px; }
+.main-content-expanded { margin-left: 0; }
+
+.top-header { min-height: 64px; padding: 8px clamp(20px, 3vw, 48px); background: rgba(255, 255, 255, 0.80); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.10); box-shadow: none; }
+.breadcrumb, .material-page-title p, .page-subtitle { color: var(--muted); font-size: 14px; }
+.breadcrumb strong { color: var(--text); }
+.material-page-title h1, h1 { color: var(--text); font-size: 40px; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }
+.material-page-title h1 { font-size: 24px; }
+.back-button { border: 0; background: #F5F5F7; color: var(--color-system-blue); border-radius: 999px; box-shadow: none; transition: transform 500ms var(--lg-spring-ease), background-color 500ms var(--lg-spring-ease); }
+.back-button:hover { border: 0; background: #E8F2FC; color: var(--color-system-blue); transform: translateY(-2px); }
+.back-button:active { transform: scale(0.96); transition-duration: 110ms; }
+.page-container { width: min(100%, 1080px); padding: 64px 24px 96px; }
+.page-heading { margin-bottom: 48px; }
+
+.surface-card, .material-table-card, .construction-energy-card, .dashboard-panel { background: #FFFFFF; border: 0; border-radius: 24px; box-shadow: var(--shadow-sm); }
+.project-layout { gap: 32px; }
+.project-main-column, .project-side-column { gap: 32px; }
+.project-card { padding: 32px; }
+.section-title { margin-bottom: 32px; }
+.section-title h2, .material-table-heading h2, .construction-energy-heading h2, .analysis-card-heading h2, .cost-chart-heading h2, .cost-detail-heading h2 { color: var(--text); font-size: 24px; font-weight: 500; letter-spacing: -0.01em; }
+.field-grid { gap: 24px; }
+.field, .field legend { color: var(--text); font-size: 14px; font-weight: 400; }
+.field input, .field select, .input-unit, .material-property-input, .material-edit-input, .material-type-select { height: 44px; border: 0; border-radius: 12px; background: #F5F5F7; color: var(--text); box-shadow: none; }
+.field input:focus, .field select:focus, .material-property-input:focus, .material-edit-input:focus, .material-type-select:focus { border: 0; outline: none; box-shadow: 0 0 0 2px var(--color-system-blue); }
+.input-unit:focus-within { border: 0; box-shadow: 0 0 0 2px var(--color-system-blue); }
+.upload-zone { border: 1px dashed rgba(0, 0, 0, 0.16); border-radius: 18px; background: #F5F5F7; }
+.upload-zone:hover { border-color: var(--color-system-blue); background: #E8F2FC; }
+
+.material-stats, .cost-analysis-summary, .analysis-summary-grid { padding: 32px; margin-bottom: 32px; gap: 24px; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: var(--shadow-sm); }
+.material-stat-card, .cost-metric-card, .analysis-metric-card { min-height: 72px; }
+.material-stat-card > span, .cost-metric-card > span, .analysis-metric-card span { color: var(--muted); font-size: 14px; font-weight: 400; }
+.material-stat-card strong, .cost-metric-card > strong, .analysis-metric-card strong { color: var(--text); font-size: 30px; font-weight: 600; }
+.material-stat-card .emission-stat, .net-emission-card strong, .material-emission, .analysis-net-total strong { color: var(--text) !important; }
+.recycling-emission-stat, .analysis-stage-label .analysis-reduction-value { color: var(--green) !important; }
+
+.material-toolbar { margin-bottom: 24px; gap: 24px; }
+.material-search { height: 48px; max-width: 380px; padding-inline: 16px; background: #F5F5F7; border: 0; border-radius: 12px; box-shadow: none; }
+.material-search:focus-within { border: 0; box-shadow: 0 0 0 2px var(--color-system-blue); }
+.material-filters { gap: 8px; }
+.material-filters button { min-height: 44px; padding-inline: 16px; border: 0; border-radius: 999px; background: #F5F5F7; color: #6E6E73; font-size: 14px; box-shadow: none; transition: transform 500ms var(--lg-spring-ease), background-color 500ms var(--lg-spring-ease), color 500ms var(--lg-spring-ease); }
+.material-filters button:hover { background: #E8F2FC; color: var(--color-system-blue); border: 0; }
+.material-filters button.active { background: var(--color-system-blue); color: #FFFFFF; border: 0; box-shadow: 0 4px 14px rgba(0, 113, 227, 0.30); }
+.material-filters button:active { transform: scale(0.96); transition-duration: 110ms; }
+
+.material-table-heading { min-height: 64px; padding: 20px 32px; border-bottom: 1px solid var(--line); }
+.material-table th { height: 52px; color: #6E6E73; font-size: 12px; font-weight: 500; }
+.material-table td { height: 60px; color: var(--text); border-color: var(--line); font-size: 14px; }
+.material-table tbody tr:nth-child(even) { background: #FAFAFC; }
+.material-table tbody tr:hover { background: #F5F5F7; }
+.material-type { border: 0; border-radius: 999px; background: #F5F5F7; color: #6E6E73; }
+.material-delete-button { color: var(--color-alert-red); }
+
+.build-config-suggestions, .toast { border: 0; border-radius: 18px; background: #FFFFFF; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12); backdrop-filter: none; }
+.build-config-suggestions button:hover { background: #F5F5F7; color: var(--color-system-blue); }
+.construction-energy-card { padding: 32px; margin-bottom: 32px; }
+.construction-energy-bar { background: #E5E5EA; border-radius: 999px; }
+.energy-电力, .dashboard-build-bar, .dashboard-transport-bar { background: var(--color-system-blue); }
+.energy-柴油 { background: #86868B; color: #FFFFFF; }
+.energy-汽油 { background: #6E6E73; }
+.analysis-card, .cost-chart-card { padding: 32px; }
+.analysis-card-heading select, .cost-chart-tabs button { min-height: 44px; border: 0; border-radius: 999px; background: #F5F5F7; color: var(--text); box-shadow: none; }
+.cost-chart-tabs button.active { background: var(--color-system-blue); color: #FFFFFF; border: 0; box-shadow: 0 4px 14px rgba(0, 113, 227, 0.30); }
+.analysis-donut-center { background: #FFFFFF; }
+.analysis-compact-table td, .analysis-detail-table td, .cost-detail-table td { color: var(--text); border-color: var(--line); }
+.analysis-compact-table th, .analysis-detail-table th, .cost-detail-table th { color: #6E6E73; }
+.analysis-stage-track, .analysis-share-cell > i { background: #E5E5EA; }
+.cost-chart-bar-wrap i { background: var(--color-system-blue); }
+.dashboard-model, .dashboard-workbench .dashboard-panel { border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: var(--shadow-sm); }
+.dashboard-model img { background: #F5F5F7; }
+.dashboard-line-chart { background: transparent; }
+.dashboard-grid-tick line { stroke: rgba(0, 0, 0, 0.08); }
+.dashboard-grid-tick text, .dashboard-category-label, .dashboard-empty-label { fill: #86868B; }
+.dashboard-value-label { fill: #1D1D1F; }
+.dashboard-construction-bar { fill: #86868B; }
+.dashboard-build-bar, .dashboard-transport-bar { fill: var(--color-system-blue); }
+.dashboard-market-line { stroke: var(--color-system-blue); }
+.dashboard-deal-line { stroke: var(--color-success-green); }
+.dashboard-market-point { fill: var(--color-system-blue); stroke: #FFFFFF; }
+.dashboard-deal-point { fill: var(--color-success-green); stroke: #FFFFFF; }
+.dashboard-market-label { fill: var(--color-system-blue); }
+.dashboard-deal-label { fill: #248A3D; }
+.dashboard-legend-emission, .dashboard-legend-market { background: var(--color-system-blue); }
+.dashboard-legend-price { background: #86868B; }
+.dashboard-legend-deal { background: var(--color-success-green); }
+
+@media (max-width: 760px) {
+  .sidebar { width: 64px; padding: 20px 8px 14px; }
+  .brand { padding: 0 0 24px; }
+  .main-content { margin-left: 64px; }
+  .page-container { padding: 40px 20px 64px; }
+  .top-header { padding-inline: 16px; }
+  .material-page-title h1, h1 { font-size: 32px; }
+}
+@media (max-width: 520px) {
+  .project-card { padding: 24px; }
+  .surface-card, .material-table-card, .construction-energy-card, .dashboard-panel, .material-stats, .construction-stats, .cost-analysis-summary, .analysis-summary-grid { border-radius: 24px; }
+  .material-stats, .construction-stats, .cost-analysis-summary, .analysis-summary-grid { padding: 24px; }
+  .analysis-card, .cost-chart-card { padding: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .nav-item:active, .button:active, .material-filters button:active, .cost-chart-tabs button:active, .project-card:hover { transform: none !important; }
 }

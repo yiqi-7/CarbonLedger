@@ -87,10 +87,10 @@ const constructionPriceTotal = computed(() =>
   constructionPriceItems.value.reduce((total, item) => total + item.value, 0)
 )
 const lifecycleItems = computed(() => [
-  { label: '建材生产', value: props.buildEmission, color: '#25414A' },
-  { label: '运输', value: props.transportEmission, color: '#557B79' },
-  { label: '施工', value: props.constructionEmission, color: '#7C9392' },
-  { label: '回收', value: -props.recyclingEmission, color: '#2C6E58' }
+  { label: '建材生产', value: props.buildEmission, color: '#0071E3' },
+  { label: '运输', value: props.transportEmission, color: '#86868B' },
+  { label: '施工', value: props.constructionEmission, color: '#6E6E73' },
+  { label: '回收', value: -props.recyclingEmission, color: '#34C759' }
 ])
 const lifecycleScale = computed(() => createChartScale(lifecycleItems.value.map(item => item.value), 28, 155))
 const recyclingCategories = computed(() =>
@@ -101,7 +101,7 @@ const recyclingTotal = computed(() =>
   recyclingCategories.value.reduce((total, item) => total + item.value, 0)
 )
 const recyclingGradient = computed(() => createPieGradient(recyclingCategories.value, item => item.value))
-const dashboardColors = ['#25414A', '#2C6E58', '#557B79', '#B87B3A', '#476E7A', '#7C9392']
+const dashboardColors = ['#0071E3', '#86868B', '#6E6E73', '#34C759', '#A1A1A6', '#5E5E63']
 
 function createPieGradient(items, valueFor) {
   const total = items.reduce((sum, item) => sum + Math.max(0, valueFor(item)), 0)

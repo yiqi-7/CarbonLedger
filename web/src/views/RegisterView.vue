@@ -122,4 +122,24 @@ async function submit() {
   .register-brand h1 { font-size: 30px; }
   .register-form { padding: 28px 24px; border-radius: 24px; }
 }
+/* Apple light authentication surface */
+.register-page { background: #F5F5F7; background-image: none; color: #1D1D1F; }
+.register-content { gap: 48px; padding: 64px 24px 96px; }
+.register-brand h1 { color: #1D1D1F; font-size: 40px; font-weight: 600; letter-spacing: -0.025em; }
+.register-form { padding: 40px; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.register-form h2 { color: #1D1D1F; font-size: 24px; font-weight: 600; letter-spacing: -0.015em; }
+.register-description { color: #86868B; font-size: 17px; line-height: 1.55; }
+.register-form :deep(.el-form-item__label) { color: #1D1D1F; font-size: 14px; font-weight: 400; }
+.register-form :deep(.el-input__wrapper) { min-height: 48px; border-radius: 12px; background: #F5F5F7; box-shadow: none; }
+.register-form :deep(.el-textarea__inner) { border-radius: 12px; background: #F5F5F7; box-shadow: none; }
+.register-form :deep(.el-input__wrapper.is-focus), .register-form :deep(.el-textarea__inner:focus) { box-shadow: 0 0 0 2px #0071E3; }
+.register-form :deep(.el-button.full-width) { min-height: 48px; border-radius: 999px; font-size: 17px; font-weight: 500; }
+.auth-foot { color: #86868B; }
+.auth-foot a, .success-state .button-link { color: #0071E3; }
+.success-state p { color: #86868B; font-size: 17px; }
+@media (max-width: 600px) {
+  .register-content { gap: 32px; padding: 48px 20px 80px; }
+  .register-brand h1 { font-size: 32px; }
+  .register-form { padding: 32px 24px; border-radius: 24px; }
+}
 </style>

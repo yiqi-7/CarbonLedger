@@ -81,7 +81,7 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
-  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 420ms cubic-bezier(0.22, 1.4, 0.36, 1);
+  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 500ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .project-directory-link:hover { background: rgba(255, 255, 255, 0.90); color: var(--primary, #25414A); border-color: rgba(85, 123, 121, 0.35); }
 .project-directory-link:focus-visible { outline: 2px solid var(--color-focus, #557B79); outline-offset: 3px; }
@@ -96,4 +96,10 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
   .sidebar:not(.sidebar-collapsed) .project-directory-label { display: none; }
   .sidebar-collapsed .project-directory-link { top: 9px; left: 8px; font-size: 12px; }
 }
+/* Apple style sidebar refinements */
+.brand-mark { background: #000000; border-radius: 50%; box-shadow: none; }
+.project-directory-link { background: #F5F5F7; border: 0; border-radius: 999px; color: #6E6E73; transition: transform 500ms cubic-bezier(0.25, 0.1, 0.25, 1), background-color 500ms cubic-bezier(0.25, 0.1, 0.25, 1); }
+.project-directory-link:hover { background: #E8F2FC; color: #0071E3; border: 0; }
+.project-directory-link:active { transform: scale(0.96); transition-duration: 110ms; }
+.project-directory-link:focus-visible { outline-color: #0071E3; }
 </style>

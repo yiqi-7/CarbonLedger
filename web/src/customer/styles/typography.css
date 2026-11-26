@@ -1,11 +1,11 @@
 /* Type roles shared by the customer workspace — Liquid Glass system UI scale. */
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Carbon Sans", "PingFang SC", "Microsoft YaHei UI", sans-serif;
-  --type-page: 28px;
-  --type-section: 20px;
-  --type-body: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --type-page: 40px;
+  --type-section: 24px;
+  --type-body: 17px;
   --type-table: 14px;
-  --type-caption: 13px;
+  --type-caption: 14px;
   --type-label: 12px;
   --type-metric: 30px;
 }
