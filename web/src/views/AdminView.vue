@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { ArrowLeft } from '@element-plus/icons-vue'
 import { api, apiMessage } from '@/api'
 
 const pending = ref<any[]>([])
@@ -58,7 +59,10 @@ onMounted(load)
   <section class="admin-wrap" v-loading="loading">
     <header class="admin-heading">
       <div><h1>管理员控制台</h1><p class="muted">注册审批、账号状态与关键操作记录</p></div>
-      <el-button @click="load">刷新</el-button>
+      <div class="admin-heading-actions">
+        <RouterLink to="/projects" class="admin-back-button"><ArrowLeft aria-hidden="true" />返回我的项目</RouterLink>
+        <el-button @click="load">刷新</el-button>
+      </div>
     </header>
     <nav class="admin-tabs" aria-label="管理员视图">
       <button :class="{ active: active === 'pending' }" @click="active = 'pending'">待审批 <span>{{ pending.length }}</span></button>
@@ -88,3 +92,47 @@ onMounted(load)
     </el-table>
   </section>
 </template>
+
+<style scoped>
+.admin-heading-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.admin-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(37, 65, 74, 0.16);
+  border-radius: 999px;
+  background: rgba(239, 245, 242, 0.84);
+  color: var(--color-glass-scene);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(19, 37, 41, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, transform 420ms ease-out;
+}
+.admin-back-button :deep(svg) { width: 16px; height: 16px; }
+.admin-back-button:hover {
+  border-color: rgba(85, 123, 121, 0.42);
+  background: #FCFCFA;
+  color: var(--platform-ink);
+  box-shadow: 0 8px 20px rgba(19, 37, 41, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+.admin-back-button:active { transform: scale(0.96); transition-duration: 110ms; }
+.admin-back-button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .admin-heading-actions { width: 100%; justify-content: stretch; }
+  .admin-heading-actions > * { flex: 1 1 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-back-button { transition: none; }
+  .admin-back-button:active { transform: none; }
+}
+</style>

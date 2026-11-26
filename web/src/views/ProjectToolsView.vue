@@ -175,7 +175,7 @@ watch(projectId, () => {
 .factor-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .factor-actions .el-button + .el-button { margin-left: 0; }
 :deep(.el-input-number) { width: 100%; }
-.workspace-tabs button:focus-visible, .factor-tabs button:focus-visible { outline: 2px solid #2563a6; outline-offset: -2px; }
+.workspace-tabs button:focus-visible, .factor-tabs button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 @media (max-width: 600px) {
   .heading-actions { justify-content: flex-start; }
   .panel { padding: 16px; }

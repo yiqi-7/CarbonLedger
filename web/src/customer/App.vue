@@ -40,32 +40,6 @@ const navigation = [
   '成本分析'
 ]
 
-const LimitTime = '2026-12-01'
-// 是否强制要求网络校时：true = 拿不到网络时间即锁定（严格防改本机时钟）；
-// false = 网络时间优先，取不到时退回本机时间继续按 LimitTime 判定（避免外网波动导致整站不可用）。
-const requireNetworkTime = false
-const networkTimeAvailable = ref(false)
-const networkTimeNow = ref(null)
-const networkTimeAtSync = ref(null)
-const networkTimeSyncedAt = ref(0)
-const localTimeNow = ref(Date.now())
-let fallbackNoticeShown = false
-const currentTimestamp = computed(() =>
-  networkTimeAvailable.value && networkTimeNow.value !== null
-    ? networkTimeNow.value
-    : localTimeNow.value
-)
-const navigationLocked = computed(() => {
-  if (requireNetworkTime && !networkTimeAvailable.value) return true
-  let limitTimestamp
-  try {
-    limitTimestamp = parseLimitTime(LimitTime)
-  } catch (error) {
-    console.error('Invalid LimitTime value.', error)
-    return false
-  }
-  return currentTimestamp.value > limitTimestamp
-})
 const activePage = ref('项目信息')
 const sidebarCollapsed = ref(false)
 const message = ref('')
@@ -96,8 +70,6 @@ let nextPendingBuildMaterialId = 1
 const materialFileInput = ref(null)
 const constructionFileInput = ref(null)
 const transportFileInput = ref(null)
-let networkTimeTimer = null
-let networkTimeRequest = null
 const materialEditDrafts = reactive({})
 const recyclingEditDrafts = reactive({})
 const constructionEditDrafts = reactive({})
@@ -108,10 +80,10 @@ const transportEnergyTypeNames = transportEnergyTypes
 const transportVehicleConfigurations = computed(() => transportConfigList.toArray())
 const buildMaterialCategories = ['混凝土', '金属', '砌体', '保温材料', '水泥及砂浆', '玻璃', '其他']
 const analysisStages = ['建材碳排放', '运输碳排放', '施工碳排放', '回收碳排放']
-const analysisColors = ['#3974ae', '#528576', '#758ca8', '#8b9ba7', '#4d8290', '#9c886b', '#727d96', '#80998c']
+const analysisColors = ['#25414A', '#2C6E58', '#557B79', '#B87B3A', '#476E7A', '#7C9392', '#7E5A68', '#6B9985']
 const analysisSelectedStage = ref(analysisStages[0])
 const costAnalysisStages = ['建材', '运输', '施工']
-const costAnalysisColors = ['#3974ae', '#6688aa', '#758ca8', '#528576', '#8b9ba7', '#4d8290']
+const costAnalysisColors = ['#25414A', '#557B79', '#2C6E58', '#B87B3A', '#7C9392', '#476E7A']
 const costAnalysisSelectedStage = ref(costAnalysisStages[0])
 const provinces = Object.keys(chinaCities)
 const cities = computed(() => chinaCities[draft.province] ?? [])
@@ -366,72 +338,7 @@ async function prepareExport(kind = null) {
   return !dirty
 }
 
-function parseLimitTime(value) {
-  const parts = String(value).trim().split('-')
-  if (parts.length < 1 || parts.length > 6 ||
-    !/^\d{4}$/.test(parts[0]) ||
-    parts.slice(1).some(part => !/^\d{1,2}$/.test(part))) {
-    throw new Error('LimitTime 格式应为 年-月-日-小时-分-秒')
-  }
-  const [yearValue, monthValue, dayValue, hourValue, minuteValue, secondValue] = parts
-  const year = Number(yearValue)
-  const month = monthValue === undefined ? 1 : Number(monthValue)
-  const day = dayValue === undefined ? 1 : Number(dayValue)
-  const hour = hourValue === undefined ? 0 : Number(hourValue)
-  const minute = minuteValue === undefined ? 0 : Number(minuteValue)
-  const second = secondValue === undefined ? 0 : Number(secondValue)
-  const date = new Date(0)
-  date.setFullYear(year, month - 1, day)
-  date.setHours(hour, minute, second, 0)
-  if (year < 1 || year > 9999 || month < 1 || month > 12 ||
-    day < 1 || date.getFullYear() !== year || date.getMonth() !== month - 1 ||
-    date.getDate() !== day || hour < 0 || hour > 23 ||
-    minute < 0 || minute > 59 || second < 0 || second > 59) {
-    throw new Error('LimitTime 包含无效的日期或时间')
-  }
-  return date.getTime()
-}
-
-async function syncNetworkTime() {
-  if (networkTimeRequest) return networkTimeRequest
-  networkTimeRequest = (async () => {
-    const response = await fetch('/api/health', {
-      cache: 'no-store'
-    })
-    if (!response.ok) {
-      throw new Error(`读取网络时间失败：HTTP ${response.status}`)
-    }
-    const result = await response.json()
-    if (typeof result.time !== 'string') {
-      throw new Error('网络时间服务返回了无效的 UTC 时间')
-    }
-    const timestamp = Date.parse(result.time)
-    if (!Number.isFinite(timestamp)) {
-      throw new Error('网络时间服务返回了无法解析的时间')
-    }
-    networkTimeNow.value = timestamp
-    networkTimeAtSync.value = timestamp
-    networkTimeSyncedAt.value = performance.now()
-    networkTimeAvailable.value = true
-  })()
-  try {
-    await networkTimeRequest
-  } catch (error) {
-    networkTimeAvailable.value = false
-    throw error
-  } finally {
-    networkTimeRequest = null
-  }
-}
-
 async function navigateToPage(page) {
-  if (navigationLocked.value) {
-    notify(requireNetworkTime && !networkTimeAvailable.value
-      ? '无法获取网络时间，页面导航已锁定'
-      : '已超过 LimitTime，页面导航已锁定')
-    return
-  }
-
   document.activeElement?.blur?.()
   activePage.value = page
   await nextTick()
@@ -532,7 +439,7 @@ const analysisPieTotal = computed(() =>
   analysisPieItems.value.reduce((total, item) => total + item.emission, 0)
 )
 const analysisPieGradient = computed(() => {
-  if (analysisPieTotal.value <= 0) return 'conic-gradient(#203957 0deg 360deg)'
+  if (analysisPieTotal.value <= 0) return 'conic-gradient(#E5EAE7 0deg 360deg)'
   let currentAngle = 0
   const segments = analysisPieItems.value.map((item, index) => {
     const start = currentAngle
@@ -542,10 +449,10 @@ const analysisPieGradient = computed(() => {
   return `conic-gradient(${segments.join(', ')})`
 })
 const analysisLifecycleStages = computed(() => [
-  { name: '建材碳排放', emission: buildCarbonInfo.totalEmission, color: '#3974ae' },
-  { name: '运输碳排放', emission: transportCarbonInfo.totalEmission, color: '#6688aa' },
-  { name: '施工碳排放', emission: constructionCarbonInfo.totalEmission / 1000, color: '#8b9ba7' },
-  { name: '回收碳计算', emission: -recyclingCarbonInfo.totalReduction, color: '#528576' }
+  { name: '建材碳排放', emission: buildCarbonInfo.totalEmission, color: '#25414A' },
+  { name: '运输碳排放', emission: transportCarbonInfo.totalEmission, color: '#557B79' },
+  { name: '施工碳排放', emission: constructionCarbonInfo.totalEmission / 1000, color: '#7C9392' },
+  { name: '回收碳计算', emission: -recyclingCarbonInfo.totalReduction, color: '#2C6E58' }
 ])
 const analysisNetEmission = computed(() =>
   analysisLifecycleStages.value.reduce((total, stage) => total + stage.emission, 0)
@@ -640,40 +547,7 @@ const indicators = [
 ]
 
 onMounted(async () => {
-  window.LimitTime = LimitTime
-  // 校时与配置读取互不阻塞：外网时间服务较慢时，界面仍可立即读取碳排因子库。
-  const timeSetup = (async () => {
-    try {
-      parseLimitTime(LimitTime)
-      await syncNetworkTime()
-    } catch (error) {
-      console.warn('Unable to initialize network time restriction, falling back to local time.', error)
-      if (requireNetworkTime) {
-        notify(error instanceof Error ? `${error.message}，暂时无法验证时间限制` : '无法验证网络时间')
-      } else if (!fallbackNoticeShown) {
-        fallbackNoticeShown = true
-        notify('无法连接网络时间服务，已改用本机时间校验有效期')
-      }
-    }
-  })()
-  networkTimeTimer = window.setInterval(() => {
-    localTimeNow.value = Date.now()
-    if (networkTimeAvailable.value && networkTimeNow.value !== null) {
-      networkTimeNow.value = networkTimeAtSync.value +
-        performance.now() - networkTimeSyncedAt.value
-    }
-    // 校时失败时降低重试频率（15 秒一次），避免外网异常时反复请求并刷屏报错。
-    const retryInterval = networkTimeAvailable.value ? 60_000 : 15_000
-    if (performance.now() - networkTimeSyncedAt.value >= retryInterval) {
-      syncNetworkTime().catch(error => {
-        if (networkTimeAvailable.value) {
-          console.warn('Unable to refresh the current network time.', error)
-        }
-      })
-    }
-  }, 1000)
-
-  await Promise.all([timeSetup, loadProjectData()])
+  await loadProjectData()
 })
 
 // 项目因子保持客户原有选择方式，由后台按项目隔离保存。
@@ -1021,10 +895,6 @@ function getRecyclingQuantityLimit(recyclingMaterial) {
 }
 
 async function exportProjectReport() {
-  if (navigationLocked.value) {
-    notify(requireNetworkTime && !networkTimeAvailable.value ? '无法获取网络时间，无法导出报告书' : '已超过 LimitTime，无法导出报告书')
-    return
-  }
   if (!canSave()) return
   if (!await prepareExport()) return
   const result = await persistence.enqueue(async () => {
@@ -1210,10 +1080,6 @@ function readFileAsDataUrl(file) {
 }
 
 async function createProject(event) {
-  if (navigationLocked.value) {
-    notify(requireNetworkTime && !networkTimeAvailable.value ? '无法获取网络时间，无法保存项目信息' : '已超过 LimitTime，无法保存项目信息')
-    return
-  }
   if (!event.target.reportValidity() || !canSave()) return
   const submittedDraft = { ...draft, accountingStages: [...draft.accountingStages] }
   const projectInfo = { ...submittedDraft }
@@ -1236,7 +1102,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('input', capturePendingBuildInput, true)
   delete window.carbonLedgerCustomer
   if (uploadedImageUrl.value) URL.revokeObjectURL(uploadedImageUrl.value)
-  if (networkTimeTimer !== null) window.clearInterval(networkTimeTimer)
 })
 </script>
 
@@ -1245,7 +1110,6 @@ onBeforeUnmount(() => {
     <AppSidebar
       :active-page="activePage"
       :navigation="navigation"
-      :navigation-locked="navigationLocked"
       :collapsed="sidebarCollapsed"
       @navigate="navigateToPage"
       @toggle="toggleSidebar"
@@ -1256,7 +1120,7 @@ onBeforeUnmount(() => {
       <header v-if="activePage === '项目信息'" class="top-header">
         <div class="breadcrumb"><span>{{ ProjectInfo.projectName || '当前项目' }}</span><ArrowRight class="action-icon" aria-hidden="true" /><strong>项目信息</strong></div>
         <div class="header-actions">
-          <button v-if="activePage === '项目信息'" class="button button-primary" type="submit" form="project-form" :disabled="navigationLocked">
+          <button v-if="activePage === '项目信息'" class="button button-primary" type="submit" form="project-form">
             <Check class="action-icon" aria-hidden="true" /> 保存项目信息
           </button>
         </div>
@@ -1314,7 +1178,7 @@ onBeforeUnmount(() => {
           <div><h1>排放分析</h1><p>{{ ProjectInfo.projectName }}</p></div>
         </div>
         <div class="header-actions">
-          <button class="button button-primary" type="button" :disabled="navigationLocked" @click="exportProjectReport"><Download class="action-icon" aria-hidden="true" /> 导出报告</button>
+          <button class="button button-primary" type="button" @click="exportProjectReport"><Download class="action-icon" aria-hidden="true" /> 导出报告</button>
         </div>
       </header>
 

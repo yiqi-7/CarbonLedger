@@ -206,7 +206,7 @@ describe('customer workspace session and navigation', () => {
     const script = runSetup('../App.vue', {
       onMounted: vi.fn(), onUnmounted: vi.fn(),
       useRoute: () => route, useRouter: () => router, useAuthStore: () => auth,
-    }, 'onUnauthorized')
+    }, 'onUnauthorized, signOut')
     script.onUnauthorized()
     expect(auth.logout).not.toHaveBeenCalled()
     expect(router.push).not.toHaveBeenCalled()
@@ -214,5 +214,19 @@ describe('customer workspace session and navigation', () => {
     script.onUnauthorized()
     expect(auth.logout).toHaveBeenCalledOnce()
     expect(router.push).toHaveBeenCalledWith('/login')
+  })
+
+  it('clears the session before replacing the current route on explicit sign out', async () => {
+    const route = { meta: { customerWorkspace: false } }
+    const router = { push: vi.fn(), replace: vi.fn().mockResolvedValue(undefined) }
+    const auth = { logout: vi.fn() }
+    const script = runSetup('../App.vue', {
+      onMounted: vi.fn(), onUnmounted: vi.fn(),
+      useRoute: () => route, useRouter: () => router, useAuthStore: () => auth,
+    }, 'signOut')
+    await script.signOut()
+    expect(auth.logout).toHaveBeenCalledOnce()
+    expect(router.replace).toHaveBeenCalledWith('/login')
+    expect(router.push).not.toHaveBeenCalled()
   })
 })

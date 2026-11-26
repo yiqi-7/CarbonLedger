@@ -7,7 +7,6 @@ import {
 defineProps({
   activePage: { type: String, default: '项目信息' },
   navigation: { type: Array, default: () => [] },
-  navigationLocked: { type: Boolean, default: false },
   collapsed: { type: Boolean, default: false }
 })
 
@@ -21,12 +20,10 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
   <aside class="sidebar" :class="{ 'sidebar-collapsed': collapsed }">
     <a
       class="brand"
-      :class="{ 'navigation-locked': navigationLocked }"
       href="#"
       aria-label="碳建智算平台首页"
       title="碳建智算平台首页"
-      :aria-disabled="navigationLocked ? 'true' : undefined"
-      @click.prevent="!navigationLocked && emit('navigate', '首页')"
+      @click.prevent="emit('navigate', '首页')"
     >
       <span class="brand-mark" aria-hidden="true"><OfficeBuilding class="brand-icon" /></span>
       <span class="brand-copy"><strong>碳建智算平台</strong></span>
@@ -41,7 +38,6 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
         :aria-label="labels[item] || item"
         :title="labels[item] || item"
         :aria-current="activePage === item ? 'page' : undefined"
-        :disabled="navigationLocked"
         @click="emit('navigate', item)"
       >
         <span class="nav-icon" aria-hidden="true"><component :is="icons[index]" /></span>
@@ -75,18 +71,20 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 36px;
+  min-height: 44px;
   margin-top: 18px;
-  padding: 7px 10px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: #4e5e72;
+  padding: 7px 14px;
+  border: 1px solid rgba(37, 65, 74, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.56);
+  color: var(--muted, #566666);
   font-size: 13px;
+  font-weight: 500;
   text-decoration: none;
+  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 420ms cubic-bezier(0.22, 1.4, 0.36, 1);
 }
-.project-directory-link:hover { background: #e3e8ee; color: #174f8c; }
-.project-directory-link:focus-visible { outline: 2px solid #2563a6; outline-offset: 3px; }
+.project-directory-link:hover { background: rgba(255, 255, 255, 0.90); color: var(--primary, #25414A); border-color: rgba(85, 123, 121, 0.35); }
+.project-directory-link:focus-visible { outline: 2px solid var(--color-focus, #557B79); outline-offset: 3px; }
 .sidebar-collapsed .project-directory-link {
   position: fixed;
   top: 12px;

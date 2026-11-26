@@ -125,31 +125,66 @@ onUnmounted(() => { clearTimeout(loadTimer); window.removeEventListener('message
   background: var(--platform-canvas);
   text-align: center;
 }
-.workspace-state h1 { margin: 0 0 12px; font-size: 28px; font-weight: 700; }
-.workspace-state p { color: var(--platform-muted); font-size: 15px; line-height: 1.7; }
-.workspace-state > div { width: min(100%, 480px); padding: 32px; border: 1px solid var(--platform-line); border-radius: 12px; background: #fff; }
-.workspace-state-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 24px; }
+.workspace-state h1 { margin: 0 0 12px; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+.workspace-state p { color: var(--platform-muted); font-size: 15px; line-height: 1.65; }
+.workspace-state > div {
+  width: min(100%, 480px);
+  padding: 34px;
+  border: 1px solid rgba(37, 65, 74, 0.14);
+  border-radius: 28px;
+  background: var(--surface-solid-content);
+  box-shadow: var(--platform-shadow-lg);
+}
+.workspace-state-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 24px; }
 .workspace-state-actions a, .workspace-state-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
-  padding: 10px 18px;
-  border: 1px solid #c5d2e1;
-  border-radius: 8px;
-  background: #fff;
-  color: var(--el-color-primary);
+  padding: 10px 22px;
+  border: 1px solid rgba(37, 65, 74, 0.16);
+  border-radius: 999px;
+  background: var(--surface-tinted-glass);
+  color: var(--platform-ink);
   font: inherit;
+  font-weight: 500;
   text-decoration: none;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 420ms cubic-bezier(0.22, 1.4, 0.36, 1);
 }
-.workspace-state-actions button { background: var(--el-color-primary); border-color: var(--el-color-primary); color: #fff; }
-.workspace-state-actions a:hover { background: var(--platform-tint); }
-.workspace-state-actions button:hover { background: #1e5087; }
-.workspace-state-actions a:focus-visible, .workspace-state-actions button:focus-visible { outline: 2px solid var(--el-color-primary); outline-offset: 3px; }
-.session-recovery { background: var(--platform-canvas); }
-.session-form { width: min(100%, 480px); padding: 32px; border: 1px solid var(--platform-line); border-radius: 12px; background: #fff; }
+.workspace-state-actions button {
+  background: linear-gradient(180deg, #2C4D57 0%, #223C45 100%);
+  border-color: #25414A;
+  color: #FFFFFF;
+  box-shadow: 0 8px 20px rgba(19, 37, 41, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.workspace-state-actions a:hover { background: #FCFCFA; border-color: var(--color-focus); color: var(--color-glass-scene); }
+.workspace-state-actions button:hover { background: linear-gradient(180deg, #25434C 0%, #1B3138 100%); border-color: #1B3138; }
+.workspace-state-actions a:focus-visible, .workspace-state-actions button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.session-recovery { background: rgba(21, 37, 42, 0.44); backdrop-filter: blur(10px); }
+.session-form {
+  width: min(100%, 480px);
+  padding: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: 28px;
+  background: rgba(252, 252, 250, 0.94);
+  box-shadow: var(--platform-shadow-lg);
+}
 .session-form label { display: grid; gap: 9px; margin: 22px 0; text-align: left; }
-.session-form input { width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid #c5d2e1; border-radius: 8px; background: #fff; color: var(--platform-ink); font: inherit; }
+.session-form input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 1px solid var(--platform-field-line);
+  border-radius: 999px;
+  background: var(--surface-solid-content);
+  color: var(--platform-ink);
+  font: inherit;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
 .session-form input[readonly] { background: var(--platform-canvas); color: var(--platform-muted); }
-.session-form input:focus { outline: 2px solid var(--el-color-primary); outline-offset: 1px; }
-.session-form [role="alert"] { color: #a53333; }
+.session-form input:focus { border-color: var(--color-focus); outline: none; box-shadow: 0 0 0 4px var(--platform-focus-ring); }
+.session-form [role="alert"] { color: var(--el-color-danger); }
 .session-form button:disabled { opacity: .6; cursor: wait; }
 </style>

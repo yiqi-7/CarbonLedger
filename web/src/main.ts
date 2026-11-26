@@ -7,5 +7,7 @@ import './styles.css'
 import './styles/platform-workspace.css'
 import App from './App.vue'
 import router from './router'
+import { initLiquidGlass } from './lib/liquidGlass'
 
+initLiquidGlass()
 createApp(App).use(createPinia()).use(router).use(ElementPlus, { locale: zhCn }).mount('#app')

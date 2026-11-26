@@ -87,10 +87,10 @@ const constructionPriceTotal = computed(() =>
   constructionPriceItems.value.reduce((total, item) => total + item.value, 0)
 )
 const lifecycleItems = computed(() => [
-  { label: '建材生产', value: props.buildEmission, color: '#2463a6' },
-  { label: '运输', value: props.transportEmission, color: '#5b83ad' },
-  { label: '施工', value: props.constructionEmission, color: '#8395a8' },
-  { label: '回收', value: -props.recyclingEmission, color: '#3e8069' }
+  { label: '建材生产', value: props.buildEmission, color: '#25414A' },
+  { label: '运输', value: props.transportEmission, color: '#557B79' },
+  { label: '施工', value: props.constructionEmission, color: '#7C9392' },
+  { label: '回收', value: -props.recyclingEmission, color: '#2C6E58' }
 ])
 const lifecycleScale = computed(() => createChartScale(lifecycleItems.value.map(item => item.value), 28, 155))
 const recyclingCategories = computed(() =>
@@ -101,11 +101,11 @@ const recyclingTotal = computed(() =>
   recyclingCategories.value.reduce((total, item) => total + item.value, 0)
 )
 const recyclingGradient = computed(() => createPieGradient(recyclingCategories.value, item => item.value))
-const dashboardColors = ['#2463a6', '#3e8069', '#7c91a7', '#6e9ab8', '#8aafa1', '#b2bdc9']
+const dashboardColors = ['#25414A', '#2C6E58', '#557B79', '#B87B3A', '#476E7A', '#7C9392']
 
 function createPieGradient(items, valueFor) {
   const total = items.reduce((sum, item) => sum + Math.max(0, valueFor(item)), 0)
-  if (total <= 0) return 'conic-gradient(#e8edf2 0deg 360deg)'
+  if (total <= 0) return 'conic-gradient(#E5EAE7 0deg 360deg)'
   let angle = 0
   const segments = items.map((item, index) => {
     const start = angle
@@ -351,29 +351,29 @@ function format(value, digits = 2) {
   background: transparent;
 }
 .dashboard-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
-.dashboard-heading h1 { margin: 0; color: var(--text); font-size: 28px; line-height: 1.4; font-weight: 600; }
-.dashboard-heading p { margin: 7px 0 0; color: var(--muted); font-size: 15px; line-height: 1.7; overflow-wrap: anywhere; }
-.dashboard-project-link, .dashboard-image-link { border: 0; padding: 4px 0; color: var(--blue); background: transparent; font: inherit; font-size: 14px; cursor: pointer; text-align: left; }
-.dashboard-project-link:hover, .dashboard-image-link:hover { text-decoration: underline; }
-.dashboard-project-link:focus-visible, .dashboard-image-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+.dashboard-heading h1 { margin: 0; color: var(--text); font-size: 28px; line-height: 1.2; font-weight: 600; letter-spacing: -0.025em; }
+.dashboard-heading p { margin: 7px 0 0; color: var(--muted); font-size: 15px; line-height: 1.65; overflow-wrap: anywhere; }
+.dashboard-project-link, .dashboard-image-link { border: 0; padding: 4px 0; color: var(--primary); background: transparent; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; text-underline-offset: 4px; transition: color 0.16s ease; }
+.dashboard-project-link:hover, .dashboard-image-link:hover { color: var(--primary-hover); text-decoration: underline; }
+.dashboard-project-link:focus-visible, .dashboard-image-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
 .dashboard-heading > .dashboard-project-link { flex-shrink: 0; margin-top: 6px; }
-.dashboard-workbench .dashboard-top { width: 100%; max-width: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 0 0 28px; padding: 24px 0; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
-.dashboard-workbench .dashboard-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 20px; border: 0; border-radius: 0; background: transparent; box-shadow: none; text-align: left; }
+.dashboard-workbench .dashboard-top { width: 100%; max-width: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 0 0 28px; padding: 24px 0; border: 1px solid var(--line); border-radius: var(--radius-card, 24px); background: var(--panel); box-shadow: var(--shadow-sm); }
+.dashboard-workbench .dashboard-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 22px; border: 0; border-radius: 0; background: transparent; box-shadow: none; text-align: left; }
 .dashboard-workbench .dashboard-stat + .dashboard-stat { border-left: 1px solid var(--line); }
-.dashboard-workbench .dashboard-stat > span { color: var(--muted); font-size: 14px; line-height: 1.5; white-space: normal; text-wrap: balance; }
+.dashboard-workbench .dashboard-stat > span { color: var(--muted); font-size: 14px; font-weight: 500; line-height: 1.5; white-space: normal; text-wrap: balance; }
 .dashboard-workbench .dashboard-stat > strong { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 6px; max-width: 100%; color: var(--text); font-size: 30px; line-height: 1.3; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.dashboard-workbench .dashboard-stat:first-child > strong { color: var(--blue); font-size: 32px; }
+.dashboard-workbench .dashboard-stat:first-child > strong { color: var(--emission); font-size: 32px; }
 .dashboard-workbench .dashboard-stat:last-child > strong { color: var(--green); }
 .dashboard-workbench .dashboard-stat small { color: var(--muted); font-size: 13px; font-weight: 400; white-space: nowrap; }
 .dashboard-overview-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
 .dashboard-overview-row.has-model-image { grid-template-columns: minmax(0, 1fr) 260px; }
-.dashboard-workbench .dashboard-panel { min-width: 0; min-height: 0; margin: 0; grid-column: auto; grid-row: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: none; overflow: hidden; }
-.dashboard-workbench .dashboard-panel-title { min-height: 53px; height: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); background: transparent; }
-.dashboard-panel-title h2 { margin: 0; color: var(--text); font-size: 18px; line-height: 1.4; font-weight: 600; }
+.dashboard-workbench .dashboard-panel { min-width: 0; min-height: 0; margin: 0; grid-column: auto; grid-row: auto; border: 1px solid var(--line); border-radius: var(--radius-card, 24px); background: var(--panel); box-shadow: var(--shadow-sm); overflow: hidden; }
+.dashboard-workbench .dashboard-panel-title { min-height: 54px; height: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 24px; border-bottom: 1px solid var(--line); background: transparent; }
+.dashboard-panel-title h2 { margin: 0; color: var(--text); font-size: 20px; line-height: 1.35; font-weight: 500; letter-spacing: -0.015em; }
 .dashboard-panel-title > span { color: var(--muted); font-size: 13px; line-height: 1.6; }
-.dashboard-workbench .dashboard-lifecycle-chart { height: auto; display: flex; padding: 8px 20px 14px; }
+.dashboard-workbench .dashboard-lifecycle-chart { height: auto; display: flex; padding: 10px 24px 16px; }
 .dashboard-workbench .dashboard-lifecycle-chart svg { flex: none; width: 100%; height: 240px; }
-.dashboard-model { min-width: 0; margin: 0; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+.dashboard-model { min-width: 0; margin: 0; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-card, 24px); overflow: hidden; background: var(--panel); box-shadow: var(--shadow-sm); }
 .dashboard-model img { width: 100%; height: 252px; padding: 12px; object-fit: contain; background: var(--canvas); }
 .dashboard-model figcaption { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; color: var(--muted); font-size: 13px; }
 .dashboard-image-link { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
@@ -393,7 +393,7 @@ function format(value, digits = 2) {
 .dashboard-workbench .dashboard-transport svg .dashboard-category-label { font-size: 10px; }
 .dashboard-workbench .dashboard-pie-row { height: 214px; justify-content: flex-start; gap: 24px; padding: 12px 8px; }
 .dashboard-workbench .dashboard-pie, .dashboard-workbench .dashboard-donut { width: 150px; height: 150px; max-width: none; flex-shrink: 0; aspect-ratio: 1; }
-.dashboard-workbench .dashboard-pie > div, .dashboard-workbench .dashboard-donut > div { gap: 4px; background: #fff; }
+.dashboard-workbench .dashboard-pie > div, .dashboard-workbench .dashboard-donut > div { gap: 4px; background: var(--panel); }
 .dashboard-workbench .dashboard-pie strong, .dashboard-workbench .dashboard-donut strong { color: var(--text); font-size: 24px; line-height: 1.3; font-weight: 600; font-variant-numeric: tabular-nums; }
 .dashboard-workbench .dashboard-donut strong { color: var(--green); }
 .dashboard-workbench .dashboard-pie small, .dashboard-workbench .dashboard-donut small { color: var(--muted); font-size: 13px; }
