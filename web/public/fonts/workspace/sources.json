@@ -1,0 +1,256 @@
+{
+  "generated": "2026-11-26",
+  "family": "Carbon Sans",
+  "originalFamily": "Noto Sans SC",
+  "license": "OFL-1.1",
+  "package": "@fontsource/noto-sans-sc",
+  "packageVersion": "5.3.1",
+  "packageUrl": "https://registry.npmjs.org/@fontsource/noto-sans-sc/-/noto-sans-sc-5.3.1.tgz",
+  "packageSha256": "fd4c218cad77f6f1e9915c45e5d2ede5b0c86dfa0658739684791f50956d1cae",
+  "upstream": "https://github.com/google/fonts",
+  "modifications": "Glyph subset using fontTools 4.55.0; internal family renamed Carbon Sans. Copyright and license preserved.",
+  "subsetPolicy": "ASCII plus characters in production web/src Vue/TS/JS; design-preview and test/spec/fixture files excluded. CSS unicode ranges ensure missing or new characters use configured system font fallback.",
+  "sourceFiles": [
+    {
+      "path": "web/src/api.ts",
+      "sha256": "905df8279057f3c0272f2b47be25ddafd241dfb457c13e1fa301839882e5104d"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "c637c485ee26332001843e1c276983417ec408d3af723209963ecbcc93867529"
+    },
+    {
+      "path": "web/src/components/BarChart.vue",
+      "sha256": "2e646f17de1096819cca7d5eb88c4de5b7536bdd96cb122579b3fa8c2440dc20"
+    },
+    {
+      "path": "web/src/components/CompositionChart.vue",
+      "sha256": "59bd560bb9b89a783ccf327ec0c2c750dafc57b729c2f4fdeb72432725ed2aa9"
+    },
+    {
+      "path": "web/src/components/PriceCompareChart.vue",
+      "sha256": "70a102c5cfb528e706a480ccdc5151d7afee8aa6351b3c2d2dc74dde78537fc2"
+    },
+    {
+      "path": "web/src/customer/apiPersistence.js",
+      "sha256": "c1e4c4597a3308cc5463c1515eec9cec0b8d6574a2d831c10f123b1e1160bac6"
+    },
+    {
+      "path": "web/src/customer/App.vue",
+      "sha256": "e9583bd0d29ddef5c4414d76fa24c764706400322fa46677e9fd6cdb1adfe5b4"
+    },
+    {
+      "path": "web/src/customer/components/AppSidebar.vue",
+      "sha256": "fdf5561c7d5e464a31751b6bff88b18e615baf0fd83a22acfe3dd98c8f4c264c"
+    },
+    {
+      "path": "web/src/customer/components/DashboardHome.vue",
+      "sha256": "3951931ad6d9a71e9ace983e47443756d033376b2350e782e078fc97091e5761"
+    },
+    {
+      "path": "web/src/customer/components/EmissionForm.vue",
+      "sha256": "3cafc51ab9ebeb8b69fbc0631681ff8d760efe7e1dc54fed035f57c32f212525"
+    },
+    {
+      "path": "web/src/customer/components/EmissionTrend.vue",
+      "sha256": "0a185b95cb953ff0d5209c9c7e5f04a1546a47923d6e01ffe969e9e46d1deb2a"
+    },
+    {
+      "path": "web/src/customer/components/RecentRecords.vue",
+      "sha256": "95db124c109dfbc12c90fc57fa206130e67d1ac0eea85b716473a600458c6fbe"
+    },
+    {
+      "path": "web/src/customer/components/SummaryCard.vue",
+      "sha256": "6a5ae31da6b74b7fba964f71203fda21c94ce1b529a6d4bc2295e30dee7a73c2"
+    },
+    {
+      "path": "web/src/customer/components/TopHeader.vue",
+      "sha256": "097b2d94c4dd56790ed5d1c429f760e0bd95d9e0b01db3acb48db47d5050317e"
+    },
+    {
+      "path": "web/src/customer/data/buildCarbonConfigInfo.js",
+      "sha256": "46ad43ef82da1765c8d84cae4c03c7048fe08bfbc6fb9d89987585550ec9bdb9"
+    },
+    {
+      "path": "web/src/customer/data/buildCarbonInfo.js",
+      "sha256": "4668480b8fc9496630db119f27b8504cf1a90081f53727055d834e63366b6cbd"
+    },
+    {
+      "path": "web/src/customer/data/buildMaterialInfo.js",
+      "sha256": "e540583f8873d2f4370ffb6d61e8219d4cf4db4069f212b4300290174ed2f3d7"
+    },
+    {
+      "path": "web/src/customer/data/constructionCarbonInfo.js",
+      "sha256": "e1c7a1a04000c8af88abe0aad0a3b0e21940b0bd772967c2cec95e347ff56b7f"
+    },
+    {
+      "path": "web/src/customer/data/constructionMaterialInfo.js",
+      "sha256": "90bd0f6c0e9390955df83fe6dc2b82555592756f110e10d89c967615cbee48c3"
+    },
+    {
+      "path": "web/src/customer/data/projectInfo.js",
+      "sha256": "5537fd8bedc6deb3028413c383940c2a1c276213b795f8551af34e06e072ec0d"
+    },
+    {
+      "path": "web/src/customer/data/recyclingCarbonInfo.js",
+      "sha256": "1fbdc4f628bc8868b0efd8f0504e28401d1acbc35754e56fca49f705b71e7d24"
+    },
+    {
+      "path": "web/src/customer/data/recyclingMaterialInfo.js",
+      "sha256": "f1820cf03d51e739747a9260219a765d0b9c32a4c1dd141ab937a144866fb774"
+    },
+    {
+      "path": "web/src/customer/data/transportCarbonConfigInfo.js",
+      "sha256": "a7cbccef351502e642166b77bd279b9c5c1836f5230b87ab419eda94b932872f"
+    },
+    {
+      "path": "web/src/customer/data/transportCarbonInfo.js",
+      "sha256": "f4731f42a53ccfb535ce664c3451c537163506d82748ca25c4800c2bae382b7a"
+    },
+    {
+      "path": "web/src/customer/data/transportMaterialInfo.js",
+      "sha256": "7d64f02d42742b239246c063c68748d1502605c7191e1ac557597909dc948e20"
+    },
+    {
+      "path": "web/src/customer/formatDisplayNumber.js",
+      "sha256": "0e7f2f54124afe3d1c3c4423fe1f8d49a67c4862de676f78f55dee070615c043"
+    },
+    {
+      "path": "web/src/customer/main.js",
+      "sha256": "fff272acd960427d35ab4de431714ef8855517f796504df524a59eeabc52936e"
+    },
+    {
+      "path": "web/src/customer/unsavedChanges.js",
+      "sha256": "e994b1d3d4f4471e777b8d0ac9b30117bc1592178d739b9028ff5ffe40a3ac50"
+    },
+    {
+      "path": "web/src/customer/utils/dashboardCharts.js",
+      "sha256": "413d5d995f98aabfe2cb08e5d251bca1d00b56dca874c6b5bfcb632a0aa03b38"
+    },
+    {
+      "path": "web/src/customer/utils/excelSheetLookup.js",
+      "sha256": "53ec0564dcc68df5cdccfa546dff9bbedff982551e6fde73f0a7638d86c8d25f"
+    },
+    {
+      "path": "web/src/customer/utils/exportBuildMaterialExcel.js",
+      "sha256": "355f6ef4c72caa2f6eb1089d5ab42e09d4d96981d985a27c885efd6d410f3662"
+    },
+    {
+      "path": "web/src/customer/utils/exportConstructionMaterialExcel.js",
+      "sha256": "964fa48a2dc41097d488b5733d01e199075468dea4642cd61f252d8c3d9b26f7"
+    },
+    {
+      "path": "web/src/customer/utils/exportProjectReportExcel.js",
+      "sha256": "3b11442fed93d880e6004c49c57cefbfe027d7f4363d915408aed2a2b124fc6d"
+    },
+    {
+      "path": "web/src/customer/utils/exportTransportMaterialExcel.js",
+      "sha256": "19d8bd28ab2542a7b2df9e0642afe64643c7c2f674967196ea98d0907c18945a"
+    },
+    {
+      "path": "web/src/customer/utils/importBuildMaterialExcel.js",
+      "sha256": "2d1b6a050a745af46d219758e08514671e902cfeefad7bd6e7072de94bc03d33"
+    },
+    {
+      "path": "web/src/customer/utils/importConstructionMaterialExcel.js",
+      "sha256": "428f2b4dda9aee0f663deeef7430210ef723c56368711d616c0f566c8427b7e4"
+    },
+    {
+      "path": "web/src/customer/utils/importTransportMaterialExcel.js",
+      "sha256": "6c90baa3bd8b7a26018b2aa2ee83b5e975784913b49bd5f3f8acb3530c73e29b"
+    },
+    {
+      "path": "web/src/data/cities.ts",
+      "sha256": "568f93d70e11c74c270c112689489c2f4fd9f5bce81339e79a33ca39a9a49b02"
+    },
+    {
+      "path": "web/src/main.ts",
+      "sha256": "f4be425f17e8fc56dee28b9a2abfe005610c988a42eab7e1afc9937d7cb77772"
+    },
+    {
+      "path": "web/src/router.ts",
+      "sha256": "ef03269a6443db9233965365a8396f13248b29b359db7478d36ecdf5f2200273"
+    },
+    {
+      "path": "web/src/stores/auth.ts",
+      "sha256": "9adf7a602b33a9c4aa9a460a0d96614650dc4cf7fb8c5243742877dac8b370b5"
+    },
+    {
+      "path": "web/src/utils/chart.ts",
+      "sha256": "9f9029a68303aced2bbed12002dc2fd7e721d0cb1753d2da437aba55c253e97b"
+    },
+    {
+      "path": "web/src/views/AdminView.vue",
+      "sha256": "e4dbbd838daf89aaad39392ec0635926a829fdcdb7938fab5c7dff9ff973568f"
+    },
+    {
+      "path": "web/src/views/LoginView.vue",
+      "sha256": "9437969f583800925064eda80f92bbb4504dee13713c27e7f09052407a9338eb"
+    },
+    {
+      "path": "web/src/views/ProjectsView.vue",
+      "sha256": "0e0d939e43477de7b193afb8c711325a8b6656f296b8ddae4356387e9a1957c6"
+    },
+    {
+      "path": "web/src/views/ProjectToolsView.vue",
+      "sha256": "10d257af39743cbc551475491b045f2546af5a07d63a93edb4a6d4a04a5427b4"
+    },
+    {
+      "path": "web/src/views/RegisterView.vue",
+      "sha256": "19e91fd66e5591ce86c67de1875d5116faff776047fc760c0e2eeb194fb436ee"
+    },
+    {
+      "path": "web/src/views/WorkspaceView.vue",
+      "sha256": "83fb384cbbaeff7fd3827cca331838c0cb33c62d828deffa1bd495305746d2fb"
+    }
+  ],
+  "fonts": [
+    {
+      "file": "carbon-sans-400.woff2",
+      "weight": 400,
+      "bytes": 80872,
+      "codepoints": 636,
+      "sourceMember": "package/files/noto-sans-sc-chinese-simplified-400-normal.woff2",
+      "sourceSha256": "95e3633b6a98f764ba3adfb54504a0cd4799328c009adf9081d6c1850f9c4c78",
+      "sha256": "6e59cef94d55e5788a5dca288e7479b72338c834255d6227ab2ab4dd36ce8370"
+    },
+    {
+      "file": "carbon-sans-500.woff2",
+      "weight": 500,
+      "bytes": 81832,
+      "codepoints": 636,
+      "sourceMember": "package/files/noto-sans-sc-chinese-simplified-500-normal.woff2",
+      "sourceSha256": "885f52ca6a25fddde7641eaf9cf6d6fd9e8f1a454f99f77f0f1be1be0c6470a5",
+      "sha256": "f59bc947a5ca04587df6f8a55d00618187c401d88ecd05b58f7d0d2b5844dc59"
+    },
+    {
+      "file": "carbon-sans-600.woff2",
+      "weight": 600,
+      "bytes": 82108,
+      "codepoints": 636,
+      "sourceMember": "package/files/noto-sans-sc-chinese-simplified-600-normal.woff2",
+      "sourceSha256": "578fb41a3dc2817b703611ad94b5c27dac96a3907c9d6b843c513217b562e1a2",
+      "sha256": "2ded4ccbec6ec6aabc6e2dfce5f3e3eb3c2d89b802a423d3b4a3daad4a427ff5"
+    },
+    {
+      "file": "carbon-sans-700.woff2",
+      "weight": 700,
+      "bytes": 82420,
+      "codepoints": 636,
+      "sourceMember": "package/files/noto-sans-sc-chinese-simplified-700-normal.woff2",
+      "sourceSha256": "e1df51edc00bce27b58044e829fb8ec6accc8a5daece475413de90d52818845c",
+      "sha256": "7d956fd6d4648c8381934506d6233cb5af6a0c11f016a1d832dbe983c7ed622d"
+    }
+  ],
+  "fallbackCodepoints": [
+    "U+2082",
+    "U+2192",
+    "U+2304",
+    "U+2315",
+    "U+25A6",
+    "U+25CE",
+    "U+2667",
+    "U+2726",
+    "U+33A5"
+  ]
+}

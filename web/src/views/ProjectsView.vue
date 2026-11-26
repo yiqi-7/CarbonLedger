@@ -65,12 +65,13 @@ onMounted(load)
 <style scoped>
 :global(body:has(.projects-page)) { min-width: 0; }
 .project-directory { min-height: 200px; }
-.project-name-link { display: block; max-width: 100%; padding: 2px 0; border: 0; background: transparent; color: var(--el-color-primary); font-size: 16px; font-weight: 600; text-align: left; line-height: 1.6; overflow-wrap: anywhere; cursor: pointer; }
-.project-name-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.project-name-link { display: block; max-width: 100%; padding: 2px 0; border: 0; background: transparent; color: var(--platform-ink); font-size: 15px; font-weight: 600; text-align: left; line-height: 1.6; overflow-wrap: anywhere; cursor: pointer; }
+.project-name-link:hover { color: var(--el-color-primary); text-decoration: underline; text-underline-offset: 4px; }
 .project-name-link:focus-visible { outline: 2px solid var(--el-color-primary); outline-offset: 3px; }
-.project-location { height: auto; margin: 6px 0 0; color: var(--platform-muted); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.project-location { height: auto; margin: 5px 0 0; color: var(--platform-muted); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 .project-actions { display: flex; align-items: center; gap: 8px; }
 .projects-table :deep(.el-table__cell .cell) { padding-inline: 18px; }
+.projects-table :deep(td.el-table__cell) { padding-block: 19px; }
 .empty-state { padding: 60px 24px; }
 .empty-state p { margin-bottom: 24px; }
 </style>

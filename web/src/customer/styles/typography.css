@@ -1,16 +1,17 @@
 /* Type roles shared by the customer workspace. Colors belong to workspace.css. */
 :root {
-  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-family: "Carbon Sans", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
   --type-page: 28px;
   --type-section: 18px;
   --type-body: 15px;
   --type-table: 14px;
   --type-caption: 13px;
-  --type-metric: 28px;
+  --type-metric: 30px;
 }
 
 body { font-size: var(--type-body); line-height: 1.6; }
 h1, h2 { text-wrap: balance; }
+button, input, select, textarea { font-family: inherit; }
 p { text-wrap: pretty; }
 .material-table, .analysis-detail-table, .analysis-compact-table, .cost-detail-table,
 .material-stat-card, .cost-metric-card, .analysis-metric-card, .dashboard-stat {
