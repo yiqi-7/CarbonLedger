@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import type { CalcVersionSnapshot } from '@carbonledger/shared'
 import { PrismaService } from '../prisma/prisma.service'
 import { AuditService } from '../audit/audit.service'
@@ -26,6 +26,7 @@ export class VersionsService {
     const versionNumber = (last?.versionNumber ?? 0) + 1
     const snapshot: CalcVersionSnapshot = {
       versionNumber,
+      name: `版本 v${versionNumber}`,
       savedAt: new Date().toISOString(),
       savedByUserId: userId,
       project: bundle.projectInfo,
@@ -77,9 +78,16 @@ export class VersionsService {
       } catch {
         // 快照损坏时不影响列表展示
       }
+      let name = `版本 v${version.versionNumber}`
+      try {
+        name = (JSON.parse(version.snapshot) as CalcVersionSnapshot).name || name
+      } catch {
+        // 快照损坏时继续使用默认名称
+      }
       return {
         id: version.id,
         versionNumber: version.versionNumber,
+        name,
         createdAt: version.createdAt,
         createdBy: version.createdBy.username,
         netEmission,
@@ -95,5 +103,27 @@ export class VersionsService {
     })
     if (!version) throw new NotFoundException('核算版本不存在')
     return { id: version.id, ...(JSON.parse(version.snapshot) as CalcVersionSnapshot) }
+  }
+
+  async rename(projectId: number, userId: number, versionId: number, name: string) {
+    await this.projects.assertOwner(projectId, userId)
+    const version = await this.prisma.calcVersion.findFirst({ where: { id: versionId, projectId } })
+    if (!version) throw new NotFoundException('核算版本不存在')
+    const trimmed = name.trim()
+    if (!trimmed) throw new BadRequestException('版本名称不能为空')
+    const snapshot = JSON.parse(version.snapshot) as CalcVersionSnapshot
+    snapshot.name = trimmed
+    await this.prisma.calcVersion.update({ where: { id: version.id }, data: { snapshot: JSON.stringify(snapshot) } })
+    await this.audit.record(userId, 'VERSION_RENAMED', 'PROJECT', String(projectId), `版本 v${version.versionNumber}：${trimmed}`)
+    return { id: version.id, name: trimmed }
+  }
+
+  async remove(projectId: number, userId: number, versionId: number) {
+    await this.projects.assertOwner(projectId, userId)
+    const version = await this.prisma.calcVersion.findFirst({ where: { id: versionId, projectId } })
+    if (!version) throw new NotFoundException('核算版本不存在')
+    await this.prisma.calcVersion.delete({ where: { id: version.id } })
+    await this.audit.record(userId, 'VERSION_DELETED', 'PROJECT', String(projectId), `版本 v${version.versionNumber}`)
+    return { id: version.id }
   }
 }

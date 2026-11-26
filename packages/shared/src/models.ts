@@ -195,6 +195,7 @@ export interface CostAnalysis {
 /** 核算版本快照内容 */
 export interface CalcVersionSnapshot {
   versionNumber: number
+  name?: string
   savedAt: string
   savedByUserId: number
   project: ProjectInfo

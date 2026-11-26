@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common'
 import { VersionsService } from './versions.service'
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
 
@@ -15,6 +15,25 @@ export class VersionsController {
   @Get()
   list(@CurrentUser() user: AuthUser, @Param('projectId', ParseIntPipe) projectId: number) {
     return this.versions.list(projectId, user.userId)
+  }
+
+  @Patch(':versionId')
+  rename(
+    @CurrentUser() user: AuthUser,
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('versionId', ParseIntPipe) versionId: number,
+    @Body('name') name: string,
+  ) {
+    return this.versions.rename(projectId, user.userId, versionId, name || '')
+  }
+
+  @Delete(':versionId')
+  remove(
+    @CurrentUser() user: AuthUser,
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('versionId', ParseIntPipe) versionId: number,
+  ) {
+    return this.versions.remove(projectId, user.userId, versionId)
   }
 
   @Get(':versionId')

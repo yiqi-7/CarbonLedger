@@ -700,6 +700,8 @@ button:focus-visible, a:focus-visible, [role="link"]:focus-visible { outline-col
 .workspace-tabs button, .admin-tabs button { min-height: 48px; padding: 0 2px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--platform-muted); font-size: 14px; font-weight: 400; box-shadow: none; transition: color 500ms var(--lg-spring-ease), border-color 500ms var(--lg-spring-ease); }
 .workspace-tabs button:hover, .admin-tabs button:hover { color: var(--platform-ink); background: transparent; }
 .workspace-tabs button.active, .admin-tabs button.active { background: transparent; border-color: var(--color-system-blue); color: var(--color-system-blue); box-shadow: none; font-weight: 500; }
+.factor-tabs button.active, .factor-tabs button.active:hover, .factor-tabs button.active:focus-visible { background: var(--color-system-blue) !important; border-color: var(--color-system-blue) !important; color: #FFFFFF !important; box-shadow: 0 4px 14px rgba(0, 113, 227, 0.30) !important; }
+.factor-tabs button.active:hover { background: #0077ED !important; border-color: #0077ED !important; }
 .admin-tabs span { background: #F5F5F7; color: var(--platform-muted); }
 .admin-tabs button.active span { background: #E8F2FC; color: var(--color-system-blue); }
 
