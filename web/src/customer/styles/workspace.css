@@ -1046,15 +1046,24 @@ button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue);
   margin: 0;
 }
 .sidebar-collapsed .sidebar-toggle {
-  position: fixed;
-  top: auto;
-  left: 14px;
-  bottom: 18px;
+  position: fixed !important;
+  top: auto !important;
+  left: 14px !important;
+  bottom: 18px !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
   width: 32px;
   height: 32px;
   min-height: 32px;
   margin: 0;
   transform: none;
+  background: #F5F5F7;
+  border: 1px solid rgba(37, 65, 74, 0.14);
+  color: #3D4E4E;
+  box-shadow: 0 4px 14px rgba(19, 37, 41, 0.16);
 }
 .sidebar-collapsed .sidebar-toggle:hover { transform: translateY(-2px); }
 .sidebar-collapsed .sidebar-toggle:active,

@@ -681,6 +681,12 @@ button:focus-visible, a:focus-visible, [role="link"]:focus-visible { outline-col
 .topbar-link:hover, .text-button:hover { background: #F5F5F7; color: #0066CC; box-shadow: none; }
 .user-chip { min-height: 36px; padding: 4px 12px; border: 0; border-radius: 999px; background: transparent; color: var(--platform-muted); box-shadow: none; font-size: 14px; }
 .content-wrap, .workspace-wrap, .admin-wrap { max-width: 1080px; padding: 64px 24px 96px; }
+.project-tools-page { width: min(100% - 48px, 1600px); max-width: 1600px; }
+.project-tools-page .panel { min-width: 0; }
+.project-tools-page .el-table { width: 100%; }
+.project-tools-page .el-table__body-wrapper, .project-tools-page .el-table__header-wrapper { overflow-x: hidden; }
+.project-tools-page .el-table .cell { white-space: normal; overflow-wrap: anywhere; }
+.project-tools-page .version-pagination { justify-content: flex-end; }
 .page-heading, .workspace-heading, .admin-heading { margin-bottom: 48px; }
 .page-heading h1, .workspace-heading h1, .admin-heading h1 { color: var(--platform-ink); font-size: 40px; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }
 .muted { color: var(--platform-muted); font-size: 17px; }

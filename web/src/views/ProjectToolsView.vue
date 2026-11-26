@@ -30,12 +30,23 @@ const versions = ref<any[]>([])
 const buildFactors = ref<any[]>([])
 const transportFactors = ref<any[]>([])
 const factorTab = ref<FactorType>('build')
-const factorPage = ref(1)
-const factorPageSize = 10
-const pagedBuildFactors = computed(() => buildFactors.value.slice((factorPage.value - 1) * factorPageSize, factorPage.value * factorPageSize))
-const pagedTransportFactors = computed(() => transportFactors.value.slice((factorPage.value - 1) * factorPageSize, factorPage.value * factorPageSize))
+const factorPageSize = ref(10)
+const buildFactorPage = ref(1)
+const transportFactorPage = ref(1)
+const currentFactorPage = computed({
+  get: () => factorTab.value === 'build' ? buildFactorPage.value : transportFactorPage.value,
+  set: page => {
+    if (factorTab.value === 'build') buildFactorPage.value = page
+    else transportFactorPage.value = page
+  },
+})
+const pagedBuildFactors = computed(() => buildFactors.value.slice((buildFactorPage.value - 1) * factorPageSize.value, buildFactorPage.value * factorPageSize.value))
+const pagedTransportFactors = computed(() => transportFactors.value.slice((transportFactorPage.value - 1) * factorPageSize.value, transportFactorPage.value * factorPageSize.value))
 const visibleFactors = computed(() => factorTab.value === 'build' ? pagedBuildFactors.value : pagedTransportFactors.value)
 const factorTotal = computed(() => factorTab.value === 'build' ? buildFactors.value.length : transportFactors.value.length)
+const versionPage = ref(1)
+const versionPageSize = 10
+const pagedVersions = computed(() => versions.value.slice((versionPage.value - 1) * versionPageSize, versionPage.value * versionPageSize))
 const snapshotDialog = ref(false)
 const snapshotData = ref<any>(null)
 let loadSequence = 0
@@ -110,7 +121,7 @@ function newFactor() {
   } else {
     transportFactors.value.push({ vehicleName: '新建车辆', energyType: '柴油', emissionFactor: 0 })
   }
-  factorPage.value = Math.ceil(factorTotal.value / factorPageSize)
+  currentFactorPage.value = Math.max(1, Math.ceil(factorTotal.value / factorPageSize.value))
 }
 
 async function renameVersion(version: any) {
@@ -170,15 +181,26 @@ async function report(versionId: number, type: ReportType) {
 }
 
 watch(factorTotal, total => {
-  const lastPage = Math.max(1, Math.ceil(total / factorPageSize))
-  if (factorPage.value > lastPage) factorPage.value = lastPage
+  const lastPage = Math.max(1, Math.ceil(total / factorPageSize.value))
+  if (currentFactorPage.value > lastPage) currentFactorPage.value = lastPage
+})
+watch(factorPageSize, () => {
+  buildFactorPage.value = 1
+  transportFactorPage.value = 1
+})
+watch(() => versions.value.length, total => {
+  const lastPage = Math.max(1, Math.ceil(total / versionPageSize))
+  if (versionPage.value > lastPage) versionPage.value = lastPage
 })
 
 watch(projectId, () => {
   project.value = null
   versions.value = []
+  versionPage.value = 1
   buildFactors.value = []
   transportFactors.value = []
+  buildFactorPage.value = 1
+  transportFactorPage.value = 1
   snapshotDialog.value = false
   snapshotData.value = null
   void refresh()
@@ -193,9 +215,9 @@ watch(projectId, () => {
     <el-alert v-if="error" :title="error" type="error" show-icon :closable="false" />
     <nav class="workspace-tabs"><button v-for="tab in tabs" :key="tab.key" :class="{active: active===tab.key}" :aria-current="active===tab.key ? 'page' : undefined" @click="active=tab.key">{{ tab.label }}</button></nav>
 
-    <section v-if="active==='factors' && project && !error" class="workspace-section"><div class="panel"><div class="panel-heading"><div><h2>因子配置</h2><p class="muted">修改后请逐行保存。因子配置仅用于当前项目。</p></div><div class="factor-actions"><el-button :disabled="unavailable" @click="newFactor">新增</el-button><el-button type="primary" :disabled="unavailable" @click="seedFactors">恢复默认因子</el-button></div></div><div class="factor-tabs"><button :class="{active:factorTab==='build'}" @click="factorTab='build'; factorPage=1">建材因子（{{ buildFactors.length }}）</button><button :class="{active:factorTab==='transport'}" @click="factorTab='transport'; factorPage=1">运输因子（{{ transportFactors.length }}）</button></div><el-table v-if="factorTab==='build'" :data="visibleFactors" stripe><el-table-column prop="category" label="类别" min-width="120"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.category"/></template></el-table-column><el-table-column prop="name" label="名称" min-width="180"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.name"/></template></el-table-column><el-table-column label="碳排因子" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.emissionFactor" :min="0"/></template></el-table-column><el-table-column label="单位" min-width="100"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.materialUnit"/></template></el-table-column><el-table-column label="回收因子" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.recyclingFactor" :min="0"/></template></el-table-column><el-table-column label="回收系数" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.recyclingCoefficient" :min="0"/></template></el-table-column><el-table-column label="操作" min-width="120"><template #default="s"><el-button :disabled="unavailable" link type="primary" @click="saveFactor('build',s.row)">保存</el-button><el-button :disabled="unavailable" link type="danger" @click="deleteFactor('build',s.row)">删除</el-button></template></el-table-column></el-table><el-table v-else :data="visibleFactors" stripe><el-table-column prop="vehicleName" label="车辆名称" min-width="180"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.vehicleName"/></template></el-table-column><el-table-column prop="energyType" label="能源类型" min-width="120"><template #default="s"><el-select :disabled="unavailable" v-model="s.row.energyType"><el-option label="柴油" value="柴油"/><el-option label="汽油" value="汽油"/></el-select></template></el-table-column><el-table-column label="碳排因子" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.emissionFactor" :min="0"/></template></el-table-column><el-table-column label="操作" min-width="120"><template #default="s"><el-button :disabled="unavailable" link type="primary" @click="saveFactor('transport',s.row)">保存</el-button><el-button :disabled="unavailable" link type="danger" @click="deleteFactor('transport',s.row)">删除</el-button></template></el-table-column></el-table><div class="factor-pagination"><span>第 {{ factorPage }} / {{ Math.max(1, Math.ceil(factorTotal / factorPageSize)) }} 页，共 {{ factorTotal }} 条</span><el-pagination v-model:current-page="factorPage" :page-size="factorPageSize" :total="factorTotal" layout="prev, pager, next" background /></div></div></section>
+    <section v-if="active==='factors' && project && !error" class="workspace-section"><div class="panel"><div class="panel-heading"><div><h2>因子配置</h2><p class="muted">修改后请逐行保存。因子配置仅用于当前项目。</p></div><div class="factor-actions"><el-button :disabled="unavailable" @click="newFactor">新增</el-button><el-button type="primary" :disabled="unavailable" @click="seedFactors">恢复默认因子</el-button></div></div><div class="factor-tabs"><button :class="{active:factorTab==='build'}" @click="factorTab='build'">建材因子（{{ buildFactors.length }}）</button><button :class="{active:factorTab==='transport'}" @click="factorTab='transport'">运输因子（{{ transportFactors.length }}）</button></div><el-table v-if="factorTab==='build'" :data="visibleFactors" stripe><el-table-column prop="category" label="类别" min-width="120"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.category"/></template></el-table-column><el-table-column prop="name" label="名称" min-width="180"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.name"/></template></el-table-column><el-table-column label="碳排因子" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.emissionFactor" :min="0"/></template></el-table-column><el-table-column label="单位" min-width="100"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.materialUnit"/></template></el-table-column><el-table-column label="回收因子" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.recyclingFactor" :min="0"/></template></el-table-column><el-table-column label="回收系数" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.recyclingCoefficient" :min="0"/></template></el-table-column><el-table-column label="操作" min-width="120"><template #default="s"><el-button :disabled="unavailable" link type="primary" @click="saveFactor('build',s.row)">保存</el-button><el-button :disabled="unavailable" link type="danger" @click="deleteFactor('build',s.row)">删除</el-button></template></el-table-column></el-table><el-table v-else :data="visibleFactors" stripe><el-table-column prop="vehicleName" label="车辆名称" min-width="180"><template #default="s"><el-input :disabled="unavailable" v-model="s.row.vehicleName"/></template></el-table-column><el-table-column prop="energyType" label="能源类型" min-width="120"><template #default="s"><el-select :disabled="unavailable" v-model="s.row.energyType"><el-option label="柴油" value="柴油"/><el-option label="汽油" value="汽油"/></el-select></template></el-table-column><el-table-column label="碳排因子" min-width="160"><template #default="s"><el-input-number :disabled="unavailable" v-model="s.row.emissionFactor" :min="0"/></template></el-table-column><el-table-column label="操作" min-width="120"><template #default="s"><el-button :disabled="unavailable" link type="primary" @click="saveFactor('transport',s.row)">保存</el-button><el-button :disabled="unavailable" link type="danger" @click="deleteFactor('transport',s.row)">删除</el-button></template></el-table-column></el-table><div class="factor-pagination"><label class="page-size-control">每页 <el-select v-model="factorPageSize" size="small" aria-label="因子每页条数"><el-option :value="10" label="10 条/页"/><el-option :value="25" label="25 条/页"/><el-option :value="50" label="50 条/页"/></el-select></label><span>第 {{ currentFactorPage }} / {{ Math.max(1, Math.ceil(factorTotal / factorPageSize)) }} 页，共 {{ factorTotal }} 条</span><el-pagination v-model:current-page="currentFactorPage" :page-size="factorPageSize" :total="factorTotal" layout="prev, pager, next" background /></div></div></section>
 
-    <section v-else-if="active==='versions' && project && !error" class="workspace-section"><div class="panel"><div class="panel-heading"><div><h2>核算版本</h2><p class="muted">保存当前核算数据，便于后续查看和导出。已保存的版本不会随当前数据变化。</p></div><el-button type="primary" :disabled="unavailable" :loading="busyAction==='version'" @click="saveVersion">保存当前版本</el-button></div><el-table :data="versions" empty-text="暂无核算版本，点击“保存当前版本”创建"><el-table-column prop="versionNumber" label="版本" width="90"><template #default="scope">v{{ scope.row.versionNumber }}</template></el-table-column><el-table-column label="版本名称" min-width="180"><template #default="scope">{{ scope.row.name || `版本 v${scope.row.versionNumber}` }}</template></el-table-column><el-table-column prop="createdAt" label="保存时间" min-width="180"><template #default="scope">{{ new Date(scope.row.createdAt).toLocaleString() }}</template></el-table-column><el-table-column prop="createdBy" label="保存人"/><el-table-column prop="netEmission" label="净排放（t）"><template #default="scope">{{ scope.row.netEmission==null?'—':format(scope.row.netEmission,3) }}</template></el-table-column><el-table-column prop="totalCost" label="总成本（万元）"><template #default="scope">{{ scope.row.totalCost==null?'—':format(scope.row.totalCost,4) }}</template></el-table-column><el-table-column label="报告" width="180"><template #default="scope"><el-button :disabled="unavailable" link type="primary" @click="report(scope.row.id,'excel')">Excel</el-button><el-button :disabled="unavailable" link type="primary" @click="report(scope.row.id,'pdf')">PDF</el-button></template></el-table-column><el-table-column label="操作" width="250"><template #default="scope"><el-button :disabled="unavailable" link @click="viewVersion(scope.row.id)">查看</el-button><el-button :disabled="unavailable" link type="primary" @click="renameVersion(scope.row)">修改名称</el-button><el-button :disabled="unavailable" link type="danger" @click="deleteVersion(scope.row)">删除</el-button></template></el-table-column></el-table><div class="factor-pagination"><span>第 {{ factorPage }} / {{ Math.max(1, Math.ceil(factorTotal / factorPageSize)) }} 页，共 {{ factorTotal }} 条</span><el-pagination v-model:current-page="factorPage" :page-size="factorPageSize" :total="factorTotal" layout="prev, pager, next" background /></div></div></section>
+    <section v-else-if="active==='versions' && project && !error" class="workspace-section"><div class="panel"><div class="panel-heading"><div><h2>核算版本</h2><p class="muted">保存当前核算数据，便于后续查看和导出。已保存的版本不会随当前数据变化。</p></div><el-button type="primary" :disabled="unavailable" :loading="busyAction==='version'" @click="saveVersion">保存当前版本</el-button></div><el-table :data="pagedVersions" empty-text="暂无核算版本，点击“保存当前版本”创建"><el-table-column prop="versionNumber" label="版本" width="90"><template #default="scope">v{{ scope.row.versionNumber }}</template></el-table-column><el-table-column label="版本名称" min-width="180"><template #default="scope">{{ scope.row.name || `版本 v${scope.row.versionNumber}` }}</template></el-table-column><el-table-column prop="createdAt" label="保存时间" min-width="180"><template #default="scope">{{ new Date(scope.row.createdAt).toLocaleString() }}</template></el-table-column><el-table-column prop="createdBy" label="保存人"/><el-table-column prop="netEmission" label="净排放（t）"><template #default="scope">{{ scope.row.netEmission==null?'—':format(scope.row.netEmission,3) }}</template></el-table-column><el-table-column prop="totalCost" label="总成本（万元）"><template #default="scope">{{ scope.row.totalCost==null?'—':format(scope.row.totalCost,4) }}</template></el-table-column><el-table-column label="报告" width="180"><template #default="scope"><el-button :disabled="unavailable" link type="primary" @click="report(scope.row.id,'excel')">Excel</el-button><el-button :disabled="unavailable" link type="primary" @click="report(scope.row.id,'pdf')">PDF</el-button></template></el-table-column><el-table-column label="操作" width="250"><template #default="scope"><el-button :disabled="unavailable" link @click="viewVersion(scope.row.id)">查看</el-button><el-button :disabled="unavailable" link type="primary" @click="renameVersion(scope.row)">修改名称</el-button><el-button :disabled="unavailable" link type="danger" @click="deleteVersion(scope.row)">删除</el-button></template></el-table-column></el-table><div class="factor-pagination version-pagination"><span>第 {{ versionPage }} / {{ Math.max(1, Math.ceil(versions.length / versionPageSize)) }} 页，共 {{ versions.length }} 条</span><el-pagination v-model:current-page="versionPage" :page-size="versionPageSize" :total="versions.length" layout="prev, pager, next" background /></div></div></section>
 
     <el-dialog v-model="snapshotDialog" :title="`版本快照 v${snapshotData?.versionNumber || ''}`" width="min(760px, calc(100% - 32px))"><div v-if="snapshotData"><dl class="detail-list"><dt>保存时间</dt><dd>{{ new Date(snapshotData.savedAt).toLocaleString() }}</dd><dt>项目名称</dt><dd>{{ snapshotData.project?.projectName }}</dd><dt>建筑面积</dt><dd>{{ format(snapshotData.project?.buildingArea, 0) }} ㎡</dd><dt>建材记录</dt><dd>{{ snapshotData.buildMaterials?.length || 0 }} 条</dd><dt>运输记录</dt><dd>{{ snapshotData.transportRecords?.length || 0 }} 条</dd><dt>施工记录</dt><dd>{{ snapshotData.constructionRecords?.length || 0 }} 条</dd><dt>回收记录</dt><dd>{{ snapshotData.recyclingRecords?.length || 0 }} 条</dd><dt>净碳排放</dt><dd>{{ format(snapshotData.summary?.emission?.netEmission, 6) }} tCO₂e</dd><dt>总成本</dt><dd>{{ format(snapshotData.summary?.cost?.totalCost, 4) }} 万元</dd></dl><h3>阶段排放</h3><div v-for="stage in snapshotData.summary?.emission?.stages || []" :key="stage.name" class="analysis-line"><span>{{ stage.name }}</span><strong>{{ format(stage.emission, 6) }} tCO₂e</strong></div></div><template #footer><el-button @click="snapshotDialog=false">关闭</el-button></template></el-dialog>
   </div>
@@ -211,6 +233,8 @@ watch(projectId, () => {
 .factor-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .factor-actions .el-button + .el-button { margin-left: 0; }
 .factor-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; color: var(--platform-muted); font-size: 14px; }
+.page-size-control { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+:deep(.page-size-control .el-select) { width: 118px; }
 :deep(.factor-pagination .el-pagination) { margin-left: auto; }
 :deep(.factor-pagination .el-pager li.is-active) { background: var(--color-system-blue); }
 :deep(.factor-pagination .btn-prev), :deep(.factor-pagination .btn-next), :deep(.factor-pagination .el-pager li) { border-radius: 999px; }
