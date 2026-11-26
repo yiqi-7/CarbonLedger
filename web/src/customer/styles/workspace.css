@@ -1037,3 +1037,29 @@ button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue);
 @media (prefers-reduced-motion: reduce) {
   .construction-energy-item, .construction-energy-copy, .construction-energy-emission { transition: none; }
 }
+
+/* Keep the collapse and expand controls on the same fixed sidebar anchor. */
+.sidebar-toggle {
+  position: absolute;
+  left: 14px;
+  bottom: 18px;
+  margin: 0;
+}
+.sidebar-collapsed .sidebar-toggle {
+  position: fixed;
+  top: auto;
+  left: 14px;
+  bottom: 18px;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  margin: 0;
+  transform: none;
+}
+.sidebar-collapsed .sidebar-toggle:hover { transform: translateY(-2px); }
+.sidebar-collapsed .sidebar-toggle:active,
+.sidebar-collapsed .sidebar-toggle[data-lg-pressed="true"] { transform: scale(0.96); }
+@media (max-width: 760px) {
+  .sidebar-toggle,
+  .sidebar-collapsed .sidebar-toggle { left: 14px; bottom: 14px; }
+}
