@@ -972,3 +972,68 @@ button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue);
   .button:hover, .button-outline:hover, .back-button:hover, .sidebar-toggle:hover,
   .sidebar .project-directory-link:hover, .material-filters button:hover, .cost-chart-tabs button:hover { transform: none; }
 }
+
+/* Aligned energy summaries and persistent selected filter state. */
+.construction-energy-card:not(.transport-energy-card) .construction-energy-item {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) max-content;
+  align-items: center;
+  column-gap: 12px;
+  min-height: 76px;
+}
+.construction-energy-card:not(.transport-energy-card) .construction-energy-marker { grid-column: 1; }
+.construction-energy-card:not(.transport-energy-card) .construction-energy-copy {
+  grid-column: 2;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+}
+.construction-energy-card:not(.transport-energy-card) .construction-energy-copy strong,
+.construction-energy-card:not(.transport-energy-card) .construction-energy-copy small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.construction-energy-card:not(.transport-energy-card) .construction-energy-copy strong { color: #1D1D1F; font-size: 14px; line-height: 1.35; font-weight: 500; }
+.construction-energy-card:not(.transport-energy-card) .construction-energy-copy small { color: #86868B; font-size: 14px; line-height: 1.35; font-variant-numeric: tabular-nums; }
+.construction-energy-card:not(.transport-energy-card) .construction-energy-emission {
+  grid-column: 3;
+  min-width: 112px;
+  margin: 0;
+  color: #1D1D1F;
+  text-align: right;
+  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.construction-energy-card:not(.transport-energy-card) .construction-energy-emission small { display: inline; margin-left: 4px; color: #86868B; font-size: 12px; font-weight: 400; }
+
+.material-filters button.active,
+.material-filters button.active:hover,
+.material-filters button.active:focus-visible,
+.stage-switch button.active,
+.factor-tabs button.active,
+.cost-chart-tabs button.active,
+.cost-chart-tabs button.active:hover {
+  background: #0071E3 !important;
+  border-color: #0071E3 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.30) !important;
+}
+.material-filters button.active:hover,
+.cost-chart-tabs button.active:hover { background: #0077ED !important; border-color: #0077ED !important; }
+.material-filters button.active:active,
+.cost-chart-tabs button.active:active { transform: scale(0.96); }
+
+@media (max-width: 520px) {
+  .construction-energy-card:not(.transport-energy-card) .construction-energy-item { grid-template-columns: 8px minmax(0, 1fr) max-content; column-gap: 9px; min-height: 68px; }
+  .construction-energy-card:not(.transport-energy-card) .construction-energy-emission { min-width: 92px; font-size: 15px; }
+  .construction-energy-card:not(.transport-energy-card) .construction-energy-copy small { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .construction-energy-item, .construction-energy-copy, .construction-energy-emission { transition: none; }
+}
