@@ -35,7 +35,6 @@ async function submit() {
       </header>
       <div class="login-card">
         <h2>账号登录</h2>
-        <p class="login-description">账号审批通过后即可登录</p>
         <el-form label-position="top" class="login-form" @submit.prevent="submit">
           <el-form-item label="账号" for="login-username">
             <el-input id="login-username" v-model="form.username" :prefix-icon="User" autocomplete="username" placeholder="请输入账号" :disabled="auth.loading" required />
