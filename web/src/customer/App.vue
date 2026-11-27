@@ -5,6 +5,7 @@ import { useCustomerRuntime } from './composables/useCustomerRuntime.js'
 import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
 import { useCostAnalysisViewModel } from './composables/useCostAnalysisViewModel.js'
 import { useProjectImportExport } from './composables/useProjectImportExport.js'
+import { useCustomerReports } from './composables/useCustomerReports.js'
 import { useProjectInfoEditor } from './composables/useProjectInfoEditor.js'
 import { useCustomerRecordPersistence } from './composables/useCustomerRecordPersistence.js'
 import { useCustomerRecordFields } from './composables/useCustomerRecordFields.js'
@@ -16,8 +17,8 @@ import { formatDisplayNumber } from './formatDisplayNumber.js'
 import AppSidebar from './components/AppSidebar.vue'
 import DashboardHome from './components/DashboardHome.vue'
 import chinaCities from '@/data/chinaCities.json'
-import { ProjectInfo, saveProjectInfo } from './data/projectInfo.js'
-import { BuildMaterialInfo, buildMaterialInfoList } from './data/buildMaterialInfo.js'
+import { ProjectInfo, saveProjectInfo } from './data/projectInfo.ts'
+import { BuildMaterialInfo, buildMaterialInfoList } from './data/buildMaterialInfo.ts'
 import { BuildCarbonInfo } from './data/buildCarbonInfo.js'
 import {
   BuildCarbonConfigInfo,
@@ -161,10 +162,18 @@ const projectImportExport = useProjectImportExport({
   transportMaterialList,
   constructionMaterialList,
   pendingBuildMaterials,
-  getProjectName: () => ProjectInfo.projectName,
   documentRef: document,
 })
-const { importRows, exportRows, prepareExport, exportProjectReport } = projectImportExport
+const { importRows, exportRows, prepareExport } = projectImportExport
+const customerReports = useCustomerReports({
+  projectApi,
+  persistence,
+  canSave,
+  notify,
+  prepareExport,
+  getProjectName: () => ProjectInfo.projectName,
+})
+const { exportProjectReport } = customerReports
 const projectInfoEditor = useProjectInfoEditor({
   draft,
   uploadedImageUrl,

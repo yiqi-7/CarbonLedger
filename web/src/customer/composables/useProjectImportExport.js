@@ -14,7 +14,6 @@ export function useProjectImportExport({
   transportMaterialList,
   constructionMaterialList,
   pendingBuildMaterials,
-  getProjectName,
   documentRef = { activeElement: null },
   FormDataCtor = globalThis.FormData,
 }) {
@@ -70,15 +69,5 @@ export function useProjectImportExport({
     if (result) notify(`${label}已导出`)
   }
 
-  async function exportProjectReport() {
-    if (!canSave()) return
-    if (!await prepareExport()) return
-    const result = await persistence.enqueue(async () => {
-      await projectApi.exportReport(`${getProjectName() || '项目'}-报告书.xlsx`)
-      return true
-    }, false)
-    if (result) notify('项目报告书已导出')
-  }
-
-  return { importRows, exportRows, prepareExport, exportProjectReport }
+  return { importRows, exportRows, prepareExport }
 }

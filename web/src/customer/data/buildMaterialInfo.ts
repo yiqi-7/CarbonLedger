@@ -1,4 +1,39 @@
+export interface BuildMaterialInfoInput {
+  materialName: string
+  type: string
+  quantity: number
+  unit: string
+  emissionFactor: number
+  marketPrice?: number | null
+  unitPrice: number
+  recyclingFactor?: number
+  recyclingCoefficient?: number
+  isParticipatingInRecyclingCalculation?: boolean
+  isCustomMaterial?: boolean
+}
+
+export interface BuildMaterialInfoUpdates {
+  [key: string]: unknown
+}
+
 export class BuildMaterialInfo {
+  static nextId: number
+
+  id: number
+  materialName: string
+  type: string
+  quantity: number
+  unit: string
+  emissionFactor: number
+  emissionAmount: number
+  marketPrice: number | null
+  unitPrice: number
+  totalPrice: number
+  recyclingFactor: number
+  recyclingCoefficient: number
+  isParticipatingInRecyclingCalculation: boolean
+  isCustomMaterial: boolean
+
   constructor({
     materialName,
     type,
@@ -10,8 +45,8 @@ export class BuildMaterialInfo {
     recyclingFactor = 0,
     recyclingCoefficient = 0,
     isParticipatingInRecyclingCalculation = recyclingFactor > 0,
-    isCustomMaterial = false
-  }) {
+    isCustomMaterial = false,
+  }: BuildMaterialInfoInput) {
     this.id = BuildMaterialInfo.nextId++
     this.materialName = materialName
     this.type = type
@@ -32,20 +67,26 @@ export class BuildMaterialInfo {
 BuildMaterialInfo.nextId = 1
 
 class BuildMaterialNode {
-  constructor(material) {
+  material: BuildMaterialInfo
+  next: BuildMaterialNode | null
+
+  constructor(material: BuildMaterialInfo) {
     this.material = material
     this.next = null
   }
 }
 
 export class BuildMaterialInfoList {
-  constructor(materials = []) {
+  head: BuildMaterialNode | null
+  count: number
+
+  constructor(materials: BuildMaterialInfo[] = []) {
     this.head = null
     this.count = 0
     materials.forEach(material => this.append(material))
   }
 
-  append(material) {
+  append(material: BuildMaterialInfo): BuildMaterialInfo {
     const node = new BuildMaterialNode(material)
     if (!this.head) {
       this.head = node
@@ -58,8 +99,8 @@ export class BuildMaterialInfoList {
     return node.material
   }
 
-  removeById(id) {
-    let previous = null
+  removeById(id: number): BuildMaterialInfo | null {
+    let previous: BuildMaterialNode | null = null
     let current = this.head
 
     while (current) {
@@ -76,8 +117,8 @@ export class BuildMaterialInfoList {
     return null
   }
 
-  toArray() {
-    const materials = []
+  toArray(): BuildMaterialInfo[] {
+    const materials: BuildMaterialInfo[] = []
     let current = this.head
     while (current) {
       materials.push(current.material)
@@ -86,7 +127,7 @@ export class BuildMaterialInfoList {
     return materials
   }
 
-  updateById(id, updates) {
+  updateById(id: number, updates: BuildMaterialInfoUpdates): BuildMaterialInfo | null {
     let current = this.head
     while (current) {
       if (current.material.id === id) {

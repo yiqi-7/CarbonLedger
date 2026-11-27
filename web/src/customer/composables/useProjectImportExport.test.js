@@ -94,12 +94,10 @@ describe('useProjectImportExport', () => {
   it('queues exports without a post-export refresh and retains filenames and response messages', async () => {
     const { model, options, notifications } = createSubject()
     await model.exportRows('construction-records', '工程台班清单.xlsx', '工程台班清单')
-    await model.exportProjectReport()
 
     expect(options.projectApi.exportRecords).toHaveBeenCalledWith('construction-records', '工程台班清单.xlsx')
-    expect(options.projectApi.exportReport).toHaveBeenCalledWith('示例项目-报告书.xlsx')
+    expect(options.projectApi.exportReport).not.toHaveBeenCalled()
     expect(options.persistence.enqueue).toHaveBeenNthCalledWith(1, expect.any(Function), false)
-    expect(options.persistence.enqueue).toHaveBeenNthCalledWith(2, expect.any(Function), false)
-    expect(notifications).toEqual(['工程台班清单已导出', '项目报告书已导出'])
+    expect(notifications).toEqual(['工程台班清单已导出'])
   })
 })

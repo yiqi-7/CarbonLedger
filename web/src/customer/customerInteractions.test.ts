@@ -7,6 +7,7 @@ import { createCustomerRuntime } from './composables/useCustomerRuntime.js'
 import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
 import { useCostAnalysisViewModel } from './composables/useCostAnalysisViewModel.js'
 import { useProjectImportExport } from './composables/useProjectImportExport.js'
+import { useCustomerReports } from './composables/useCustomerReports.js'
 import { useProjectInfoEditor } from './composables/useProjectInfoEditor.js'
 import { useCustomerRecordPersistence } from './composables/useCustomerRecordPersistence.js'
 import { useCustomerRecordFields } from './composables/useCustomerRecordFields.js'
@@ -46,7 +47,7 @@ function customerScript() {
     .replace(/^import[\s\S]*?from ['"][^'"]+['"]\r?\n/gm, '')
   const project = reactive({ projectName: '客户项目', buildingArea: 100, accountingStages: [], modelImage: null })
   const context: Record<string, any> = {
-    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, useAnalysisViewModel, useCostAnalysisViewModel, useProjectImportExport, useProjectInfoEditor, useCustomerRecordPersistence, useCustomerRecordFields, useCustomerFactorConfiguration, useRecordFilters, formatDisplayNumber,
+    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, useAnalysisViewModel, useCostAnalysisViewModel, useProjectImportExport, useCustomerReports, useProjectInfoEditor, useCustomerRecordPersistence, useCustomerRecordFields, useCustomerFactorConfiguration, useRecordFilters, formatDisplayNumber,
     hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges,
     apiMessage: (_error: unknown, fallback: string) => fallback,
     downloadApiFile: mockedApi.downloadApiFile,
@@ -74,6 +75,7 @@ function customerScript() {
     constructionSearch, constructionCategory, filteredTransportMaterials, filteredConstructionMaterials,
     handleFileChange, removeUploadedImage, draft, uploadedImageUrl,
     costAnalysisTotal, costAnalysisArea, recyclingQuantityGroups, analysisPieItems, analysisSelectedStage,
+    prepareExport, exportProjectReport,
   }`)(...Object.values(context))
   result.dataReady.value = true
   return { ...result, context }
@@ -216,6 +218,21 @@ describe('customer interface save handlers', () => {
     delete customer.transportEditDrafts[1]
     await customer.exportRows('transport-records', '运输.xlsx', '运输记录')
     expect(customer.context.downloadApiFile).toHaveBeenCalledWith('/projects/42/exports/transport-records', '运输.xlsx')
+  })
+
+  it('keeps the current report handler behind the same unsaved-change guard', async () => {
+    const customer = customerScript()
+    customer.transportMaterialList.append({ id: 1, transportedMaterial: '钢筋', transportQuantity: 1 })
+    customer.transportEditDrafts[1] = { transportQuantity: '12' }
+
+    await customer.exportProjectReport()
+    expect(customer.context.downloadApiFile).not.toHaveBeenCalled()
+    expect(customer.message.value).toContain('未保存')
+
+    delete customer.transportEditDrafts[1]
+    await customer.exportProjectReport()
+    expect(customer.context.downloadApiFile).toHaveBeenCalledWith('/projects/42/reports/current/excel', '客户项目-报告书.xlsx')
+    expect(customer.message.value).toBe('项目报告书已导出')
   })
 
   it('keeps unsaved temporary rows out of cost and emission charts until the server accepts them', () => {
