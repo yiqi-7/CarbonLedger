@@ -3,7 +3,7 @@ import type { CalcVersionSnapshot } from '@carbonledger/shared'
 import { AuditService } from '../audit/audit.service'
 import { AnalysisService } from '../analysis/analysis.service'
 import { ProjectsService } from '../projects/projects.service'
-import { CalcVersionRepository } from './calc-version.repository'
+import { CalcVersionRepository, isVersionNumberConflict } from './calc-version.repository'
 import { SnapshotFactory } from './snapshot.factory'
 
 @Injectable()
@@ -20,23 +20,34 @@ export class VersionsService {
   async save(projectId: number, userId: number) {
     await this.projects.assertOwner(projectId, userId)
     const bundle = await this.analysis.buildBundle(projectId, userId)
-    const last = await this.repository.findLatest(projectId)
-    const versionNumber = (last?.versionNumber ?? 0) + 1
-    const snapshot = this.snapshots.create(versionNumber, userId, bundle)
-    const created = await this.repository.create({
-      projectId,
-      versionNumber,
-      snapshot: this.snapshots.serialize(snapshot),
-      createdByUserId: userId,
-    })
-    await this.audit.record(
-      userId,
-      'VERSION_SAVED',
-      'PROJECT',
-      String(projectId),
-      `版本 v${versionNumber}`,
-    )
-    return { id: created.id, versionNumber, createdAt: created.createdAt }
+
+    // A concurrent save may win between findLatest and create. Re-read and rebuild
+    // the snapshot after that conflict so its embedded number matches the row.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const last = await this.repository.findLatest(projectId)
+      const versionNumber = (last?.versionNumber ?? 0) + 1
+      const snapshot = this.snapshots.create(versionNumber, userId, bundle)
+      try {
+        const created = await this.repository.create({
+          projectId,
+          versionNumber,
+          snapshot: this.snapshots.serialize(snapshot),
+          createdByUserId: userId,
+        })
+        await this.audit.record(
+          userId,
+          'VERSION_SAVED',
+          'PROJECT',
+          String(projectId),
+          `版本 v${versionNumber}`,
+        )
+        return { id: created.id, versionNumber, createdAt: created.createdAt }
+      } catch (error) {
+        if (!isVersionNumberConflict(error) || attempt === 2) throw error
+      }
+    }
+
+    throw new Error('Version save retry exhausted')
   }
 
   async list(projectId: number, userId: number) {

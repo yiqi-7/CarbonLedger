@@ -79,7 +79,7 @@
 ## 6. 核算版本
 
 - 用户显式点击“保存核算版本”→ 服务端将项目信息、因子配置、四类记录（含派生值）与汇总序列化为快照存储，`versionNumber` 项目内自增。
-- 版本不可变；后续编辑只影响当前数据与之后的新版本。
+- 核算 payload 不可变；后续编辑只影响当前数据与之后的新版本。当前版本名称仍沿用旧兼容语义写回 snapshot JSON，名称可变；迁移到独立名称元数据后再恢复严格的整行不可变。
 - 报告（PDF + Excel）从指定版本快照生成，不读取当前编辑态。
 
 ## 7. 导入 / 导出（与旧版格式一致）
@@ -230,7 +230,7 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 
 - customer `App.vue` 中的项目编辑、因子配置和四类记录编辑/创建删除逻辑；新增 feature 不应继续堆入此文件。
 - `ProjectToolsView.vue` 已通过项目 API facade 访问项目、因子、版本和报告；Versions 当前仍保留旧的名称写回 snapshot JSON 语义。
-- 版本编号的并发冲突重试/事务化，以及 customer 版本页面和报告页面的 feature 归属迁移。
+- 版本编号已增加限定 composite unique 冲突的有界重试，并在重试时重建带最终编号的 snapshot；仍待迁移独立名称元数据、customer 版本页面和报告页面的 feature 归属。
 - 最后的 JavaScript data model 到 TypeScript 迁移。
 
 ### 9.6 API、数据和持久化契约

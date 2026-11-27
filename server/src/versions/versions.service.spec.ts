@@ -34,6 +34,38 @@ describe('VersionsService boundaries', () => {
     expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({ projectId: 42, versionNumber: 3, createdByUserId: 7 }))
   })
 
+  it('retries a composite version conflict with a fresh number and snapshot', async () => {
+    const events: string[] = []
+    const repository = {
+      findLatest: vi.fn()
+        .mockImplementationOnce(async () => { events.push('latest-1'); return null })
+        .mockImplementationOnce(async () => { events.push('latest-2'); return { versionNumber: 1 } }),
+      create: vi.fn()
+        .mockImplementationOnce(async () => {
+          events.push('create-1')
+          throw { code: 'P2002', meta: { target: ['projectId', 'versionNumber'] } }
+        })
+        .mockImplementationOnce(async () => { events.push('create-2'); return { id: 9, createdAt: 'later' } }),
+    }
+    const audit = { record: vi.fn().mockImplementation(async () => { events.push('audit') }) }
+    const snapshots = new SnapshotFactory()
+    const service = new VersionsService(
+      repository as unknown as CalcVersionRepository,
+      snapshots,
+      { buildBundle: vi.fn().mockImplementation(async () => { events.push('bundle'); return bundle }) } as unknown as AnalysisService,
+      { assertOwner: vi.fn().mockImplementation(async () => { events.push('owner') }) } as unknown as ProjectsService,
+      audit as unknown as AuditService,
+    )
+
+    await expect(service.save(42, 7)).resolves.toEqual({ id: 9, versionNumber: 2, createdAt: 'later' })
+    expect(events).toEqual(['owner', 'bundle', 'latest-1', 'create-1', 'latest-2', 'create-2', 'audit'])
+    expect(repository.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ versionNumber: 1 }))
+    expect(repository.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ versionNumber: 2 }))
+    expect(JSON.parse(repository.create.mock.calls[0][0].snapshot).versionNumber).toBe(1)
+    expect(JSON.parse(repository.create.mock.calls[1][0].snapshot).versionNumber).toBe(2)
+    expect(audit.record).toHaveBeenCalledWith(7, 'VERSION_SAVED', 'PROJECT', '42', '版本 v2')
+  })
+
   it('delegates detail parsing and preserves the public response shape', async () => {
     const snapshots = new SnapshotFactory()
     const snapshot = snapshots.create(3, 7, bundle)
