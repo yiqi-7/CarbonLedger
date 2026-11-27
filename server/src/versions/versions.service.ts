@@ -18,7 +18,7 @@ export class VersionsService {
   /** 保存核算版本：显式点击保存后写入不可变快照 */
   async save(projectId: number, userId: number) {
     await this.projects.assertOwner(projectId, userId)
-    const bundle = await this.analysis.buildBundle(projectId)
+    const bundle = await this.analysis.buildBundle(projectId, userId)
     const last = await this.prisma.calcVersion.findFirst({
       where: { projectId },
       orderBy: { versionNumber: 'desc' },

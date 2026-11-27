@@ -51,8 +51,8 @@ export class AnalysisService {
     private readonly projects: ProjectsService,
   ) {}
 
-  async buildBundle(projectId: number, userId?: number): Promise<ProjectBundle> {
-    if (userId != null) await this.projects.assertOwner(projectId, userId)
+  async buildBundle(projectId: number, userId: number): Promise<ProjectBundle> {
+    await this.projects.assertOwner(projectId, userId)
     const project = await this.prisma.project.findUnique({ where: { id: projectId } })
     if (!project) throw new NotFoundException('项目不存在')
 
