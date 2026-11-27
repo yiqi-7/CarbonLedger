@@ -247,65 +247,96 @@
 [data-theme="cloud-blue"] .metric-cell strong { color: #425BC8; }
 
 /* ============================================================
-   J. Deep Navy Console — 深海蓝控制台
-   A quiet enterprise control surface with ice-blue actions.
+   N–W. New candidate set — 十套新候选
+   All candidates keep the established shell and content geometry.
    ============================================================ */
-[data-theme="deep-navy"] {
-  color-scheme: dark;
-  --s-canvas: #111A28; --s-surface: #182536; --s-text: #ECF3F7; --s-muted: #91A5B6;
-  --s-border: #2D4052; --s-border-w: 1px; --s-accent: #8AD8E8; --s-accent-hover: #A6E5F0; --s-accent-text: #8AD8E8; --s-accent-contrast: #10202C; --s-tint: #203847; --s-field-bg: #131F2D; --s-focus: #8AD8E8;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 224px; --s-sidebar-bg: #0C1420; --s-sidebar-text: #CFDCE5; --s-sidebar-muted: #758A9C; --s-sidebar-icon: #92A8B8; --s-sidebar-active-bg: #203847; --s-sidebar-active-text: #A6E5F0; --s-sidebar-hover-bg: #172534; --s-sidebar-hover-text: #ECF3F7; --s-sidebar-border: #233343;
-  --s-header-bg: #121E2C; --s-header-text: #ECF3F7; --s-header-border: #2D4052; --s-brand-bg: #8AD8E8; --s-brand-text: #10202C; --s-brand-radius: 7px; --s-crumb-sep: #597083; --s-radius-card: 10px; --s-radius-control: 7px; --s-radius-pill: 7px; --s-shadow: 0 6px 18px rgba(0,0,0,.12); --s-table-head-bg: #1E3041; --s-table-head-text: #91A5B6; --s-row-line: #27394A; --s-row-hover: #1C3441; --s-track-bg: #2A4050; --s-bar: #8AD8E8; --s-notice-bg: #8AD8E8; --s-notice-text: #10202C;
-  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px,4vw,56px) 72px; --s-content-width: 1140px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: .02em; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #111A28; --v-surface: #182536; --v-text: #ECF3F7; --v-muted: #91A5B6; --v-line: #2D4052; --v-accent: #8AD8E8; --v-tint: #203847; --v-radius: 10px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
+[data-theme="alpine-air"],
+[data-theme="copper-circuit"],
+[data-theme="mineral-blue"],
+[data-theme="saffron-archive"],
+[data-theme="plum-office"],
+[data-theme="paper-graph"],
+[data-theme="atlas-utility"],
+[data-theme="quartz-studio"],
+[data-theme="transit-orange"],
+[data-theme="charcoal-lime"] {
+  --s-border-w: 1px; --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
+  --s-sidebar-width: 224px; --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 76px; --s-content-width: 1120px;
+  --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --s-radius-card: 12px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 4px 16px rgba(30,45,65,.06);
+  --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px; --v-radius: var(--s-radius-card);
 }
-[data-theme="deep-navy"] .metric-cell strong { color: #8AD8E8; }
 
-/* ============================================================
-   K. Limestone & Ink — 石灰岩与墨色
-   Mineral neutral surfaces, deep ink and a restrained copper signal.
-   ============================================================ */
-[data-theme="limestone-ink"] {
-  color-scheme: light;
-  --s-canvas: #F0EEE9; --s-surface: #FCFBF8; --s-text: #292B2A; --s-muted: #777A76;
-  --s-border: #D8D6D0; --s-border-w: 1px; --s-accent: #A66B3F; --s-accent-hover: #895332; --s-accent-text: #8F5A35; --s-accent-contrast: #FFFFFF; --s-tint: #F1E6DB; --s-field-bg: #FFFFFF; --s-focus: #A66B3F;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif; --s-sidebar-width: 226px; --s-sidebar-bg: #E4E2DC; --s-sidebar-text: #444845; --s-sidebar-muted: #858983; --s-sidebar-icon: #6B716B; --s-sidebar-active-bg: #D1D8D0; --s-sidebar-active-text: #38523C; --s-sidebar-hover-bg: #DCDDD6; --s-sidebar-hover-text: #292B2A; --s-sidebar-border: #D0CEC7;
-  --s-header-bg: #FCFBF8; --s-header-text: #292B2A; --s-header-border: #D8D6D0; --s-brand-bg: #292B2A; --s-brand-text: #FCFBF8; --s-brand-radius: 3px; --s-crumb-sep: #B5B5AD; --s-radius-card: 7px; --s-radius-control: 5px; --s-radius-pill: 5px; --s-shadow: 0 2px 10px rgba(45,44,38,.045); --s-table-head-bg: #EBEAE4; --s-table-head-text: #777A76; --s-row-line: #E3E1DB; --s-row-hover: #F8F3EC; --s-track-bg: #DFDDD6; --s-bar: #A66B3F; --s-notice-bg: #292B2A; --s-notice-text: #FCFBF8;
-  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 74px; --s-content-width: 1100px; --s-metric-size: clamp(27px,2.7vw,35px); --s-metric-weight: 600; --s-panel-title-size: 16px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #F0EEE9; --v-surface: #FCFBF8; --v-text: #292B2A; --v-muted: #777A76; --v-line: #D8D6D0; --v-accent: #A66B3F; --v-tint: #F1E6DB; --v-radius: 7px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 33px;
+/* N. Alpine Air — 高山空气 */
+[data-theme="alpine-air"] {
+  color-scheme: light; --s-canvas:#EEF3F1; --s-surface:#FFFFFF; --s-text:#20302D; --s-muted:#71817E; --s-border:#D9E3DF; --s-accent:#3C7D72; --s-accent-hover:#2E665D; --s-accent-text:#316C62; --s-accent-contrast:#FFFFFF; --s-tint:#E0EFEB; --s-field-bg:#FBFDFC; --s-focus:#3C7D72;
+  --s-sidebar-bg:#E5EFEB; --s-sidebar-text:#34534C; --s-sidebar-muted:#78948C; --s-sidebar-icon:#5A7E74; --s-sidebar-active-bg:#CDE4DD; --s-sidebar-active-text:#276256; --s-sidebar-hover-bg:#D9E9E4; --s-sidebar-hover-text:#20302D; --s-sidebar-border:#D0DFDA; --s-header-bg:#FFFFFF; --s-header-text:#20302D; --s-header-border:#D9E3DF; --s-brand-bg:#3C7D72; --s-brand-text:#FFFFFF; --s-brand-radius:50%; --s-crumb-sep:#AEC1BB;
+  --s-table-head-bg:#F0F6F3; --s-table-head-text:#71817E; --s-row-line:#E4ECE8; --s-row-hover:#F1F8F5; --s-track-bg:#DCEAE4; --s-bar:#3C7D72; --s-notice-bg:#20302D; --s-notice-text:#FFFFFF; --v-bg:#EEF3F1; --v-surface:#FFFFFF; --v-text:#20302D; --v-muted:#71817E; --v-line:#D9E3DF; --v-accent:#3C7D72; --v-tint:#E0EFEB;
 }
-[data-theme="limestone-ink"] .preview-content h1,
-[data-theme="limestone-ink"] .preview-content h2 { letter-spacing: 0; }
 
-/* ============================================================
-   L. Indigo Grid — 靛蓝网格系统
-   A sharper SaaS skin with white surfaces and a confident blue-violet action.
-   ============================================================ */
-[data-theme="indigo-grid"] {
-  color-scheme: light;
-  --s-canvas: #F3F4F8; --s-surface: #FFFFFF; --s-text: #20243A; --s-muted: #737990;
-  --s-border: #DDE0EA; --s-border-w: 1px; --s-accent: #5364D8; --s-accent-hover: #4352C1; --s-accent-text: #4352C1; --s-accent-contrast: #FFFFFF; --s-tint: #EBEDFF; --s-field-bg: #FAFBFE; --s-focus: #5364D8;
-  --s-font: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 222px; --s-sidebar-bg: #FFFFFF; --s-sidebar-text: #4F5770; --s-sidebar-muted: #9298AA; --s-sidebar-icon: #747D96; --s-sidebar-active-bg: #EBEDFF; --s-sidebar-active-text: #4352C1; --s-sidebar-hover-bg: #F3F4F8; --s-sidebar-hover-text: #20243A; --s-sidebar-border: #E1E3EB;
-  --s-header-bg: #FFFFFF; --s-header-text: #20243A; --s-header-border: #DDE0EA; --s-brand-bg: #5364D8; --s-brand-text: #FFFFFF; --s-brand-radius: 8px; --s-crumb-sep: #BCC1D0; --s-radius-card: 11px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 4px 16px rgba(52,61,116,.06); --s-table-head-bg: #F5F6FA; --s-table-head-text: #737990; --s-row-line: #E9EAF0; --s-row-hover: #F5F6FF; --s-track-bg: #E3E5EE; --s-bar: #5364D8; --s-notice-bg: #20243A; --s-notice-text: #FFFFFF;
-  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 76px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 650; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #F3F4F8; --v-surface: #FFFFFF; --v-text: #20243A; --v-muted: #737990; --v-line: #DDE0EA; --v-accent: #5364D8; --v-tint: #EBEDFF; --v-radius: 11px; --v-font: var(--s-font); --v-title-weight: 650; --v-title-size: 32px;
+/* O. Copper Circuit — 铜色线路 */
+[data-theme="copper-circuit"] {
+  color-scheme: light; --s-canvas:#F3F1EE; --s-surface:#FFFFFF; --s-text:#2D2927; --s-muted:#7B706B; --s-border:#DED8D3; --s-accent:#BE6A43; --s-accent-hover:#A55531; --s-accent-text:#A55531; --s-accent-contrast:#FFFFFF; --s-tint:#F7E8DE; --s-field-bg:#FFFEFC; --s-focus:#BE6A43;
+  --s-sidebar-bg:#EDE5DF; --s-sidebar-text:#55463F; --s-sidebar-muted:#94847B; --s-sidebar-icon:#7A655B; --s-sidebar-active-bg:#F1D6C8; --s-sidebar-active-text:#934526; --s-sidebar-hover-bg:#E7DBD3; --s-sidebar-hover-text:#2D2927; --s-sidebar-border:#DED1C8; --s-header-bg:#FFFFFF; --s-header-text:#2D2927; --s-header-border:#DED8D3; --s-brand-bg:#2D2927; --s-brand-text:#FFFFFF; --s-brand-radius:7px; --s-crumb-sep:#C3B4AB;
+  --s-table-head-bg:#F7F2EE; --s-table-head-text:#7B706B; --s-row-line:#ECE4DE; --s-row-hover:#FFF3EC; --s-track-bg:#E7DCD4; --s-bar:#BE6A43; --s-notice-bg:#2D2927; --s-notice-text:#FFFFFF; --v-bg:#F3F1EE; --v-surface:#FFFFFF; --v-text:#2D2927; --v-muted:#7B706B; --v-line:#DED8D3; --v-accent:#BE6A43; --v-tint:#F7E8DE;
 }
-[data-theme="indigo-grid"] .metric-cell strong { color: #4352C1; }
 
-/* ============================================================
-   M. Concrete Signal — 混凝土信号
-   Architectural concrete grey with a precise orange action signal.
-   ============================================================ */
-[data-theme="concrete-signal"] {
-  color-scheme: light;
-  --s-canvas: #E9EBEB; --s-surface: #FDFDFB; --s-text: #252A2B; --s-muted: #6D7474;
-  --s-border: #C9CECE; --s-border-w: 1px; --s-accent: #E26E32; --s-accent-hover: #C95720; --s-accent-text: #C95720; --s-accent-contrast: #FFFFFF; --s-tint: #FBE8DD; --s-field-bg: #FFFFFF; --s-focus: #E26E32;
-  --s-font: "Arial", "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 224px; --s-sidebar-bg: #DDE1E1; --s-sidebar-text: #3D4545; --s-sidebar-muted: #7E8888; --s-sidebar-icon: #626C6C; --s-sidebar-active-bg: #252A2B; --s-sidebar-active-text: #FFFFFF; --s-sidebar-hover-bg: #D2D7D7; --s-sidebar-hover-text: #252A2B; --s-sidebar-border: #C3C9C9;
-  --s-header-bg: #FDFDFB; --s-header-text: #252A2B; --s-header-border: #C9CECE; --s-brand-bg: #E26E32; --s-brand-text: #FFFFFF; --s-brand-radius: 2px; --s-crumb-sep: #9BA4A4; --s-radius-card: 5px; --s-radius-control: 4px; --s-radius-pill: 4px; --s-shadow: 0 2px 7px rgba(31,40,40,.05); --s-table-head-bg: #E7EAEA; --s-table-head-text: #6D7474; --s-row-line: #DCE0E0; --s-row-hover: #FFF1E9; --s-track-bg: #D6DCDC; --s-bar: #E26E32; --s-notice-bg: #252A2B; --s-notice-text: #FFFFFF;
-  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px,4vw,56px) 72px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 650; --s-panel-title-size: 15px; --s-panel-title-weight: 650; --s-label-transform: uppercase; --s-label-tracking: .06em; --s-action-weight: 700; --s-active-weight: 650;
-  --v-bg: #E9EBEB; --v-surface: #FDFDFB; --v-text: #252A2B; --v-muted: #6D7474; --v-line: #C9CECE; --v-accent: #E26E32; --v-tint: #FBE8DD; --v-radius: 5px; --v-font: var(--s-font); --v-title-weight: 650; --v-title-size: 32px;
+/* P. Mineral Blue — 矿物蓝灰 */
+[data-theme="mineral-blue"] {
+  color-scheme: light; --s-canvas:#EDF1F4; --s-surface:#FFFFFF; --s-text:#24313A; --s-muted:#71808A; --s-border:#D7E0E6; --s-accent:#4F7D9C; --s-accent-hover:#3D657F; --s-accent-text:#3D657F; --s-accent-contrast:#FFFFFF; --s-tint:#E2EDF3; --s-field-bg:#FBFCFD; --s-focus:#4F7D9C;
+  --s-sidebar-bg:#E2E9EE; --s-sidebar-text:#3F5663; --s-sidebar-muted:#7D929D; --s-sidebar-icon:#607986; --s-sidebar-active-bg:#D1E1EA; --s-sidebar-active-text:#315E7B; --s-sidebar-hover-bg:#D9E4EA; --s-sidebar-hover-text:#24313A; --s-sidebar-border:#CFDCE3; --s-header-bg:#FFFFFF; --s-header-text:#24313A; --s-header-border:#D7E0E6; --s-brand-bg:#4F7D9C; --s-brand-text:#FFFFFF; --s-brand-radius:5px; --s-crumb-sep:#B5C4CC;
+  --s-table-head-bg:#F0F4F7; --s-table-head-text:#71808A; --s-row-line:#E1E8ED; --s-row-hover:#F0F6FA; --s-track-bg:#DCE5EB; --s-bar:#4F7D9C; --s-notice-bg:#24313A; --s-notice-text:#FFFFFF; --v-bg:#EDF1F4; --v-surface:#FFFFFF; --v-text:#24313A; --v-muted:#71808A; --v-line:#D7E0E6; --v-accent:#4F7D9C; --v-tint:#E2EDF3;
 }
-[data-theme="concrete-signal"] .metric-cell strong { color: #C95720; }
+
+/* Q. Saffron Archive — 藏 saffron 档案 */
+[data-theme="saffron-archive"] {
+  color-scheme: light; --s-canvas:#F5F2E9; --s-surface:#FFFDF8; --s-text:#29271F; --s-muted:#7C786B; --s-border:#DDD8C8; --s-accent:#C69229; --s-accent-hover:#A9781B; --s-accent-text:#9A6D18; --s-accent-contrast:#FFFFFF; --s-tint:#F8EBCB; --s-field-bg:#FFFDF8; --s-focus:#C69229; --s-heading-font:"Noto Serif SC", Georgia, serif;
+  --s-sidebar-bg:#EBE5D4; --s-sidebar-text:#524A36; --s-sidebar-muted:#8F876F; --s-sidebar-icon:#756B50; --s-sidebar-active-bg:#E8D59D; --s-sidebar-active-text:#745315; --s-sidebar-hover-bg:#E2DAC5; --s-sidebar-hover-text:#29271F; --s-sidebar-border:#D9D0BC; --s-header-bg:#FFFDF8; --s-header-text:#29271F; --s-header-border:#DDD8C8; --s-brand-bg:#29271F; --s-brand-text:#FFFDF8; --s-brand-radius:50%; --s-crumb-sep:#B8AF98;
+  --s-table-head-bg:#F3EEDF; --s-table-head-text:#7C786B; --s-row-line:#E8E1D3; --s-row-hover:#FFF8E9; --s-track-bg:#E4DCCA; --s-bar:#C69229; --s-notice-bg:#29271F; --s-notice-text:#FFFDF8; --v-bg:#F5F2E9; --v-surface:#FFFDF8; --v-text:#29271F; --v-muted:#7C786B; --v-line:#DDD8C8; --v-accent:#C69229; --v-tint:#F8EBCB; --v-title-size:33px;
+}
+
+/* R. Plum Office — 李子紫事务所 */
+[data-theme="plum-office"] {
+  color-scheme: light; --s-canvas:#F2F0F5; --s-surface:#FFFFFF; --s-text:#302A38; --s-muted:#7C7485; --s-border:#E0DCE5; --s-accent:#855B9D; --s-accent-hover:#704987; --s-accent-text:#704987; --s-accent-contrast:#FFFFFF; --s-tint:#F1E6F5; --s-field-bg:#FCFBFD; --s-focus:#855B9D;
+  --s-sidebar-bg:#EBE5EF; --s-sidebar-text:#594763; --s-sidebar-muted:#9587A0; --s-sidebar-icon:#786285; --s-sidebar-active-bg:#DECDE5; --s-sidebar-active-text:#67417C; --s-sidebar-hover-bg:#E4DCE8; --s-sidebar-hover-text:#302A38; --s-sidebar-border:#DCD2E1; --s-header-bg:#FFFFFF; --s-header-text:#302A38; --s-header-border:#E0DCE5; --s-brand-bg:#855B9D; --s-brand-text:#FFFFFF; --s-brand-radius:9px; --s-crumb-sep:#C0B5C8;
+  --s-table-head-bg:#F6F2F8; --s-table-head-text:#7C7485; --s-row-line:#EAE5EE; --s-row-hover:#FBF4FD; --s-track-bg:#E6DDEB; --s-bar:#855B9D; --s-notice-bg:#302A38; --s-notice-text:#FFFFFF; --v-bg:#F2F0F5; --v-surface:#FFFFFF; --v-text:#302A38; --v-muted:#7C7485; --v-line:#E0DCE5; --v-accent:#855B9D; --v-tint:#F1E6F5;
+}
+
+/* S. Paper Graph — 纸张图谱 */
+[data-theme="paper-graph"] {
+  color-scheme: light; --s-canvas:#F8F7F3; --s-surface:#FFFFFF; --s-text:#252827; --s-muted:#747A76; --s-border:#D9DEDB; --s-accent:#2F7F78; --s-accent-hover:#26665F; --s-accent-text:#26665F; --s-accent-contrast:#FFFFFF; --s-tint:#E4F1EF; --s-field-bg:#FFFFFF; --s-focus:#2F7F78;
+  --s-sidebar-bg:#EFF3EF; --s-sidebar-text:#42534D; --s-sidebar-muted:#87948E; --s-sidebar-icon:#687B74; --s-sidebar-active-bg:#D7EBE6; --s-sidebar-active-text:#25665F; --s-sidebar-hover-bg:#E4EEE9; --s-sidebar-hover-text:#252827; --s-sidebar-border:#D8E2DD; --s-header-bg:#FFFFFF; --s-header-text:#252827; --s-header-border:#D9DEDB; --s-brand-bg:#252827; --s-brand-text:#FFFFFF; --s-brand-radius:3px; --s-crumb-sep:#B8C2BD;
+  --s-table-head-bg:#F2F6F3; --s-table-head-text:#747A76; --s-row-line:#E4EAE6; --s-row-hover:#F1F8F5; --s-track-bg:#E0E9E5; --s-bar:#2F7F78; --s-notice-bg:#252827; --s-notice-text:#FFFFFF; --v-bg:#F8F7F3; --v-surface:#FFFFFF; --v-text:#252827; --v-muted:#747A76; --v-line:#D9DEDB; --v-accent:#2F7F78; --v-tint:#E4F1EF;
+}
+
+/* T. Atlas Utility — 地图册工具 */
+[data-theme="atlas-utility"] {
+  color-scheme: light; --s-canvas:#EEF0F2; --s-surface:#FFFFFF; --s-text:#26313A; --s-muted:#73808A; --s-border:#D9E0E5; --s-accent:#2C6FA3; --s-accent-hover:#225B87; --s-accent-text:#225B87; --s-accent-contrast:#FFFFFF; --s-tint:#E1EFF8; --s-field-bg:#FBFCFD; --s-focus:#2C6FA3;
+  --s-sidebar-bg:#E3E9ED; --s-sidebar-text:#405663; --s-sidebar-muted:#81929B; --s-sidebar-icon:#607986; --s-sidebar-active-bg:#CFE3F0; --s-sidebar-active-text:#225B87; --s-sidebar-hover-bg:#D9E4E9; --s-sidebar-hover-text:#26313A; --s-sidebar-border:#D0DCE2; --s-header-bg:#FFFFFF; --s-header-text:#26313A; --s-header-border:#D9E0E5; --s-brand-bg:#2C6FA3; --s-brand-text:#FFFFFF; --s-brand-radius:4px; --s-crumb-sep:#B4C1C9;
+  --s-table-head-bg:#F0F4F7; --s-table-head-text:#73808A; --s-row-line:#E2E8EC; --s-row-hover:#F0F7FB; --s-track-bg:#DCE6EB; --s-bar:#2C6FA3; --s-notice-bg:#26313A; --s-notice-text:#FFFFFF; --v-bg:#EEF0F2; --v-surface:#FFFFFF; --v-text:#26313A; --v-muted:#73808A; --v-line:#D9E0E5; --v-accent:#2C6FA3; --v-tint:#E1EFF8;
+}
+
+/* U. Quartz Studio — 石英工作室 */
+[data-theme="quartz-studio"] {
+  color-scheme: light; --s-canvas:#F4F2F1; --s-surface:#FFFDFC; --s-text:#302C2C; --s-muted:#817777; --s-border:#E2DCDC; --s-accent:#B05B70; --s-accent-hover:#94475A; --s-accent-text:#94475A; --s-accent-contrast:#FFFFFF; --s-tint:#F8E7EC; --s-field-bg:#FFFDFC; --s-focus:#B05B70;
+  --s-sidebar-bg:#EEE8E7; --s-sidebar-text:#594B4D; --s-sidebar-muted:#96898A; --s-sidebar-icon:#7B696D; --s-sidebar-active-bg:#E7CFD5; --s-sidebar-active-text:#833C51; --s-sidebar-hover-bg:#E7DDDC; --s-sidebar-hover-text:#302C2C; --s-sidebar-border:#DED4D3; --s-header-bg:#FFFDFC; --s-header-text:#302C2C; --s-header-border:#E2DCDC; --s-brand-bg:#B05B70; --s-brand-text:#FFFFFF; --s-brand-radius:50%; --s-crumb-sep:#C2B3B6;
+  --s-table-head-bg:#F7F1F2; --s-table-head-text:#817777; --s-row-line:#ECE3E4; --s-row-hover:#FFF2F5; --s-track-bg:#E9DDE0; --s-bar:#B05B70; --s-notice-bg:#302C2C; --s-notice-text:#FFFFFF; --v-bg:#F4F2F1; --v-surface:#FFFDFC; --v-text:#302C2C; --v-muted:#817777; --v-line:#E2DCDC; --v-accent:#B05B70; --v-tint:#F8E7EC;
+}
+
+/* V. Transit Orange — 交通橙信号 */
+[data-theme="transit-orange"] {
+  color-scheme: light; --s-canvas:#F2F3F2; --s-surface:#FFFFFF; --s-text:#202625; --s-muted:#6D7775; --s-border:#D8DFDD; --s-accent:#E8752E; --s-accent-hover:#C95E1E; --s-accent-text:#BC5318; --s-accent-contrast:#FFFFFF; --s-tint:#FCE9DA; --s-field-bg:#FBFCFB; --s-focus:#E8752E;
+  --s-sidebar-bg:#E5EAE8; --s-sidebar-text:#3E4B48; --s-sidebar-muted:#7E8E89; --s-sidebar-icon:#60726D; --s-sidebar-active-bg:#F7DCC9; --s-sidebar-active-text:#A84D19; --s-sidebar-hover-bg:#DDE5E2; --s-sidebar-hover-text:#202625; --s-sidebar-border:#D0DAD6; --s-header-bg:#FFFFFF; --s-header-text:#202625; --s-header-border:#D8DFDD; --s-brand-bg:#E8752E; --s-brand-text:#FFFFFF; --s-brand-radius:4px; --s-crumb-sep:#B6C1BE;
+  --s-table-head-bg:#F3F6F4; --s-table-head-text:#6D7775; --s-row-line:#E3EAE6; --s-row-hover:#FFF2E9; --s-track-bg:#E2E9E5; --s-bar:#E8752E; --s-notice-bg:#202625; --s-notice-text:#FFFFFF; --v-bg:#F2F3F2; --v-surface:#FFFFFF; --v-text:#202625; --v-muted:#6D7775; --v-line:#D8DFDD; --v-accent:#E8752E; --v-tint:#FCE9DA;
+}
+
+/* W. Charcoal Lime — 炭黑酸橙 */
+[data-theme="charcoal-lime"] {
+  color-scheme: dark; --s-canvas:#191D1C; --s-surface:#242A28; --s-text:#EEF3EA; --s-muted:#A5B0A5; --s-border:#3B4640; --s-accent:#B9D94C; --s-accent-hover:#CBE968; --s-accent-text:#B9D94C; --s-accent-contrast:#182019; --s-tint:#34421F; --s-field-bg:#1D2420; --s-focus:#B9D94C;
+  --s-sidebar-bg:#111614; --s-sidebar-text:#D6DED2; --s-sidebar-muted:#7D8A7D; --s-sidebar-icon:#9EAB9D; --s-sidebar-active-bg:#3A4A25; --s-sidebar-active-text:#D6EF74; --s-sidebar-hover-bg:#242D27; --s-sidebar-hover-text:#EEF3EA; --s-sidebar-border:#2C3830; --s-header-bg:#202824; --s-header-text:#EEF3EA; --s-header-border:#3B4640; --s-brand-bg:#B9D94C; --s-brand-text:#182019; --s-brand-radius:4px; --s-crumb-sep:#71806F;
+  --s-table-head-bg:#2D3830; --s-table-head-text:#A5B0A5; --s-row-line:#354139; --s-row-hover:#2B3926; --s-track-bg:#354139; --s-bar:#B9D94C; --s-notice-bg:#B9D94C; --s-notice-text:#182019; --v-bg:#191D1C; --v-surface:#242A28; --v-text:#EEF3EA; --v-muted:#A5B0A5; --v-line:#3B4640; --v-accent:#B9D94C; --v-tint:#34421F;
+}
+[data-theme="charcoal-lime"] .metric-cell strong { color:#B9D94C; }
 
 /* ---------- Responsive: layout rules stay shared ---------- */
 @media (max-width: 1080px) {
