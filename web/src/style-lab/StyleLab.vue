@@ -4,23 +4,23 @@ import StyleShell from './StyleShell.vue'
 import { providePreview } from '../design-preview/state'
 import type { PageId } from '../design-preview/types'
 
-type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'apple-minimal' | 'stripe-spectrum' | 'linear-precision' | 'notion-paper' | 'vercel-mono' | 'figma-canvas' | 'airbnb-coral' | 'nike-editorial' | 'dropbox-blue' | 'shopify-commerce'
+type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'tate-gallery' | 'oma-archive' | 'archdaily-grid' | 'loewe-craft' | 'aesop-apothecary' | 'patagonia-field' | 'moma-blocks' | 'monocle-journal' | 'pentagram-studio' | 'bloomberg-terminal'
 
 const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = [
   { id: 'soft-utility', letter: 'D', name: 'Soft Utility', detail: '柔和工具界面（保留）' },
   { id: 'graphite-editorial', letter: 'E', name: 'Graphite Editorial', detail: '石墨编辑系统（保留）' },
   { id: 'cloud-blue', letter: 'I', name: 'Cloud Blue', detail: '云端蓝灰（保留）' },
   { id: 'indigo-grid', letter: 'L', name: 'Indigo Grid', detail: '靛蓝网格系统（保留）' },
-  { id: 'apple-minimal', letter: 'N', name: 'Apple Minimal', detail: 'Apple 极简留白' },
-  { id: 'stripe-spectrum', letter: 'O', name: 'Stripe Spectrum', detail: 'Stripe 彩色层次' },
-  { id: 'linear-precision', letter: 'P', name: 'Linear Precision', detail: 'Linear 暗色精密' },
-  { id: 'notion-paper', letter: 'Q', name: 'Notion Paper', detail: 'Notion 文档系统' },
-  { id: 'vercel-mono', letter: 'R', name: 'Vercel Mono', detail: 'Vercel 黑白极简' },
-  { id: 'figma-canvas', letter: 'S', name: 'Figma Canvas', detail: 'Figma 彩色创作' },
-  { id: 'airbnb-coral', letter: 'T', name: 'Airbnb Coral', detail: 'Airbnb 温暖社区' },
-  { id: 'nike-editorial', letter: 'U', name: 'Nike Editorial', detail: 'Nike 强烈叙事' },
-  { id: 'dropbox-blue', letter: 'V', name: 'Dropbox Blue', detail: 'Dropbox 文件秩序' },
-  { id: 'shopify-commerce', letter: 'W', name: 'Shopify Commerce', detail: 'Shopify 商业工具' },
+  { id: 'tate-gallery', letter: 'N', name: 'Tate Gallery', detail: 'Tate 展览目录' },
+  { id: 'oma-archive', letter: 'O', name: 'OMA Archive', detail: 'OMA 建筑档案' },
+  { id: 'archdaily-grid', letter: 'P', name: 'ArchDaily Grid', detail: 'ArchDaily 建筑媒体' },
+  { id: 'loewe-craft', letter: 'Q', name: 'Loewe Craft', detail: 'Loewe 手工艺留白' },
+  { id: 'aesop-apothecary', letter: 'R', name: 'Aesop Apothecary', detail: 'Aesop 药房极简' },
+  { id: 'patagonia-field', letter: 'S', name: 'Patagonia Field', detail: 'Patagonia 户外叙事' },
+  { id: 'moma-blocks', letter: 'T', name: 'MoMA Blocks', detail: 'MoMA 展览色块' },
+  { id: 'monocle-journal', letter: 'U', name: 'Monocle Journal', detail: 'Monocle 杂志排版' },
+  { id: 'pentagram-studio', letter: 'V', name: 'Pentagram Studio', detail: 'Pentagram 作品网格' },
+  { id: 'bloomberg-terminal', letter: 'W', name: 'Bloomberg Terminal', detail: 'Bloomberg 黑底数据' },
 ]
 
 const pages: { id: PageId; name: string }[] = [
