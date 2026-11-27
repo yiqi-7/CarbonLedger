@@ -18,6 +18,24 @@ beforeEach(() => {
 })
 
 describe('customer project API facade version methods', () => {
+  it('seeds default factors through the dedicated endpoint without a body', async () => {
+    await createFacade().seedFactors()
+
+    expect(apiClient.post).toHaveBeenCalledWith('/projects/42/factors/seed?overwrite=true')
+    expect(apiClient.post.mock.calls[0]).toHaveLength(1)
+  })
+
+  it('uses semantic factor methods for build and transport configuration CRUD', async () => {
+    const facade = createFacade()
+    await facade.createFactor('build', { name: '混凝土' })
+    await facade.updateFactor('transport', 8, { vehicleName: '自卸车' })
+    await facade.deleteFactor('build', 9)
+
+    expect(apiClient.post).toHaveBeenCalledWith('/projects/42/build-factors', { name: '混凝土' })
+    expect(apiClient.patch).toHaveBeenCalledWith('/projects/42/transport-factors/8', { vehicleName: '自卸车' })
+    expect(apiClient.delete).toHaveBeenCalledWith('/projects/42/build-factors/9')
+  })
+
   it('lists versions through the project-scoped GET endpoint', async () => {
     await createFacade().listVersions()
 

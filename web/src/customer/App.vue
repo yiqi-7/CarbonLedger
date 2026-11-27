@@ -1,10 +1,11 @@
 <script setup>
-import { computed, markRaw, nextTick, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
 import { useCustomerRuntime } from './composables/useCustomerRuntime.js'
 import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
 import { useCostAnalysisViewModel } from './composables/useCostAnalysisViewModel.js'
 import { useProjectImportExport } from './composables/useProjectImportExport.js'
+import { useProjectInfoEditor } from './composables/useProjectInfoEditor.js'
 import { useRecordFilters } from './composables/useRecordFilters.js'
 import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
@@ -162,6 +163,21 @@ const projectImportExport = useProjectImportExport({
   documentRef: document,
 })
 const { importRows, exportRows, prepareExport, exportProjectReport } = projectImportExport
+const projectInfoEditor = useProjectInfoEditor({
+  draft,
+  uploadedImageUrl,
+  ProjectInfo,
+  projectApi,
+  persistence,
+  canSave,
+  notify,
+  saveProjectInfo,
+  getSavedProjectDraft: () => savedProjectDraft,
+  setSavedProjectDraft: value => { savedProjectDraft = value },
+  FileCtor: File,
+  URLRef: URL,
+})
+const { handleFileChange, removeUploadedImage, readFileAsDataUrl, saveProjectChanges } = projectInfoEditor
 
 function flushPendingBuildInput(id) {
   const active = document.activeElement
@@ -675,35 +691,6 @@ function getRecyclingQuantityLimit(recyclingMaterial) {
   return sourceMaterial ? sourceMaterial.quantity : null
 }
 
-function handleFileChange(event) {
-  const file = event.target.files?.[0]
-  if (!file) return
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-    notify('请选择 PNG、JPG 或 WebP 图片')
-    event.target.value = ''
-    return
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    notify('图片不能超过 10MB')
-    event.target.value = ''
-    return
-  }
-  if (uploadedImageUrl.value) URL.revokeObjectURL(uploadedImageUrl.value)
-  draft.modelImage = markRaw(file)
-  draft.modelImageName = file.name
-  uploadedImageUrl.value = URL.createObjectURL(file)
-  // Keep the File in the draft, while allowing the same image to be selected
-  // again after the user removes its preview.
-  event.target.value = ''
-}
-
-function removeUploadedImage() {
-  if (uploadedImageUrl.value) URL.revokeObjectURL(uploadedImageUrl.value)
-  draft.modelImage = null
-  draft.modelImageName = ''
-  uploadedImageUrl.value = ''
-}
-
 function selectProvince() {
   draft.cityDistrict = cities.value[0] ?? ''
 }
@@ -838,34 +825,9 @@ function exportMaterials() {
   return exportRows('build-materials', '建材清单.xlsx', '建材清单')
 }
 
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.addEventListener('load', () => {
-      if (typeof reader.result === 'string') resolve(reader.result)
-      else reject(new Error('The selected image could not be read.'))
-    }, { once: true })
-    reader.addEventListener('error', () => reject(reader.error ?? new Error('The selected image could not be read.')), { once: true })
-    reader.readAsDataURL(file)
-  })
-}
-
 async function createProject(event) {
-  if (!event.target.reportValidity() || !canSave()) return
-  const submittedDraft = { ...draft, accountingStages: [...draft.accountingStages] }
-  const projectInfo = { ...submittedDraft }
-  const result = await persistence.enqueue(async () => {
-    if (projectInfo.modelImage instanceof File) projectInfo.modelImage = await readFileAsDataUrl(projectInfo.modelImage)
-    // Only send editable project fields; account/project IDs come from the URL and token.
-    const payload = Object.fromEntries(Object.keys(ProjectInfo).filter(key => key !== 'accountingStages').map(key => [key, projectInfo[key]]))
-    const { data } = await projectApi.patchProject(payload)
-    saveProjectInfo(data)
-    savedProjectDraft = submittedDraft
-    return data
-  }, true, () => notify('项目信息已保存'))
-  if (result) {
-    await navigateToPage('建材碳排放')
-  }
+  const result = await saveProjectChanges(event)
+  if (result) await navigateToPage('建材碳排放')
 }
 
 </script>

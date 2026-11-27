@@ -229,7 +229,7 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 仍待逐步完成：
 
 - customer `App.vue` 中的项目编辑、因子配置和四类记录编辑/创建删除逻辑；新增 feature 不应继续堆入此文件。
-- 平台层 `ProjectToolsView.vue` 仍有直接项目 API 调用，需要渐进复用项目 API facade；Versions 当前仍保留旧的名称写回 snapshot JSON 语义。
+- `ProjectToolsView.vue` 已通过项目 API facade 访问项目、因子、版本和报告；Versions 当前仍保留旧的名称写回 snapshot JSON 语义。
 - 版本编号的并发冲突重试/事务化，以及 customer 版本页面和报告页面的 feature 归属迁移。
 - 最后的 JavaScript data model 到 TypeScript 迁移。
 

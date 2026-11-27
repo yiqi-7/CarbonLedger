@@ -2,7 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { api, apiMessage, downloadApiFile } from '@/api'
+import { apiMessage } from '@/api'
+import { createProjectApi } from '@/customer/apiProjectFacade.js'
 import { formatNumber as format } from '@/utils/chart'
 
 type ToolTab = 'factors' | 'versions'
@@ -56,6 +57,7 @@ let loadSequence = 0
 
 function errorText(error: unknown) { return apiMessage(error, '操作失败') }
 function factorPath(type: FactorType) { return type === 'build' ? 'build-factors' : 'transport-factors' }
+function projectApiFor(id: number) { return createProjectApi({ projectId: id }) }
 
 async function refresh() {
   const sequence = ++loadSequence
@@ -63,17 +65,17 @@ async function refresh() {
   loading.value = true
   error.value = ''
   try {
-    const [projectResponse, versionResponse, buildResponse, transportResponse] = await Promise.all([
-      api.get(`/projects/${id}`),
-      api.get(`/projects/${id}/versions`),
-      api.get(`/projects/${id}/build-factors`),
-      api.get(`/projects/${id}/transport-factors`),
+    const projectApi = projectApiFor(id)
+    const [projectResponse, versionResponse, factorResponses] = await Promise.all([
+      projectApi.getProject(),
+      projectApi.listVersions(),
+      projectApi.getFactorConfigurations(),
     ])
     if (sequence !== loadSequence) return
     project.value = projectResponse.data
     versions.value = versionResponse.data
-    buildFactors.value = buildResponse.data
-    transportFactors.value = transportResponse.data
+    buildFactors.value = factorResponses[0].data
+    transportFactors.value = factorResponses[1].data
   } catch (cause) {
     if (sequence === loadSequence) error.value = errorText(cause)
   } finally {
@@ -91,7 +93,7 @@ async function runAction(name: string, action: (id: number) => Promise<void>) {
 
 async function seedFactors() {
   await runAction('seed', async id => {
-    await api.post(`/projects/${id}/factors/seed?overwrite=true`)
+    await projectApiFor(id).seedFactors()
     ElMessage.success('已恢复默认因子配置')
     await refresh()
   })
@@ -99,8 +101,8 @@ async function seedFactors() {
 
 async function saveFactor(type: FactorType, row: any) {
   await runAction('factor', async id => {
-    const path = `/projects/${id}/${factorPath(type)}`
-    const response = row.id ? await api.patch(`${path}/${row.id}`, row) : await api.post(path, row)
+    const projectApi = projectApiFor(id)
+    const response = row.id ? await projectApi.updateFactor(type, row.id, row) : await projectApi.createFactor(type, row)
     Object.assign(row, response.data)
     ElMessage.success('因子配置已保存')
   })
@@ -110,7 +112,7 @@ async function deleteFactor(type: FactorType, row: any) {
   await runAction('factor', async id => {
     try { await ElMessageBox.confirm('确定删除该因子配置吗？', '删除确认', { type: 'warning' }) }
     catch { return }
-    if (row.id) await api.delete(`/projects/${id}/${factorPath(type)}/${row.id}`)
+    if (row.id) await projectApiFor(id).deleteFactor(type, row.id)
     const factors = type === 'build' ? buildFactors : transportFactors
     factors.value = factors.value.filter(item => item !== row)
     ElMessage.success('因子配置已删除')
@@ -137,7 +139,7 @@ async function renameVersion(version: any) {
         confirmButtonText: '保存',
         cancelButtonText: '取消',
       })
-      const response = await api.patch(`/projects/${id}/versions/${version.id}`, { name: result.value })
+      const response = await projectApiFor(id).renameVersion(version.id, result.value)
       version.name = response.data.name
       ElMessage.success('版本名称已修改')
     } catch (cause: any) {
@@ -151,7 +153,7 @@ async function deleteVersion(version: any) {
     try {
       await ElMessageBox.confirm(`确定删除“${version.name || `版本 v${version.versionNumber}`}”？删除后无法恢复。`, '删除核算版本', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' })
     } catch { return }
-    await api.delete(`/projects/${id}/versions/${version.id}`)
+    await projectApiFor(id).deleteVersion(version.id)
     versions.value = versions.value.filter(item => item.id !== version.id)
     ElMessage.success('核算版本已删除')
   })
@@ -159,10 +161,11 @@ async function deleteVersion(version: any) {
 
 async function saveVersion() {
   await runAction('version', async id => {
-    const response = await api.post(`/projects/${id}/versions`)
+    const projectApi = projectApiFor(id)
+    const response = await projectApi.saveVersion()
     ElMessage.success(`已保存版本 v${response.data.versionNumber}`)
     try {
-      const list = (await api.get(`/projects/${id}/versions`)).data
+      const list = (await projectApi.listVersions()).data
       if (id === projectId.value) versions.value = list
     } catch { ElMessage.warning('版本已保存，暂时无法刷新版本列表，请稍后刷新') }
   })
@@ -170,7 +173,7 @@ async function saveVersion() {
 
 async function viewVersion(versionId: number) {
   await runAction('snapshot', async id => {
-    const response = await api.get(`/projects/${id}/versions/${versionId}`)
+    const response = await projectApiFor(id).getVersion(versionId)
     if (id !== projectId.value) return
     snapshotData.value = response.data
     snapshotDialog.value = true
@@ -179,7 +182,7 @@ async function viewVersion(versionId: number) {
 
 async function report(versionId: number, type: ReportType) {
   await runAction('report', async id => {
-    await downloadApiFile(`/projects/${id}/reports/${versionId}/${type}`, `${title.value}-报告.${type === 'pdf' ? 'pdf' : 'xlsx'}`)
+    await projectApiFor(id).exportVersionReport(versionId, type, `${title.value}-报告.${type === 'pdf' ? 'pdf' : 'xlsx'}`)
   })
 }
 
