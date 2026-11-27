@@ -1,8 +1,9 @@
 <script setup>
 import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
-import { api, apiMessage, downloadApiFile } from '@/api'
+import { apiMessage } from '@/api'
 import { createProjectPersistence } from './apiPersistence.js'
+import { createProjectApi } from './apiProjectFacade.js'
 import { CUSTOMER_MESSAGE_TYPES } from './bridge'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
 import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
@@ -90,8 +91,10 @@ const provinces = Object.keys(chinaCities)
 const cities = computed(() => chinaCities[draft.province] ?? [])
 
 const projectId = Number(new URLSearchParams(window.location.search).get('projectId'))
+const projectApi = createProjectApi({ projectId })
 const dataReady = ref(false)
 const persistence = createProjectPersistence({
+  projectApi,
   projectId,
   lists: {
     'build-materials': materialList,
@@ -205,7 +208,7 @@ async function loadProjectData() {
   }
   try {
     const [response] = await Promise.all([
-      api.get(persistence.path), loadCarbonConfigurations(), persistence.refresh(),
+      projectApi.getProject(), loadCarbonConfigurations(), persistence.refresh(),
     ])
     saveProjectInfo(response.data)
     Object.assign(draft, ProjectInfo, { accountingStages: [...ProjectInfo.accountingStages] })
@@ -272,7 +275,7 @@ async function saveRow(kind, material, field, updates, drafts, input, target) {
           shiftCount: material.shiftCount, energyPerShift: material.energyPerShift,
           shiftUnitPrice: material.shiftUnitPrice,
         }
-    const { data } = await api.post(`${persistence.path}/${kind}`, payload)
+    const { data } = await projectApi.createRecord(kind, payload)
     flushCreatedRowInput(kind, originalId)
     persistence.adoptCreated(list, material, data, drafts)
     return data
@@ -295,7 +298,7 @@ async function importRows(kind, event, label) {
   let configurationRefreshFailed = false
   try {
     await persistence.enqueue(async () => {
-      const { data } = await api.post(`${persistence.path}/imports/${kind}`, form)
+      const { data } = await projectApi.importRecords(kind, form)
       try {
         await loadCarbonConfigurations()
       } catch {
@@ -314,7 +317,7 @@ async function exportRows(kind, filename, label) {
   if (!canSave()) return
   if (!await prepareExport(kind)) return
   const result = await persistence.enqueue(async () => {
-    await downloadApiFile(`${persistence.path}/exports/${kind}`, filename)
+    await projectApi.exportRecords(kind, filename)
     return true
   }, false)
   if (result) notify(`${label}已导出`)
@@ -553,10 +556,7 @@ onMounted(async () => {
 
 // 项目因子保持客户原有选择方式，由后台按项目隔离保存。
 async function loadCarbonConfigurations() {
-  const [build, transport] = await Promise.all([
-    api.get(`${persistence.path}/build-factors`),
-    api.get(`${persistence.path}/transport-factors`),
-  ])
+  const [build, transport] = await projectApi.getFactorConfigurations()
   buildConfigList.replaceAll(build.data)
   transportConfigList.replaceAll(transport.data)
 }
@@ -630,7 +630,7 @@ async function selectBuildMaterialConfiguration(material, configuration) {
     const result = await persistence.enqueue(async () => {
       if (pending) {
         if (!pendingBuildMaterials.value.includes(pending)) return false
-        const { data } = await api.post(`${persistence.path}/build-materials`, {
+        const { data } = await projectApi.createRecord('build-materials', {
           factorConfigId: configuration.id,
           quantity: pending.quantity,
           marketPrice: pending.marketPrice,
@@ -899,7 +899,7 @@ async function exportProjectReport() {
   if (!canSave()) return
   if (!await prepareExport()) return
   const result = await persistence.enqueue(async () => {
-    await downloadApiFile(`${persistence.path}/reports/current/excel`, `${ProjectInfo.projectName || '项目'}-报告书.xlsx`)
+    await projectApi.exportReport(`${ProjectInfo.projectName || '项目'}-报告书.xlsx`)
     return true
   }, false)
   if (result) notify('项目报告书已导出')
@@ -1088,7 +1088,7 @@ async function createProject(event) {
     if (projectInfo.modelImage instanceof File) projectInfo.modelImage = await readFileAsDataUrl(projectInfo.modelImage)
     // Only send editable project fields; account/project IDs come from the URL and token.
     const payload = Object.fromEntries(Object.keys(ProjectInfo).filter(key => key !== 'accountingStages').map(key => [key, projectInfo[key]]))
-    const { data } = await api.patch(persistence.path, payload)
+    const { data } = await projectApi.patchProject(payload)
     saveProjectInfo(data)
     savedProjectDraft = submittedDraft
     return data

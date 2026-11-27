@@ -1,9 +1,11 @@
-import { api, apiMessage } from '@/api'
+import { apiMessage } from '@/api'
+import { createProjectApi } from './apiProjectFacade.js'
 
 // Keep the customer's linked lists and row identities while replacing their
 // persistence with the authenticated, project-scoped service.
-export function createProjectPersistence({ projectId, lists, summaries, onError }) {
-  const path = `/projects/${projectId}`
+export function createProjectPersistence({ projectApi = undefined, projectId, lists, summaries, onError }) {
+  projectApi ||= createProjectApi({ projectId })
+  const { path } = projectApi
   let queue = Promise.resolve()
   let pendingCount = 0
   const resolvedIds = new Map()
@@ -24,8 +26,8 @@ export function createProjectPersistence({ projectId, lists, summaries, onError 
   async function refresh() {
     const kinds = Object.keys(lists)
     const responses = await Promise.all([
-      ...kinds.map(kind => api.get(`${path}/${kind}`)),
-      api.get(`${path}/analysis`),
+      ...kinds.map(kind => projectApi.getRows(kind)),
+      projectApi.getAnalysis(),
     ])
     kinds.forEach((kind, index) => replaceRows(lists[kind], responses[index].data))
     const summary = responses.at(-1).data
@@ -115,7 +117,7 @@ export function createProjectPersistence({ projectId, lists, summaries, onError 
 
   async function patch(kind, id, updates) {
     const resolvedId = resolveId(id)
-    const { data } = await api.patch(`${path}/${kind}/${resolvedId}`, updates)
+    const { data } = await projectApi.patchRecord(kind, resolvedId, updates)
     const row = lists[kind].toArray().find(candidate => candidate.id === resolvedId)
     if (row) Object.assign(row, data)
     return data
@@ -123,7 +125,7 @@ export function createProjectPersistence({ projectId, lists, summaries, onError 
 
   async function remove(kind, material, drafts) {
     const id = resolveId(material.id)
-    if (id > 0) await api.delete(`${path}/${kind}/${id}`)
+    if (id > 0) await projectApi.deleteRecord(kind, id)
     lists[kind].removeById(id)
     delete drafts[id]
   }

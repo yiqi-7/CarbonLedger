@@ -19,6 +19,7 @@ import {
   recalcConstructionRecord,
   recalcRecyclingRecord,
   recalcTransportRecord,
+  isRecyclingParticipant,
   recyclingReduction,
   recyclingResidualValue,
   removeRecyclingForDeletedBuildMaterial,
@@ -46,7 +47,9 @@ describe('建材公式（旧版口径）', () => {
   })
 
   it('回收因子 > 0 才参与回收计算', () => {
-    expect(buildTotalPrice(0, 300)).toBe(0)
+    expect(isRecyclingParticipant(0)).toBe(false)
+    expect(isRecyclingParticipant(-1)).toBe(false)
+    expect(isRecyclingParticipant(0.1)).toBe(true)
   })
 })
 

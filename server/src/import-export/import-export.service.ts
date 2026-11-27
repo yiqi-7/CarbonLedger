@@ -14,7 +14,17 @@ import {
   buildConstructionWorkbook,
   buildTransportWorkbook,
 } from './list-exporters'
-import { CONSTRUCTION_ENERGY_TYPES } from '@carbonledger/shared'
+import {
+  buildEmission,
+  buildTotalPrice,
+  CONSTRUCTION_ENERGY_TYPES,
+  constructionEmission,
+  constructionTotalEnergy,
+  constructionTotalPrice,
+  isRecyclingParticipant,
+  transportEmission,
+  transportTotalPrice,
+} from '@carbonledger/shared'
 import type { ConstructionEnergyType } from '@carbonledger/shared'
 
 export interface ImportResult {
@@ -89,9 +99,9 @@ export class ImportExportService {
           recyclingFactor: material.recyclingFactor,
           recyclingCoefficient: material.recyclingCoefficient,
           isCustomMaterial: false,
-          emissionAmount: (material.quantity * material.emissionFactor) / 1000,
-          totalPrice: (material.quantity * material.unitPrice) / 10000,
-          isParticipatingInRecyclingCalculation: material.recyclingFactor > 0,
+          emissionAmount: buildEmission(material.quantity, material.emissionFactor),
+          totalPrice: buildTotalPrice(material.quantity, material.unitPrice),
+          isParticipatingInRecyclingCalculation: isRecyclingParticipant(material.recyclingFactor),
         },
       })))
       await this.records.syncRecycling(projectId, created.map(material => material.id))
@@ -146,9 +156,8 @@ export class ImportExportService {
           emissionFactor: record.emissionFactor,
           transportUnitPrice: record.transportUnitPrice,
           isCustomMaterial: false,
-          emissionAmount:
-            (record.transportDistance * record.transportQuantity * record.emissionFactor) / 1000,
-          transportTotalPrice: (record.transportDistance * record.transportUnitPrice) / 10000,
+          emissionAmount: transportEmission(record.transportDistance, record.transportQuantity, record.emissionFactor),
+          transportTotalPrice: transportTotalPrice(record.transportDistance, record.transportUnitPrice),
         })),
       })
     }
@@ -177,7 +186,7 @@ export class ImportExportService {
       await this.prisma.constructionRecord.createMany({
         data: toInsert.map(record => {
           const energy = CONSTRUCTION_ENERGY_TYPES[record.energyType as ConstructionEnergyType]
-          const totalEnergy = record.shiftCount * record.energyPerShift
+          const totalEnergy = constructionTotalEnergy(record.shiftCount, record.energyPerShift)
           return {
             projectId,
             machineryName: record.machineryName,
@@ -189,8 +198,8 @@ export class ImportExportService {
             isCustomMaterial: false,
             energyUnit: energy.unit,
             totalEnergy,
-            emissionAmount: totalEnergy * record.emissionFactor,
-            totalPrice: (record.shiftCount * record.shiftUnitPrice) / 10000,
+            emissionAmount: constructionEmission(totalEnergy, record.emissionFactor),
+            totalPrice: constructionTotalPrice(record.shiftCount, record.shiftUnitPrice),
           }
         }),
       })

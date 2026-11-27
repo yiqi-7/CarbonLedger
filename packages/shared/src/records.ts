@@ -1,5 +1,16 @@
 import { BUILD_MATERIAL_DEFAULT_UNITS } from './constants'
-import { isRecyclingParticipant } from './calc'
+import {
+  buildEmission,
+  buildTotalPrice,
+  constructionEmission,
+  constructionTotalEnergy,
+  constructionTotalPrice,
+  isRecyclingParticipant,
+  recyclingReduction,
+  recyclingResidualValue,
+  transportEmission,
+  transportTotalPrice,
+} from './calc'
 import type {
   BuildFactorConfig,
   BuildMaterialRecord,
@@ -60,8 +71,8 @@ export function applyBuildFactorConfig(
 export function recalcBuildMaterial(material: BuildMaterialRecord): BuildMaterialRecord {
   return {
     ...material,
-    emissionAmount: (material.quantity * material.emissionFactor) / 1000,
-    totalPrice: (material.quantity * material.unitPrice) / 10000,
+    emissionAmount: buildEmission(material.quantity, material.emissionFactor),
+    totalPrice: buildTotalPrice(material.quantity, material.unitPrice),
     isParticipatingInRecyclingCalculation: isRecyclingParticipant(material.recyclingFactor),
   }
 }
@@ -70,20 +81,19 @@ export function recalcBuildMaterial(material: BuildMaterialRecord): BuildMateria
 export function recalcTransportRecord(record: TransportRecord): TransportRecord {
   return {
     ...record,
-    emissionAmount:
-      (record.transportDistance * record.transportQuantity * record.emissionFactor) / 1000,
-    transportTotalPrice: (record.transportDistance * record.transportUnitPrice) / 10000,
+    emissionAmount: transportEmission(record.transportDistance, record.transportQuantity, record.emissionFactor),
+    transportTotalPrice: transportTotalPrice(record.transportDistance, record.transportUnitPrice),
   }
 }
 
 /** 重算施工记录派生字段（旧版 ConstructionMaterialInfo 语义；排放 kg） */
 export function recalcConstructionRecord(record: ConstructionRecord): ConstructionRecord {
-  const totalEnergy = record.shiftCount * record.energyPerShift
+  const totalEnergy = constructionTotalEnergy(record.shiftCount, record.energyPerShift)
   return {
     ...record,
     totalEnergy,
-    emissionAmount: totalEnergy * record.emissionFactor,
-    totalPrice: (record.shiftCount * record.shiftUnitPrice) / 10000,
+    emissionAmount: constructionEmission(totalEnergy, record.emissionFactor),
+    totalPrice: constructionTotalPrice(record.shiftCount, record.shiftUnitPrice),
   }
 }
 
@@ -91,9 +101,8 @@ export function recalcConstructionRecord(record: ConstructionRecord): Constructi
 export function recalcRecyclingRecord(record: RecyclingRecord): RecyclingRecord {
   return {
     ...record,
-    reductionAmount:
-      (record.recyclingQuantity * record.recyclingFactor * record.recyclingCoefficient) / 1000,
-    residualValue: (record.recyclingQuantity * record.recyclingUnitPrice) / 10000,
+    reductionAmount: recyclingReduction(record.recyclingQuantity, record.recyclingFactor, record.recyclingCoefficient),
+    residualValue: recyclingResidualValue(record.recyclingQuantity, record.recyclingUnitPrice),
   }
 }
 

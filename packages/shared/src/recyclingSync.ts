@@ -1,4 +1,4 @@
-import { mapRecyclingCategory } from './calc'
+import { mapRecyclingCategory, recyclingReduction, recyclingResidualValue } from './calc'
 import type { RecyclingRecord } from './models'
 
 /** 回收联动同步所需的建材字段（旧版 BuildMaterialInfo 相关子集） */
@@ -54,8 +54,8 @@ export function syncRecyclingRecords(
       recyclingUnitPrice: base ? base.recyclingUnitPrice : 0,
       sourceBuildMaterialId: material.id,
       isCustomMaterial: false,
-      reductionAmount: (recyclingQuantity * material.recyclingFactor * material.recyclingCoefficient) / 1000,
-      residualValue: (recyclingQuantity * (base ? base.recyclingUnitPrice : 0)) / 10000,
+      reductionAmount: recyclingReduction(recyclingQuantity, material.recyclingFactor, material.recyclingCoefficient),
+      residualValue: recyclingResidualValue(recyclingQuantity, base ? base.recyclingUnitPrice : 0),
     }
     if (!base) changed = true
     result.push(updated)

@@ -7,9 +7,17 @@ import { PrismaService } from '../prisma/prisma.service'
 import { ProjectsService } from '../projects/projects.service'
 import {
   CONSTRUCTION_ENERGY_TYPES,
-  isCountedConstructionRecord,
+  buildEmission,
+  buildTotalPrice,
+  constructionEmission,
+  constructionTotalEnergy,
+  constructionTotalPrice,
+  isRecyclingParticipant,
   mapRecyclingCategory,
-  syncRecyclingRecords,
+  recyclingReduction,
+  recyclingResidualValue,
+  transportEmission,
+  transportTotalPrice,
 } from '@carbonledger/shared'
 import type {
   BuildMaterialRecord,
@@ -99,9 +107,9 @@ export class RecordsService {
         recyclingFactor: Number(recyclingFactor),
         recyclingCoefficient: Number(recyclingCoefficient),
         isCustomMaterial,
-        emissionAmount: (quantity * Number(emissionFactor)) / 1000,
-        totalPrice: (quantity * unitPrice) / 10000,
-        isParticipatingInRecyclingCalculation: Number(recyclingFactor) > 0,
+        emissionAmount: buildEmission(quantity, Number(emissionFactor)),
+        totalPrice: buildTotalPrice(quantity, unitPrice),
+        isParticipatingInRecyclingCalculation: isRecyclingParticipant(Number(recyclingFactor)),
       },
     })
     await this.syncRecycling(projectId, [created.id])
@@ -148,12 +156,12 @@ export class RecordsService {
         emissionFactor,
         recyclingFactor,
         recyclingCoefficient: config?.recyclingCoefficient ?? existing.recyclingCoefficient,
-        isParticipatingInRecyclingCalculation: recyclingFactor > 0,
+        isParticipatingInRecyclingCalculation: isRecyclingParticipant(recyclingFactor),
         quantity,
         unitPrice,
         marketPrice,
-        emissionAmount: (quantity * emissionFactor) / 1000,
-        totalPrice: (quantity * unitPrice) / 10000,
+        emissionAmount: buildEmission(quantity, emissionFactor),
+        totalPrice: buildTotalPrice(quantity, unitPrice),
       },
     })
     await this.syncRecycling(projectId, [materialId])
@@ -224,8 +232,8 @@ export class RecordsService {
         emissionFactor: config.emissionFactor,
         transportUnitPrice: unitPrice,
         isCustomMaterial: true,
-        emissionAmount: (distance * quantity * config.emissionFactor) / 1000,
-        transportTotalPrice: (distance * unitPrice) / 10000,
+        emissionAmount: transportEmission(distance, quantity, config.emissionFactor),
+        transportTotalPrice: transportTotalPrice(distance, unitPrice),
       },
     })
     return created as unknown as TransportRecord
@@ -270,8 +278,8 @@ export class RecordsService {
         transportQuantity: quantity,
         transportDistance: distance,
         transportUnitPrice: unitPrice,
-        emissionAmount: (distance * quantity * emissionFactor) / 1000,
-        transportTotalPrice: (distance * unitPrice) / 10000,
+        emissionAmount: transportEmission(distance, quantity, emissionFactor),
+        transportTotalPrice: transportTotalPrice(distance, unitPrice),
       },
     })
     return updated as unknown as TransportRecord
@@ -312,7 +320,7 @@ export class RecordsService {
     const shiftCount = Number(dto.shiftCount)
     const energyPerShift = Number(dto.energyPerShift)
     const shiftUnitPrice = Number(dto.shiftUnitPrice)
-    const totalEnergy = shiftCount * energyPerShift
+    const totalEnergy = constructionTotalEnergy(shiftCount, energyPerShift)
 
     const created = await this.prisma.constructionRecord.create({
       data: {
@@ -326,8 +334,8 @@ export class RecordsService {
         isCustomMaterial: true,
         energyUnit: energy.unit,
         totalEnergy,
-        emissionAmount: totalEnergy * emissionFactor,
-        totalPrice: (shiftCount * shiftUnitPrice) / 10000,
+        emissionAmount: constructionEmission(totalEnergy, emissionFactor),
+        totalPrice: constructionTotalPrice(shiftCount, shiftUnitPrice),
       },
     })
     return created as unknown as ConstructionRecord
@@ -362,7 +370,7 @@ export class RecordsService {
         ? energy.emissionFactor
         : existing.emissionFactor
     if (!machineryName.trim()) throw new BadRequestException('机械名称不能为空')
-    const totalEnergy = shiftCount * energyPerShift
+    const totalEnergy = constructionTotalEnergy(shiftCount, energyPerShift)
 
     const updated = await this.prisma.constructionRecord.update({
       where: { id: recordId },
@@ -375,8 +383,8 @@ export class RecordsService {
         shiftUnitPrice,
         energyUnit: energy.unit,
         totalEnergy,
-        emissionAmount: totalEnergy * emissionFactor,
-        totalPrice: (shiftCount * shiftUnitPrice) / 10000,
+        emissionAmount: constructionEmission(totalEnergy, emissionFactor),
+        totalPrice: constructionTotalPrice(shiftCount, shiftUnitPrice),
       },
     })
     return updated as unknown as ConstructionRecord
@@ -428,8 +436,8 @@ export class RecordsService {
         recyclingUnitPrice: unitPrice,
         sourceBuildMaterialId: null,
         isCustomMaterial: true,
-        reductionAmount: (quantity * factor * coefficient) / 1000,
-        residualValue: (quantity * unitPrice) / 10000,
+        reductionAmount: recyclingReduction(quantity, factor, coefficient),
+        residualValue: recyclingResidualValue(quantity, unitPrice),
       },
     })
     return created as unknown as RecyclingRecord
@@ -479,8 +487,8 @@ export class RecordsService {
         recyclingFactor: factor,
         recyclingCoefficient: coefficient,
         recyclingUnitPrice: unitPrice,
-        reductionAmount: (quantity * factor * coefficient) / 1000,
-        residualValue: (quantity * unitPrice) / 10000,
+        reductionAmount: recyclingReduction(quantity, factor, coefficient),
+        residualValue: recyclingResidualValue(quantity, unitPrice),
       },
     })
     return updated as unknown as RecyclingRecord
@@ -535,8 +543,8 @@ export class RecordsService {
       const quantity = existing ? Math.min(existing.quantity, material.quantity) : material.quantity
       const unitPrice = existing ? existing.unitPrice : 0
       const category = mapRecyclingCategory(material.type)
-      const reductionAmount = (quantity * material.recyclingFactor * material.recyclingCoefficient) / 1000
-      const residualValue = (quantity * unitPrice) / 10000
+      const reductionAmount = recyclingReduction(quantity, material.recyclingFactor, material.recyclingCoefficient)
+      const residualValue = recyclingResidualValue(quantity, unitPrice)
 
       if (existing) {
         keepIds.add(existing.id)

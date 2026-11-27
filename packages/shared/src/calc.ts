@@ -184,8 +184,7 @@ export function computeRecyclingSummary(
 ): RecyclingCarbonSummary {
   const totalReduction = records.reduce(
     (total, record) =>
-      total +
-      (record.recyclingQuantity * record.recyclingFactor * record.recyclingCoefficient) / 1000,
+      total + recyclingReduction(record.recyclingQuantity, record.recyclingFactor, record.recyclingCoefficient),
     0,
   )
   const totalRecyclingQuantity = records.reduce(

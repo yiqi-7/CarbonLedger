@@ -2,11 +2,16 @@ import { readFileSync } from 'node:fs'
 import { computed, markRaw, reactive, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProjectPersistence } from './apiPersistence.js'
+import { createProjectApi } from './apiProjectFacade.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
 import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
 
-const { api } = vi.hoisted(() => ({ api: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() } }))
-vi.mock('@/api', () => ({ api, apiMessage: (_error: unknown, fallback: string) => fallback }))
+const mockedApi = vi.hoisted(() => ({
+  api: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  downloadApiFile: vi.fn(),
+}))
+const { api } = mockedApi
+vi.mock('@/api', () => ({ ...mockedApi, apiMessage: (_error: unknown, fallback: string) => fallback }))
 
 class List {
   head: { material: any; next: any } | null = null
@@ -32,10 +37,10 @@ function customerScript() {
     .replace(/^import[\s\S]*?from ['"][^'"]+['"]\r?\n/gm, '')
   const project = reactive({ projectName: '客户项目', buildingArea: 100, accountingStages: [], modelImage: null })
   const context: Record<string, any> = {
-    computed, markRaw, reactive, ref, api, createProjectPersistence, formatDisplayNumber,
+    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, formatDisplayNumber,
     hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges,
     apiMessage: (_error: unknown, fallback: string) => fallback,
-    downloadApiFile: vi.fn(),
+    downloadApiFile: mockedApi.downloadApiFile,
     onMounted: vi.fn(), onBeforeUnmount: vi.fn(),
     window: { location: { search: '?projectId=42', origin: 'http://localhost' }, addEventListener: vi.fn(), removeEventListener: vi.fn(), setTimeout: vi.fn() },
     document: { activeElement: null, addEventListener: vi.fn(), removeEventListener: vi.fn() },

@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProjectPersistence } from './apiPersistence.js'
 
-const { api } = vi.hoisted(() => ({ api: { get: vi.fn(), patch: vi.fn(), delete: vi.fn() } }))
-vi.mock('@/api', () => ({ api, apiMessage: (_error: unknown, fallback: string) => fallback }))
+const mockedApi = vi.hoisted(() => ({
+  api: { get: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  downloadApiFile: vi.fn(),
+}))
+const { api } = mockedApi
+vi.mock('@/api', () => ({ ...mockedApi, apiMessage: (_error: unknown, fallback: string) => fallback }))
 
 function list(initial: any[] = []) {
   return {
