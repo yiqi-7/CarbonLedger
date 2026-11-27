@@ -4,23 +4,23 @@ import StyleShell from './StyleShell.vue'
 import { providePreview } from '../design-preview/state'
 import type { PageId } from '../design-preview/types'
 
-type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'risograph-poster' | 'topographic-field' | 'bauhaus-archive' | 'ink-wash-data' | 'opal-prism' | 'kinetic-type' | 'riso-night' | 'field-notes' | 'topaz-monolith' | 'cyber-folk'
+type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'apple-minimal' | 'stripe-spectrum' | 'linear-precision' | 'notion-paper' | 'vercel-mono' | 'figma-canvas' | 'airbnb-coral' | 'nike-editorial' | 'dropbox-blue' | 'shopify-commerce'
 
 const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = [
   { id: 'soft-utility', letter: 'D', name: 'Soft Utility', detail: '柔和工具界面（保留）' },
   { id: 'graphite-editorial', letter: 'E', name: 'Graphite Editorial', detail: '石墨编辑系统（保留）' },
   { id: 'cloud-blue', letter: 'I', name: 'Cloud Blue', detail: '云端蓝灰（保留）' },
   { id: 'indigo-grid', letter: 'L', name: 'Indigo Grid', detail: '靛蓝网格系统（保留）' },
-  { id: 'risograph-poster', letter: 'N', name: 'Risograph Poster', detail: '孔版海报' },
-  { id: 'topographic-field', letter: 'O', name: 'Topographic Field', detail: '等高线地形场' },
-  { id: 'bauhaus-archive', letter: 'P', name: 'Bauhaus Archive', detail: '几何档案' },
-  { id: 'ink-wash-data', letter: 'Q', name: 'Ink Wash Data', detail: '水墨数据' },
-  { id: 'opal-prism', letter: 'R', name: 'Opal Prism', detail: '蛋白石棱镜' },
-  { id: 'kinetic-type', letter: 'S', name: 'Kinetic Type', detail: '动态字场' },
-  { id: 'riso-night', letter: 'T', name: 'Riso Night', detail: '夜色套印' },
-  { id: 'field-notes', letter: 'U', name: 'Field Notes', detail: '现场笔记' },
-  { id: 'topaz-monolith', letter: 'V', name: 'Topaz Monolith', detail: '黄玉单体' },
-  { id: 'cyber-folk', letter: 'W', name: 'Cyber Folk', detail: '数字民艺' },
+  { id: 'apple-minimal', letter: 'N', name: 'Apple Minimal', detail: 'Apple 极简留白' },
+  { id: 'stripe-spectrum', letter: 'O', name: 'Stripe Spectrum', detail: 'Stripe 彩色层次' },
+  { id: 'linear-precision', letter: 'P', name: 'Linear Precision', detail: 'Linear 暗色精密' },
+  { id: 'notion-paper', letter: 'Q', name: 'Notion Paper', detail: 'Notion 文档系统' },
+  { id: 'vercel-mono', letter: 'R', name: 'Vercel Mono', detail: 'Vercel 黑白极简' },
+  { id: 'figma-canvas', letter: 'S', name: 'Figma Canvas', detail: 'Figma 彩色创作' },
+  { id: 'airbnb-coral', letter: 'T', name: 'Airbnb Coral', detail: 'Airbnb 温暖社区' },
+  { id: 'nike-editorial', letter: 'U', name: 'Nike Editorial', detail: 'Nike 强烈叙事' },
+  { id: 'dropbox-blue', letter: 'V', name: 'Dropbox Blue', detail: 'Dropbox 文件秩序' },
+  { id: 'shopify-commerce', letter: 'W', name: 'Shopify Commerce', detail: 'Shopify 商业工具' },
 ]
 
 const pages: { id: PageId; name: string }[] = [
