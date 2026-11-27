@@ -4,23 +4,23 @@ import StyleShell from './StyleShell.vue'
 import { providePreview } from '../design-preview/state'
 import type { PageId } from '../design-preview/types'
 
-type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'tate-gallery' | 'oma-archive' | 'archdaily-grid' | 'loewe-craft' | 'aesop-apothecary' | 'patagonia-field' | 'moma-blocks' | 'monocle-journal' | 'pentagram-studio' | 'bloomberg-terminal'
+type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'swiss-international' | 'brutalist-web' | 'japanese-editorial' | 'y2k-digital' | 'crt-terminal' | 'neo-memphis' | 'aurora-glass' | 'monochrome-luxury' | 'paper-cut' | 'arcade-utility'
 
 const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = [
   { id: 'soft-utility', letter: 'D', name: 'Soft Utility', detail: '柔和工具界面（保留）' },
   { id: 'graphite-editorial', letter: 'E', name: 'Graphite Editorial', detail: '石墨编辑系统（保留）' },
   { id: 'cloud-blue', letter: 'I', name: 'Cloud Blue', detail: '云端蓝灰（保留）' },
   { id: 'indigo-grid', letter: 'L', name: 'Indigo Grid', detail: '靛蓝网格系统（保留）' },
-  { id: 'tate-gallery', letter: 'N', name: 'Tate Gallery', detail: 'Tate 展览目录' },
-  { id: 'oma-archive', letter: 'O', name: 'OMA Archive', detail: 'OMA 建筑档案' },
-  { id: 'archdaily-grid', letter: 'P', name: 'ArchDaily Grid', detail: 'ArchDaily 建筑媒体' },
-  { id: 'loewe-craft', letter: 'Q', name: 'Loewe Craft', detail: 'Loewe 手工艺留白' },
-  { id: 'aesop-apothecary', letter: 'R', name: 'Aesop Apothecary', detail: 'Aesop 药房极简' },
-  { id: 'patagonia-field', letter: 'S', name: 'Patagonia Field', detail: 'Patagonia 户外叙事' },
-  { id: 'moma-blocks', letter: 'T', name: 'MoMA Blocks', detail: 'MoMA 展览色块' },
-  { id: 'monocle-journal', letter: 'U', name: 'Monocle Journal', detail: 'Monocle 杂志排版' },
-  { id: 'pentagram-studio', letter: 'V', name: 'Pentagram Studio', detail: 'Pentagram 作品网格' },
-  { id: 'bloomberg-terminal', letter: 'W', name: 'Bloomberg Terminal', detail: 'Bloomberg 黑底数据' },
+  { id: 'swiss-international', letter: 'N', name: 'Swiss International', detail: '瑞士国际主义' },
+  { id: 'brutalist-web', letter: 'O', name: 'Brutalist Web', detail: '网页粗野主义' },
+  { id: 'japanese-editorial', letter: 'P', name: 'Japanese Editorial', detail: '日式编辑排版' },
+  { id: 'y2k-digital', letter: 'Q', name: 'Y2K Digital', detail: '千禧年数字界面' },
+  { id: 'crt-terminal', letter: 'R', name: 'CRT Terminal', detail: 'CRT 终端荧光' },
+  { id: 'neo-memphis', letter: 'S', name: 'Neo Memphis', detail: '新孟菲斯构成' },
+  { id: 'aurora-glass', letter: 'T', name: 'Aurora Glass', detail: '极光玻璃层' },
+  { id: 'monochrome-luxury', letter: 'U', name: 'Monochrome Luxury', detail: '黑白奢侈品' },
+  { id: 'paper-cut', letter: 'V', name: 'Paper Cut', detail: '纸张剪贴构成' },
+  { id: 'arcade-utility', letter: 'W', name: 'Arcade Utility', detail: '街机工具界面' },
 ]
 
 const pages: { id: PageId; name: string }[] = [
