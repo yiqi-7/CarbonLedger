@@ -9,6 +9,7 @@ import { useCostAnalysisViewModel } from './composables/useCostAnalysisViewModel
 import { useProjectImportExport } from './composables/useProjectImportExport.js'
 import { useProjectInfoEditor } from './composables/useProjectInfoEditor.js'
 import { useCustomerRecordPersistence } from './composables/useCustomerRecordPersistence.js'
+import { useCustomerRecordFields } from './composables/useCustomerRecordFields.js'
 import { useRecordFilters } from './composables/useRecordFilters.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
 import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
@@ -44,7 +45,7 @@ function customerScript() {
     .replace(/^import[\s\S]*?from ['"][^'"]+['"]\r?\n/gm, '')
   const project = reactive({ projectName: '客户项目', buildingArea: 100, accountingStages: [], modelImage: null })
   const context: Record<string, any> = {
-    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, useAnalysisViewModel, useCostAnalysisViewModel, useProjectImportExport, useProjectInfoEditor, useCustomerRecordPersistence, useRecordFilters, formatDisplayNumber,
+    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, useAnalysisViewModel, useCostAnalysisViewModel, useProjectImportExport, useProjectInfoEditor, useCustomerRecordPersistence, useCustomerRecordFields, useRecordFilters, formatDisplayNumber,
     hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges,
     apiMessage: (_error: unknown, fallback: string) => fallback,
     downloadApiFile: mockedApi.downloadApiFile,
@@ -67,7 +68,7 @@ function customerScript() {
   const result = new Function(...Object.keys(context), `${source}\nreturn {
     persistence, dataReady, materialList, transportMaterialList, recyclingMaterialList, constructionMaterialList, buildConfigList, transportConfigList,
     materialEditDrafts, transportEditDrafts, pendingBuildMaterials, message,
-    selectBuildMaterialConfiguration, setTransportDraft, updateTransportMaterial, importRows, exportRows,
+    selectBuildMaterialConfiguration, setMaterialDraft, updateMaterial, setTransportDraft, updateTransportMaterial, setConstructionDraft, updateConstructionMaterial, setRecyclingDraft, updateRecyclingMaterial, importRows, exportRows,
     addTransportMaterial, addConstructionMaterial, transportSearch, transportCategory,
     constructionSearch, constructionCategory, filteredTransportMaterials, filteredConstructionMaterials,
     handleFileChange, removeUploadedImage, draft, uploadedImageUrl,
