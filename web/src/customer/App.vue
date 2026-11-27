@@ -1,12 +1,11 @@
 <script setup>
-import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, markRaw, nextTick, reactive, ref } from 'vue'
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
-import { apiMessage } from '@/api'
+import { useCustomerRuntime } from './composables/useCustomerRuntime.js'
 import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
-import { CUSTOMER_MESSAGE_TYPES } from './bridge'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
-import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
+import { hasMeaningfulTemporaryRows, hasRowDraftChanges } from './unsavedChanges.js'
 import AppSidebar from './components/AppSidebar.vue'
 import DashboardHome from './components/DashboardHome.vue'
 import chinaCities from '@/data/chinaCities.json'
@@ -117,48 +116,31 @@ const rowInputOwners = new WeakMap()
 const pendingBuildInputDrafts = {}
 let savedProjectDraft = { ...draft, accountingStages: [...draft.accountingStages] }
 
-function hasUnsavedChanges() {
-  if (persistence.pendingCount > 0) return true
-  if (!dataReady.value) return false
-  return hasProjectDraftChanges(draft, savedProjectDraft)
-    || hasRowDraftChanges(materialEditDrafts, [...materialList.toArray(), ...pendingBuildMaterials.value])
-    || hasRowDraftChanges(pendingBuildInputDrafts, pendingBuildMaterials.value)
-    || hasRowDraftChanges(transportEditDrafts, transportMaterialList.toArray())
-    || hasRowDraftChanges(constructionEditDrafts, constructionMaterialList.toArray())
-    || hasRowDraftChanges(recyclingEditDrafts, recyclingMaterialList.toArray())
-    || hasMeaningfulTemporaryRows({
-      build: pendingBuildMaterials.value,
-      transport: transportMaterialList.toArray(),
-      construction: constructionMaterialList.toArray(),
-    })
-}
-
-function onBeforeUnload(event) {
-  // A focused input may not have emitted its usual blur-save yet.
-  document.activeElement?.blur?.()
-  protectUnsavedChanges(event, hasUnsavedChanges())
-}
-
-async function prepareToLeave() {
-  document.activeElement?.blur?.()
-  await persistence.waitForIdle()
-  return !hasUnsavedChanges()
-}
-
-function capturePendingBuildInput(event) {
-  const target = event.target
-  if (!(target instanceof HTMLInputElement) || target.type !== 'number') return
-  const row = target.closest('.pending-build-material-row')
-  const originalId = row?.querySelector('[data-pending-material-id]')?.dataset.pendingMaterialId
-  const pending = pendingBuildMaterials.value.find(item => String(item.id) === originalId)
-  if (!pending) return
-  const fields = { '新建建材用量': 'quantity', '新建建材市场价': 'marketPrice', '新建建材单价': 'unitPrice' }
-  const field = fields[target.getAttribute('aria-label')]
-  if (field) {
-    if (!pendingBuildInputDrafts[pending.id]) pendingBuildInputDrafts[pending.id] = {}
-    pendingBuildInputDrafts[pending.id][field] = target.value
-  }
-}
+const runtime = useCustomerRuntime({
+  projectId,
+  projectApi,
+  persistence,
+  draft,
+  dataReady,
+  uploadedImageUrl,
+  ProjectInfo,
+  saveProjectInfo,
+  getSavedProjectDraft: () => savedProjectDraft,
+  setSavedProjectDraft: value => { savedProjectDraft = value },
+  pendingBuildMaterials,
+  pendingBuildInputDrafts,
+  materialList,
+  transportMaterialList,
+  constructionMaterialList,
+  recyclingMaterialList,
+  materialEditDrafts,
+  transportEditDrafts,
+  constructionEditDrafts,
+  recyclingEditDrafts,
+  notify,
+  loadCarbonConfigurations,
+})
+const { hasUnsavedChanges, prepareToLeave, returnToProjects } = runtime
 
 function flushPendingBuildInput(id) {
   const active = document.activeElement
@@ -173,53 +155,10 @@ function flushCreatedRowInput(kind, id) {
   if (owner?.kind === kind && owner.id === id) active.blur()
 }
 
-window.addEventListener('beforeunload', onBeforeUnload)
-document.addEventListener('input', capturePendingBuildInput, true)
-// The same-origin platform router consults this before unmounting the iframe.
-window.carbonLedgerCustomer = { hasUnsavedChanges, prepareToLeave }
-
-function reportProjectState(state, error = '') {
-  if (window.parent !== window) {
-    window.parent.postMessage({ type: CUSTOMER_MESSAGE_TYPES.projectState, state, message: error }, window.location.origin)
-  }
-}
-
-async function returnToProjects() {
-  if (window.parent !== window) {
-    window.parent.postMessage({ type: CUSTOMER_MESSAGE_TYPES.projects }, window.location.origin)
-    return
-  }
-  if (await prepareToLeave() || window.confirm('还有未保存的内容，确定返回我的项目吗？')) {
-    window.location.assign('/projects')
-  }
-}
-
 function canSave() {
   if (dataReady.value) return true
   notify('项目数据尚未加载完成，请刷新后重试')
   return false
-}
-
-async function loadProjectData() {
-  if (!Number.isSafeInteger(projectId) || projectId <= 0) {
-    notify('请从项目列表打开项目')
-    reportProjectState('error', '项目地址无效，请返回我的项目重新打开。')
-    return
-  }
-  try {
-    const [response] = await Promise.all([
-      projectApi.getProject(), loadCarbonConfigurations(), persistence.refresh(),
-    ])
-    saveProjectInfo(response.data)
-    Object.assign(draft, ProjectInfo, { accountingStages: [...ProjectInfo.accountingStages] })
-    uploadedImageUrl.value = typeof ProjectInfo.modelImage === 'string' ? ProjectInfo.modelImage : ''
-    savedProjectDraft = { ...draft, accountingStages: [...draft.accountingStages] }
-    dataReady.value = true
-    reportProjectState('ready')
-  } catch (error) {
-    persistence.report(error)
-    reportProjectState('error', apiMessage(error, '项目数据加载失败，请检查网络后重试。'))
-  }
 }
 
 async function saveRow(kind, material, field, updates, drafts, input, target) {
@@ -549,10 +488,6 @@ const indicators = [
   { name: '施工能耗', description: '施工机械能源消耗产生的排放' },
   { name: '材料回收', description: '回收减碳量与残值估算' }
 ]
-
-onMounted(async () => {
-  await loadProjectData()
-})
 
 // 项目因子保持客户原有选择方式，由后台按项目隔离保存。
 async function loadCarbonConfigurations() {
@@ -1098,12 +1033,6 @@ async function createProject(event) {
   }
 }
 
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', onBeforeUnload)
-  document.removeEventListener('input', capturePendingBuildInput, true)
-  delete window.carbonLedgerCustomer
-  if (uploadedImageUrl.value) URL.revokeObjectURL(uploadedImageUrl.value)
-})
 </script>
 
 <template>
