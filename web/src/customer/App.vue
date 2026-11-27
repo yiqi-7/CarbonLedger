@@ -3,11 +3,12 @@ import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, reactive, ref 
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
 import { api, apiMessage, downloadApiFile } from '@/api'
 import { createProjectPersistence } from './apiPersistence.js'
+import { CUSTOMER_MESSAGE_TYPES } from './bridge'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
 import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
 import AppSidebar from './components/AppSidebar.vue'
 import DashboardHome from './components/DashboardHome.vue'
-import chinaCities from './data/chinaCities.json'
+import chinaCities from '@/data/chinaCities.json'
 import { ProjectInfo, saveProjectInfo } from './data/projectInfo.js'
 import { BuildMaterialInfo, buildMaterialInfoList } from './data/buildMaterialInfo.js'
 import { BuildCarbonInfo } from './data/buildCarbonInfo.js'
@@ -176,13 +177,13 @@ window.carbonLedgerCustomer = { hasUnsavedChanges, prepareToLeave }
 
 function reportProjectState(state, error = '') {
   if (window.parent !== window) {
-    window.parent.postMessage({ type: 'carbon-ledger-project-state', state, message: error }, window.location.origin)
+    window.parent.postMessage({ type: CUSTOMER_MESSAGE_TYPES.projectState, state, message: error }, window.location.origin)
   }
 }
 
 async function returnToProjects() {
   if (window.parent !== window) {
-    window.parent.postMessage({ type: 'carbon-ledger-projects' }, window.location.origin)
+    window.parent.postMessage({ type: CUSTOMER_MESSAGE_TYPES.projects }, window.location.origin)
     return
   }
   if (await prepareToLeave() || window.confirm('还有未保存的内容，确定返回我的项目吗？')) {

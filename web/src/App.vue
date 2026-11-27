@@ -3,6 +3,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { OfficeBuilding } from '@element-plus/icons-vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { CUSTOMER_EVENT_TYPES } from '@/customer/bridge'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -17,8 +18,8 @@ async function signOut() {
   auth.logout()
   await router.replace('/login')
 }
-onMounted(() => window.addEventListener('carbon-ledger-unauthorized', onUnauthorized))
-onUnmounted(() => window.removeEventListener('carbon-ledger-unauthorized', onUnauthorized))
+onMounted(() => window.addEventListener(CUSTOMER_EVENT_TYPES.unauthorized, onUnauthorized))
+onUnmounted(() => window.removeEventListener(CUSTOMER_EVENT_TYPES.unauthorized, onUnauthorized))
 </script>
 
 <template>

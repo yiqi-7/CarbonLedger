@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { CUSTOMER_EVENT_TYPES } from '@/customer/bridge'
 
 export const api = axios.create({ baseURL: '/api', timeout: 20000 })
 
@@ -37,7 +38,7 @@ api.interceptors.response.use(
       // Only the current session's failure may invalidate the stored token.
       if (!currentToken || requestAuthorization === `Bearer ${currentToken}`) {
         localStorage.removeItem('carbon-ledger-token')
-        window.dispatchEvent(new Event('carbon-ledger-unauthorized'))
+        window.dispatchEvent(new Event(CUSTOMER_EVENT_TYPES.unauthorized))
       }
     }
     return Promise.reject(error)

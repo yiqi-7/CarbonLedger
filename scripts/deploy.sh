@@ -52,9 +52,7 @@ echo "==> 5/7 同步数据库结构"
 DATABASE_URL="$DATABASE_URL" npx prisma db push --schema "$SCHEMA" --skip-generate
 
 echo "==> 6/7 构建"
-npm run build:shared
-npm run build -w server
-npm run build -w web
+npm run build
 
 echo "==> 7/7 重启 API 服务"
 sudo systemctl restart carbon-ledger

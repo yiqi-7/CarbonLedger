@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AxiosError } from 'axios'
 import { api } from './api'
+import { CUSTOMER_EVENT_TYPES } from './customer/bridge'
 
 describe('web API client', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -63,6 +64,6 @@ describe('web API client', () => {
     expect(storedToken).toBeNull()
     expect(removeItem).toHaveBeenCalledWith('carbon-ledger-token')
     expect(dispatchEvent).toHaveBeenCalledOnce()
-    expect(dispatchEvent.mock.calls[0][0].type).toBe('carbon-ledger-unauthorized')
+    expect(dispatchEvent.mock.calls[0][0].type).toBe(CUSTOMER_EVENT_TYPES.unauthorized)
   })
 })

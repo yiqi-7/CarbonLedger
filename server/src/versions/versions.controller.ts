@@ -1,6 +1,14 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common'
 import { VersionsService } from './versions.service'
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator'
+
+class RenameVersionDto {
+  @IsString({ message: '版本名称必须是文本' })
+  @IsNotEmpty({ message: '版本名称不能为空' })
+  @MaxLength(120, { message: '版本名称不能超过 120 个字符' })
+  name!: string
+}
 
 @Controller('projects/:projectId/versions')
 export class VersionsController {
@@ -22,9 +30,9 @@ export class VersionsController {
     @CurrentUser() user: AuthUser,
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('versionId', ParseIntPipe) versionId: number,
-    @Body('name') name: string,
+    @Body() dto: RenameVersionDto,
   ) {
-    return this.versions.rename(projectId, user.userId, versionId, name || '')
+    return this.versions.rename(projectId, user.userId, versionId, dto.name)
   }
 
   @Delete(':versionId')

@@ -7,7 +7,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 
 export class CreateProjectDto {
   @IsString()
@@ -42,7 +42,34 @@ export class CreateProjectDto {
   @IsOptional() @IsString() @MaxLength(200) modelImageName?: string
 }
 
-export class UpdateProjectDto extends CreateProjectDto {}
+export class UpdateProjectDto {
+  @IsOptional() @IsString() @IsNotEmpty({ message: '项目名称不能为空' }) @MaxLength(120)
+  projectName?: string
+
+  @IsOptional() @IsString() @MaxLength(50) province?: string
+  @IsOptional() @IsString() @MaxLength(50) cityDistrict?: string
+  @IsOptional() @IsString() @MaxLength(200) address?: string
+  @IsOptional() @IsString() @MaxLength(50) floorCount?: string
+  @IsOptional() @IsString() @MaxLength(50) buildingType?: string
+  @IsOptional() @IsString() @MaxLength(100) structureType?: string
+  @IsOptional() @IsString() @MaxLength(50) designLife?: string
+  @IsOptional() @IsString() @MaxLength(50) startDate?: string
+  @IsOptional() @IsString() @MaxLength(50) plannedCompletionDate?: string
+  @IsOptional() @IsString() @MaxLength(50) projectManager?: string
+  @IsOptional() @IsString() @MaxLength(50) accountingStandard?: string
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({}, { message: '建筑面积必须是数字' })
+  @Min(0.000001, { message: '建筑面积必须大于 0' })
+  buildingArea?: number
+
+  @IsOptional() @IsString() @MaxLength(13981080)
+  modelImage?: string | null
+
+  @IsOptional() @IsString() @MaxLength(200)
+  modelImageName?: string
+}
 
 export class BuildFactorDto {
   @IsString() @IsNotEmpty() @MaxLength(50) category!: string
@@ -61,7 +88,7 @@ export class TransportFactorDto {
 
 export class SeedFactorsDto {
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === true || value === 'true')
   @IsBoolean()
-  overwrite?: boolean
+  overwrite = false
 }

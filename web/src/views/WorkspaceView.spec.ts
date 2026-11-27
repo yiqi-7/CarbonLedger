@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { computed, effectScope, markRaw, nextTick, reactive, ref, watch } from 'vue'
 import { transpileModule, ScriptTarget } from 'typescript'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CUSTOMER_MESSAGE_TYPES, isCustomerMessage } from '@/customer/bridge'
 
 // Run the real component handlers without replacing their routing or session
 // decisions with a second implementation in the test.
@@ -40,7 +41,7 @@ function workspace() {
   const unmounted: Array<() => void> = []
   const scope = effectScope()
   const script = scope.run(() => runSetup('./WorkspaceView.vue', {
-    computed, nextTick, ref, watch,
+    computed, nextTick, ref, watch, CUSTOMER_MESSAGE_TYPES, isCustomerMessage,
     onMounted: (callback: () => void) => mounted.push(callback),
     onUnmounted: (callback: () => void) => unmounted.push(callback),
     onBeforeRouteLeave: (callback: () => Promise<boolean>) => leaveGuards.push(callback),
@@ -69,11 +70,11 @@ afterEach(() => {
 describe('customer workspace session and navigation', () => {
   it('preserves the loaded iframe and its drafts on 401, and handles repeated 401s only once', async () => {
     const { script, message, auth, router, frameWindow, customer } = workspace()
-    message({ type: 'carbon-ledger-project-state', state: 'ready' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.projectState, state: 'ready' })
     const focus = vi.fn()
     script.passwordInput.value = markRaw({ focus })
-    message({ type: 'carbon-ledger-unauthorized' })
-    message({ type: 'carbon-ledger-unauthorized' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.unauthorized })
+    message({ type: CUSTOMER_MESSAGE_TYPES.unauthorized })
     await nextTick()
 
     expect(auth.logout).toHaveBeenCalledOnce()
@@ -91,8 +92,8 @@ describe('customer workspace session and navigation', () => {
 
   it('restores the original account without remounting an already loaded project', async () => {
     const { script, message, auth, frameWindow, customer } = workspace()
-    message({ type: 'carbon-ledger-project-state', state: 'ready' })
-    message({ type: 'carbon-ledger-unauthorized' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.projectState, state: 'ready' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.unauthorized })
     script.sessionPassword.value = 'test-password'
     await script.restoreSession()
 
@@ -107,8 +108,8 @@ describe('customer workspace session and navigation', () => {
 
   it('retains the editing session when credentials fail, then allows another login attempt', async () => {
     const { script, message, auth, customer } = workspace()
-    message({ type: 'carbon-ledger-project-state', state: 'ready' })
-    message({ type: 'carbon-ledger-unauthorized' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.projectState, state: 'ready' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.unauthorized })
     auth.login.mockRejectedValueOnce(new Error('账号或密码错误'))
     script.sessionPassword.value = 'incorrect-password'
     await script.restoreSession()
@@ -124,15 +125,15 @@ describe('customer workspace session and navigation', () => {
 
   it('reloads an interrupted initial load after login, while failed projects can be retried', async () => {
     const { script, message } = workspace()
-    message({ type: 'carbon-ledger-unauthorized' })
-    message({ type: 'carbon-ledger-project-state', state: 'error', message: '请重新登录' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.unauthorized })
+    message({ type: CUSTOMER_MESSAGE_TYPES.projectState, state: 'error', message: '请重新登录' })
     script.sessionPassword.value = 'test-password'
     await script.restoreSession()
     expect(script.attempt.value).toBe(1)
     expect(script.loading.value).toBe(true)
     expect(script.loadError.value).toBe('')
 
-    message({ type: 'carbon-ledger-project-state', state: 'error', message: '项目不存在' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.projectState, state: 'error', message: '项目不存在' })
     expect(script.loading.value).toBe(false)
     expect(script.loadError.value).toBe('项目不存在')
     script.retry()
@@ -141,7 +142,7 @@ describe('customer workspace session and navigation', () => {
     vi.advanceTimersByTime(25000)
     expect(script.loadError.value).toContain('加载超时')
     script.retry()
-    message({ type: 'carbon-ledger-project-state', state: 'ready' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.projectState, state: 'ready' })
     vi.advanceTimersByTime(30000)
     expect(script.loading.value).toBe(false)
     expect(script.loadError.value).toBe('')
@@ -150,9 +151,9 @@ describe('customer workspace session and navigation', () => {
   it('accepts state, session, and directory messages only from the current same-origin iframe', () => {
     const { script, message, auth, router } = workspace()
     const data = [
-      { type: 'carbon-ledger-unauthorized' },
-      { type: 'carbon-ledger-projects' },
-      { type: 'carbon-ledger-project-state', state: 'error', message: '伪造状态' },
+      { type: CUSTOMER_MESSAGE_TYPES.unauthorized },
+      { type: CUSTOMER_MESSAGE_TYPES.projects },
+      { type: CUSTOMER_MESSAGE_TYPES.projectState, state: 'error', message: '伪造状态' },
     ]
     for (const value of data) {
       message(value, { origin: 'https://unrelated.example' })
@@ -163,7 +164,7 @@ describe('customer workspace session and navigation', () => {
     expect(script.loadError.value).toBe('')
     expect(auth.logout).not.toHaveBeenCalled()
     expect(router.push).not.toHaveBeenCalled()
-    message({ type: 'carbon-ledger-projects' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.projects })
     expect(router.push).toHaveBeenCalledWith('/projects')
   })
 
@@ -192,7 +193,7 @@ describe('customer workspace session and navigation', () => {
 
   it('keeps the same leave protection when returning to login after a session expires', async () => {
     const { message, auth, leaveGuards, confirm, customer } = workspace()
-    message({ type: 'carbon-ledger-unauthorized' })
+    message({ type: CUSTOMER_MESSAGE_TYPES.unauthorized })
     expect(auth.isAuthenticated).toBe(false)
     expect(await leaveGuards[0]()).toBe(false)
     expect(customer.prepareToLeave).toHaveBeenCalledOnce()

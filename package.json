@@ -12,7 +12,10 @@
     "build:shared": "npm run build -w @carbonledger/shared",
     "dev:server": "npm run dev -w server",
     "dev:web": "npm run dev -w web",
-    "test": "npm run test --workspaces --if-present"
+    "typecheck": "npm run typecheck -w @carbonledger/shared && npm run typecheck -w server && npm run typecheck -w web",
+    "build": "npm run build:shared && npm run build -w server && npm run build -w web",
+    "test": "npm run test --workspaces --if-present",
+    "check": "npm run typecheck && npm test && npm run build"
   },
   "allowScripts": {
     "esbuild@0.25.12": true,

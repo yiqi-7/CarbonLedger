@@ -4,7 +4,9 @@ import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { AuditModule } from '../audit/audit.module'
 
-const jwtSecret = process.env.JWT_SECRET ?? 'test-only-secret-change-before-deploy'
+const jwtSecret = process.env.JWT_SECRET ?? (process.env.NODE_ENV === 'production'
+  ? (() => { throw new Error('JWT_SECRET must be set in production') })()
+  : 'test-only-secret-change-before-deploy')
 
 @Module({
   imports: [

@@ -12,3 +12,4 @@ server/assets/fonts/
 web/dist/
 web/*.tsbuildinfo
 .vite/
+.jspace/

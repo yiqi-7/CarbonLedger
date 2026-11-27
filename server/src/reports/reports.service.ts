@@ -10,6 +10,7 @@ import { AnalysisService } from '../analysis/analysis.service'
 import { AuditService } from '../audit/audit.service'
 import type { CalcVersionSnapshot } from '@carbonledger/shared'
 import { reportImagePng } from './report-image'
+import { parseSnapshotOrThrow } from '../versions/snapshot'
 
 @Injectable()
 export class ReportsService {
@@ -26,7 +27,7 @@ export class ReportsService {
     await this.projects.assertOwner(projectId, userId)
     const version = await this.prisma.calcVersion.findFirst({ where: { id: versionId, projectId } })
     if (!version) throw new NotFoundException('核算版本不存在')
-    return JSON.parse(version.snapshot) as CalcVersionSnapshot
+    return parseSnapshotOrThrow(version.snapshot)
   }
 
   async currentSnapshot(projectId: number, userId: number): Promise<CalcVersionSnapshot> {

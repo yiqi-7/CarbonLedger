@@ -24,10 +24,12 @@ CarbonLedger/
 
 ```bash
 npm install          # 根目录一次安装全部 workspace
-npm run build:shared # 先构建共享核算引擎
-npm run dev:server   # 后端 http://localhost:3000
-npm run dev:web      # 前端 http://localhost:5173
-npm test             # 运行全部测试
+npm run build       # 按 shared → server → web 顺序构建
+npm run typecheck   # 三个 workspace 的 TypeScript 检查
+npm run dev:server  # 后端 http://localhost:3000
+npm run dev:web     # 前端 http://localhost:5173
+npm test            # 运行全部测试
+npm run check       # 发布前完整检查：类型、测试、构建
 ```
 
 详见 `docs/ARCHITECTURE.md`。

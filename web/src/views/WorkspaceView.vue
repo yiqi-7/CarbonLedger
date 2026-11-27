@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { apiMessage } from '@/api'
+import { CUSTOMER_MESSAGE_TYPES, isCustomerMessage, type CustomerWindow } from '@/customer/bridge'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,11 +32,6 @@ function resetLoading() {
 function retry() { resetLoading(); attempt.value += 1 }
 watch(source, resetLoading)
 
-type CustomerWindow = Window & {
-  carbonLedgerCustomer?: {
-    prepareToLeave: () => Promise<boolean>
-  }
-}
 async function prepareToLeave() {
   const customer = (frame.value?.contentWindow as CustomerWindow | null)?.carbonLedgerCustomer
   if (!customer || await customer.prepareToLeave()) return true
@@ -58,17 +54,17 @@ async function restoreSession() {
 }
 
 function receiveMessage(event: MessageEvent) {
-  if (event.origin !== window.location.origin || event.source !== frame.value?.contentWindow) return
-  if (event.data?.type === 'carbon-ledger-unauthorized') {
+  if (event.origin !== window.location.origin || event.source !== frame.value?.contentWindow || !isCustomerMessage(event.data)) return
+  if (event.data.type === CUSTOMER_MESSAGE_TYPES.unauthorized) {
     if (sessionExpired.value) return
     sessionUsername.value = auth.user?.username || sessionUsername.value
     auth.logout()
     sessionExpired.value = true
     clearTimeout(loadTimer)
     void nextTick(() => passwordInput.value?.focus())
-  } else if (event.data?.type === 'carbon-ledger-projects') {
+  } else if (event.data.type === CUSTOMER_MESSAGE_TYPES.projects) {
     void router.push('/projects')
-  } else if (event.data?.type === 'carbon-ledger-project-state') {
+  } else if (event.data.type === CUSTOMER_MESSAGE_TYPES.projectState) {
     clearTimeout(loadTimer)
     loading.value = false
     loadError.value = event.data.state === 'ready' ? '' : String(event.data.message || '项目加载失败，请重试。')
@@ -151,7 +147,7 @@ onUnmounted(() => { clearTimeout(loadTimer); window.removeEventListener('message
   text-decoration: none;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 420ms cubic-bezier(0.22, 1.4, 0.36, 1);
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .workspace-state-actions button {
   background: linear-gradient(180deg, #2C4D57 0%, #223C45 100%);

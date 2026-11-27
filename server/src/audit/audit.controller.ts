@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common'
 import { AuditService } from './audit.service'
 import { Roles } from '../auth/roles.decorator'
+import { AuditQueryDto } from './audit.dto'
 
 @Controller('admin/audit-logs')
 export class AuditController {
@@ -8,7 +9,7 @@ export class AuditController {
 
   @Roles('ADMIN')
   @Get()
-  list(@Query('limit') limit?: string) {
-    return this.auditService.list(limit ? Number(limit) : 100)
+  list(@Query() query: AuditQueryDto) {
+    return this.auditService.list(query.limit)
   }
 }

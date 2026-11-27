@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common'
 import { ProjectsService } from './projects.service'
-import { BuildFactorDto, CreateProjectDto, UpdateProjectDto, TransportFactorDto } from './project.dto'
+import { BuildFactorDto, CreateProjectDto, SeedFactorsDto, UpdateProjectDto, TransportFactorDto } from './project.dto'
 import { CurrentUser, type AuthUser } from '../auth/current-user.decorator'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { UploadedFile, UseInterceptors } from '@nestjs/common'
@@ -141,10 +141,8 @@ export class ProjectsController {
   seedFactors(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
-    @Query('overwrite') overwrite?: string,
+    @Query() query: SeedFactorsDto,
   ) {
-    return this.projectsService.assertOwner(id, user.userId).then(() =>
-      this.projectsService.seedFactors(id, overwrite === 'true'),
-    )
+    return this.projectsService.seedFactors(id, user.userId, query.overwrite)
   }
 }

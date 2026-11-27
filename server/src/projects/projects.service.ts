@@ -85,7 +85,7 @@ export class ProjectsService implements OnModuleInit {
       },
     })
     // 新建项目时按旧版配置文件初始化项目级因子配置
-    await this.seedFactors(project.id)
+    await this.seedFactors(project.id, userId)
     await this.audit.record(userId, 'PROJECT_CREATED', 'PROJECT', String(project.id), project.projectName)
     return this.detail(project.id, userId)
   }
@@ -121,29 +121,18 @@ export class ProjectsService implements OnModuleInit {
 
   async update(projectId: number, userId: number, dto: UpdateProjectDto) {
     await this.assertOwner(projectId, userId)
-    if (!(Number(dto.buildingArea) > 0)) {
-      throw new BadRequestException('建筑面积必须大于 0')
+    const data: Record<string, unknown> = {}
+    const textFields = ['projectName', 'province', 'cityDistrict', 'address', 'floorCount', 'buildingType', 'structureType', 'designLife', 'startDate', 'plannedCompletionDate', 'projectManager', 'accountingStandard'] as const
+    for (const field of textFields) {
+      if (dto[field] !== undefined) data[field] = dto[field]
     }
-    const project = await this.prisma.project.update({
-      where: { id: projectId },
-      data: {
-        projectName: dto.projectName,
-        province: dto.province ?? '',
-        cityDistrict: dto.cityDistrict ?? '',
-        address: dto.address ?? '',
-        buildingArea: Number(dto.buildingArea),
-        floorCount: dto.floorCount ?? '',
-        buildingType: dto.buildingType ?? '',
-        structureType: dto.structureType ?? '',
-        designLife: dto.designLife ?? '',
-        modelImage: dto.modelImage ?? null,
-        modelImageName: dto.modelImageName ?? '',
-        startDate: dto.startDate ?? '',
-        plannedCompletionDate: dto.plannedCompletionDate ?? '',
-        projectManager: dto.projectManager ?? '',
-        accountingStandard: dto.accountingStandard ?? 'GB/T 51366-2019',
-      },
-    })
+    if (dto.buildingArea !== undefined) {
+      if (!(Number(dto.buildingArea) > 0)) throw new BadRequestException('建筑面积必须大于 0')
+      data.buildingArea = Number(dto.buildingArea)
+    }
+    if (dto.modelImage !== undefined) data.modelImage = dto.modelImage
+    if (dto.modelImageName !== undefined) data.modelImageName = dto.modelImageName
+    const project = await this.prisma.project.update({ where: { id: projectId }, data })
     await this.audit.record(userId, 'PROJECT_UPDATED', 'PROJECT', String(projectId), project.projectName)
     return project
   }
@@ -264,7 +253,8 @@ export class ProjectsService implements OnModuleInit {
   }
 
   /** 用旧版配置文件初始化项目级因子（新建项目自动调用；也可手动重新装载） */
-  async seedFactors(projectId: number, overwrite = false) {
+  async seedFactors(projectId: number, userId: number, overwrite = false) {
+    await this.assertOwner(projectId, userId)
     const existingBuild = await this.prisma.buildFactorConfig.count({ where: { projectId } })
     const existingTransport = await this.prisma.transportFactorConfig.count({ where: { projectId } })
     if (!overwrite && (existingBuild > 0 || existingTransport > 0)) {

@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { AuditService } from '../audit/audit.service'
 import { AnalysisService } from '../analysis/analysis.service'
 import { ProjectsService } from '../projects/projects.service'
+import { parseSnapshotOrThrow } from './snapshot'
 
 @Injectable()
 export class VersionsService {
@@ -71,18 +72,14 @@ export class VersionsService {
     return versions.map(version => {
       let netEmission: number | null = null
       let totalCost: number | null = null
-      try {
-        const snapshot = JSON.parse(version.snapshot) as CalcVersionSnapshot
-        netEmission = snapshot.summary?.emission?.netEmission ?? null
-        totalCost = snapshot.summary?.cost?.totalCost ?? null
-      } catch {
-        // 快照损坏时不影响列表展示
-      }
       let name = `版本 v${version.versionNumber}`
       try {
-        name = (JSON.parse(version.snapshot) as CalcVersionSnapshot).name || name
+        const snapshot = parseSnapshotOrThrow(version.snapshot)
+        netEmission = snapshot.summary?.emission?.netEmission ?? null
+        totalCost = snapshot.summary?.cost?.totalCost ?? null
+        name = snapshot.name || name
       } catch {
-        // 快照损坏时继续使用默认名称
+        // 快照损坏时仍允许管理员看到版本列表，详情和导出会明确报错。
       }
       return {
         id: version.id,
@@ -102,7 +99,7 @@ export class VersionsService {
       where: { id: versionId, projectId },
     })
     if (!version) throw new NotFoundException('核算版本不存在')
-    return { id: version.id, ...(JSON.parse(version.snapshot) as CalcVersionSnapshot) }
+    return { id: version.id, ...parseSnapshotOrThrow(version.snapshot) }
   }
 
   async rename(projectId: number, userId: number, versionId: number, name: string) {
@@ -111,7 +108,7 @@ export class VersionsService {
     if (!version) throw new NotFoundException('核算版本不存在')
     const trimmed = name.trim()
     if (!trimmed) throw new BadRequestException('版本名称不能为空')
-    const snapshot = JSON.parse(version.snapshot) as CalcVersionSnapshot
+    const snapshot = parseSnapshotOrThrow(version.snapshot)
     snapshot.name = trimmed
     await this.prisma.calcVersion.update({ where: { id: version.id }, data: { snapshot: JSON.stringify(snapshot) } })
     await this.audit.record(userId, 'VERSION_RENAMED', 'PROJECT', String(projectId), `版本 v${version.versionNumber}：${trimmed}`)
