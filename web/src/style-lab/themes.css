@@ -232,52 +232,6 @@
 [data-theme="graphite-editorial"] .shell-sidebar { box-shadow: 4px 0 16px rgba(20,20,25,.08); }
 
 /* ============================================================
-   F. Oceanic System — 海洋系统界面
-   Calm blue-green surfaces with deep navy structure.
-   ============================================================ */
-[data-theme="oceanic-system"] {
-  color-scheme: light;
-  --s-canvas: #EEF5F5; --s-surface: #FFFFFF; --s-text: #173337; --s-muted: #688185;
-  --s-border: #D7E5E5; --s-border-w: 1px; --s-accent: #087F8C; --s-accent-hover: #066A75; --s-accent-text: #087F8C; --s-accent-contrast: #FFFFFF; --s-tint: #DDF1F0; --s-field-bg: #F8FCFC; --s-focus: #087F8C;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 226px; --s-sidebar-bg: #E4F0EF; --s-sidebar-text: #285258; --s-sidebar-muted: #709096; --s-sidebar-icon: #4E747A; --s-sidebar-active-bg: #CBE8E6; --s-sidebar-active-text: #066A75; --s-sidebar-hover-bg: #D9EAE9; --s-sidebar-hover-text: #173337; --s-sidebar-border: #CBDDDC;
-  --s-header-bg: #FFFFFF; --s-header-text: #173337; --s-header-border: #D7E5E5; --s-brand-bg: #087F8C; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #B7CCCC; --s-radius-card: 13px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 3px 15px rgba(19,70,75,.05); --s-table-head-bg: #F0F7F7; --s-table-head-text: #688185; --s-row-line: #E2EEEE; --s-row-hover: #F1FAF9; --s-track-bg: #D7E9E7; --s-bar: #087F8C; --s-notice-bg: #173337; --s-notice-text: #FFFFFF;
-  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 76px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #EEF5F5; --v-surface: #FFFFFF; --v-text: #173337; --v-muted: #688185; --v-line: #D7E5E5; --v-accent: #087F8C; --v-tint: #DDF1F0; --v-radius: 13px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
-}
-[data-theme="oceanic-system"] .metric-cell strong { color: #087F8C; }
-
-/* ============================================================
-   G. Terracotta Studio — 陶土工作室
-   Warm clay, cream surfaces and dark olive details.
-   ============================================================ */
-[data-theme="terracotta-studio"] {
-  color-scheme: light;
-  --s-canvas: #F5EEE8; --s-surface: #FFFBF7; --s-text: #302622; --s-muted: #86756D;
-  --s-border: #E2D4CB; --s-border-w: 1px; --s-accent: #B85C45; --s-accent-hover: #994935; --s-accent-text: #A54D39; --s-accent-contrast: #FFFFFF; --s-tint: #F7E3DA; --s-field-bg: #FFFBF7; --s-focus: #B85C45;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif; --s-sidebar-width: 232px; --s-sidebar-bg: #EFE2D9; --s-sidebar-text: #55423B; --s-sidebar-muted: #988078; --s-sidebar-icon: #826A60; --s-sidebar-active-bg: #E6C6B8; --s-sidebar-active-text: #873D2E; --s-sidebar-hover-bg: #E9D7CC; --s-sidebar-hover-text: #302622; --s-sidebar-border: #DECBC0;
-  --s-header-bg: #FFFBF7; --s-header-text: #302622; --s-header-border: #E2D4CB; --s-brand-bg: #302622; --s-brand-text: #FFFBF7; --s-brand-radius: 9px; --s-crumb-sep: #C5AFA4; --s-radius-card: 14px; --s-radius-control: 9px; --s-radius-pill: 9px; --s-shadow: 0 4px 16px rgba(91,54,40,.07); --s-table-head-bg: #F7EEE7; --s-table-head-text: #86756D; --s-row-line: #EEE1D8; --s-row-hover: #FFF3ED; --s-track-bg: #E9D8CE; --s-bar: #B85C45; --s-notice-bg: #302622; --s-notice-text: #FFFBF7;
-  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 44px clamp(20px,4vw,58px) 78px; --s-content-width: 1100px; --s-metric-size: clamp(27px,2.7vw,35px); --s-metric-weight: 600; --s-panel-title-size: 16px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #F5EEE8; --v-surface: #FFFBF7; --v-text: #302622; --v-muted: #86756D; --v-line: #E2D4CB; --v-accent: #B85C45; --v-tint: #F7E3DA; --v-radius: 14px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 33px;
-}
-[data-theme="terracotta-studio"] .preview-content h1,
-[data-theme="terracotta-studio"] .preview-content h2 { letter-spacing: 0; }
-
-/* ============================================================
-   H. Signal Green — 信号绿色数据
-   Cool grey base with an electric green action and data signal.
-   ============================================================ */
-[data-theme="signal-green"] {
-  color-scheme: light;
-  --s-canvas: #F0F3F1; --s-surface: #FFFFFF; --s-text: #18231D; --s-muted: #6D7A71;
-  --s-border: #D7E0D9; --s-border-w: 1px; --s-accent: #40A958; --s-accent-hover: #328D47; --s-accent-text: #268B3F; --s-accent-contrast: #FFFFFF; --s-tint: #E0F3E3; --s-field-bg: #FAFCFA; --s-focus: #40A958;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 224px; --s-sidebar-bg: #E8EFEA; --s-sidebar-text: #35513D; --s-sidebar-muted: #7E9584; --s-sidebar-icon: #5A7863; --s-sidebar-active-bg: #D0EBD5; --s-sidebar-active-text: #287A3C; --s-sidebar-hover-bg: #DDE9DF; --s-sidebar-hover-text: #18231D; --s-sidebar-border: #D0DDD3;
-  --s-header-bg: #FFFFFF; --s-header-text: #18231D; --s-header-border: #D7E0D9; --s-brand-bg: #40A958; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #B6C7B9; --s-radius-card: 12px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 3px 14px rgba(28,71,39,.05); --s-table-head-bg: #F2F7F3; --s-table-head-text: #6D7A71; --s-row-line: #E4ECE5; --s-row-hover: #F0FAF1; --s-track-bg: #DCEADD; --s-bar: #40A958; --s-notice-bg: #18231D; --s-notice-text: #FFFFFF;
-  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 76px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #F0F3F1; --v-surface: #FFFFFF; --v-text: #18231D; --v-muted: #6D7A71; --v-line: #D7E0D9; --v-accent: #40A958; --v-tint: #E0F3E3; --v-radius: 12px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
-}
-[data-theme="signal-green"] .recovery-line b { color: #268B3F; }
-
-/* ============================================================
    I. Cloud Blue — 云端蓝灰
    Airy blue-grey product UI with indigo actions and crisp surfaces.
    ============================================================ */
@@ -291,6 +245,68 @@
   --v-bg: #F1F5FA; --v-surface: #FFFFFF; --v-text: #1E2D42; --v-muted: #718198; --v-line: #DCE5EF; --v-accent: #526DDF; --v-tint: #E9EEFF; --v-radius: 15px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
 }
 [data-theme="cloud-blue"] .metric-cell strong { color: #425BC8; }
+
+/* ============================================================
+   J. Deep Navy Console — 深海蓝控制台
+   A quiet enterprise control surface with ice-blue actions.
+   ============================================================ */
+[data-theme="deep-navy"] {
+  color-scheme: dark;
+  --s-canvas: #111A28; --s-surface: #182536; --s-text: #ECF3F7; --s-muted: #91A5B6;
+  --s-border: #2D4052; --s-border-w: 1px; --s-accent: #8AD8E8; --s-accent-hover: #A6E5F0; --s-accent-text: #8AD8E8; --s-accent-contrast: #10202C; --s-tint: #203847; --s-field-bg: #131F2D; --s-focus: #8AD8E8;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 224px; --s-sidebar-bg: #0C1420; --s-sidebar-text: #CFDCE5; --s-sidebar-muted: #758A9C; --s-sidebar-icon: #92A8B8; --s-sidebar-active-bg: #203847; --s-sidebar-active-text: #A6E5F0; --s-sidebar-hover-bg: #172534; --s-sidebar-hover-text: #ECF3F7; --s-sidebar-border: #233343;
+  --s-header-bg: #121E2C; --s-header-text: #ECF3F7; --s-header-border: #2D4052; --s-brand-bg: #8AD8E8; --s-brand-text: #10202C; --s-brand-radius: 7px; --s-crumb-sep: #597083; --s-radius-card: 10px; --s-radius-control: 7px; --s-radius-pill: 7px; --s-shadow: 0 6px 18px rgba(0,0,0,.12); --s-table-head-bg: #1E3041; --s-table-head-text: #91A5B6; --s-row-line: #27394A; --s-row-hover: #1C3441; --s-track-bg: #2A4050; --s-bar: #8AD8E8; --s-notice-bg: #8AD8E8; --s-notice-text: #10202C;
+  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px,4vw,56px) 72px; --s-content-width: 1140px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: .02em; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #111A28; --v-surface: #182536; --v-text: #ECF3F7; --v-muted: #91A5B6; --v-line: #2D4052; --v-accent: #8AD8E8; --v-tint: #203847; --v-radius: 10px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
+}
+[data-theme="deep-navy"] .metric-cell strong { color: #8AD8E8; }
+
+/* ============================================================
+   K. Limestone & Ink — 石灰岩与墨色
+   Mineral neutral surfaces, deep ink and a restrained copper signal.
+   ============================================================ */
+[data-theme="limestone-ink"] {
+  color-scheme: light;
+  --s-canvas: #F0EEE9; --s-surface: #FCFBF8; --s-text: #292B2A; --s-muted: #777A76;
+  --s-border: #D8D6D0; --s-border-w: 1px; --s-accent: #A66B3F; --s-accent-hover: #895332; --s-accent-text: #8F5A35; --s-accent-contrast: #FFFFFF; --s-tint: #F1E6DB; --s-field-bg: #FFFFFF; --s-focus: #A66B3F;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif; --s-sidebar-width: 226px; --s-sidebar-bg: #E4E2DC; --s-sidebar-text: #444845; --s-sidebar-muted: #858983; --s-sidebar-icon: #6B716B; --s-sidebar-active-bg: #D1D8D0; --s-sidebar-active-text: #38523C; --s-sidebar-hover-bg: #DCDDD6; --s-sidebar-hover-text: #292B2A; --s-sidebar-border: #D0CEC7;
+  --s-header-bg: #FCFBF8; --s-header-text: #292B2A; --s-header-border: #D8D6D0; --s-brand-bg: #292B2A; --s-brand-text: #FCFBF8; --s-brand-radius: 3px; --s-crumb-sep: #B5B5AD; --s-radius-card: 7px; --s-radius-control: 5px; --s-radius-pill: 5px; --s-shadow: 0 2px 10px rgba(45,44,38,.045); --s-table-head-bg: #EBEAE4; --s-table-head-text: #777A76; --s-row-line: #E3E1DB; --s-row-hover: #F8F3EC; --s-track-bg: #DFDDD6; --s-bar: #A66B3F; --s-notice-bg: #292B2A; --s-notice-text: #FCFBF8;
+  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 74px; --s-content-width: 1100px; --s-metric-size: clamp(27px,2.7vw,35px); --s-metric-weight: 600; --s-panel-title-size: 16px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F0EEE9; --v-surface: #FCFBF8; --v-text: #292B2A; --v-muted: #777A76; --v-line: #D8D6D0; --v-accent: #A66B3F; --v-tint: #F1E6DB; --v-radius: 7px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 33px;
+}
+[data-theme="limestone-ink"] .preview-content h1,
+[data-theme="limestone-ink"] .preview-content h2 { letter-spacing: 0; }
+
+/* ============================================================
+   L. Indigo Grid — 靛蓝网格系统
+   A sharper SaaS skin with white surfaces and a confident blue-violet action.
+   ============================================================ */
+[data-theme="indigo-grid"] {
+  color-scheme: light;
+  --s-canvas: #F3F4F8; --s-surface: #FFFFFF; --s-text: #20243A; --s-muted: #737990;
+  --s-border: #DDE0EA; --s-border-w: 1px; --s-accent: #5364D8; --s-accent-hover: #4352C1; --s-accent-text: #4352C1; --s-accent-contrast: #FFFFFF; --s-tint: #EBEDFF; --s-field-bg: #FAFBFE; --s-focus: #5364D8;
+  --s-font: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 222px; --s-sidebar-bg: #FFFFFF; --s-sidebar-text: #4F5770; --s-sidebar-muted: #9298AA; --s-sidebar-icon: #747D96; --s-sidebar-active-bg: #EBEDFF; --s-sidebar-active-text: #4352C1; --s-sidebar-hover-bg: #F3F4F8; --s-sidebar-hover-text: #20243A; --s-sidebar-border: #E1E3EB;
+  --s-header-bg: #FFFFFF; --s-header-text: #20243A; --s-header-border: #DDE0EA; --s-brand-bg: #5364D8; --s-brand-text: #FFFFFF; --s-brand-radius: 8px; --s-crumb-sep: #BCC1D0; --s-radius-card: 11px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 4px 16px rgba(52,61,116,.06); --s-table-head-bg: #F5F6FA; --s-table-head-text: #737990; --s-row-line: #E9EAF0; --s-row-hover: #F5F6FF; --s-track-bg: #E3E5EE; --s-bar: #5364D8; --s-notice-bg: #20243A; --s-notice-text: #FFFFFF;
+  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 76px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 650; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F3F4F8; --v-surface: #FFFFFF; --v-text: #20243A; --v-muted: #737990; --v-line: #DDE0EA; --v-accent: #5364D8; --v-tint: #EBEDFF; --v-radius: 11px; --v-font: var(--s-font); --v-title-weight: 650; --v-title-size: 32px;
+}
+[data-theme="indigo-grid"] .metric-cell strong { color: #4352C1; }
+
+/* ============================================================
+   M. Concrete Signal — 混凝土信号
+   Architectural concrete grey with a precise orange action signal.
+   ============================================================ */
+[data-theme="concrete-signal"] {
+  color-scheme: light;
+  --s-canvas: #E9EBEB; --s-surface: #FDFDFB; --s-text: #252A2B; --s-muted: #6D7474;
+  --s-border: #C9CECE; --s-border-w: 1px; --s-accent: #E26E32; --s-accent-hover: #C95720; --s-accent-text: #C95720; --s-accent-contrast: #FFFFFF; --s-tint: #FBE8DD; --s-field-bg: #FFFFFF; --s-focus: #E26E32;
+  --s-font: "Arial", "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 224px; --s-sidebar-bg: #DDE1E1; --s-sidebar-text: #3D4545; --s-sidebar-muted: #7E8888; --s-sidebar-icon: #626C6C; --s-sidebar-active-bg: #252A2B; --s-sidebar-active-text: #FFFFFF; --s-sidebar-hover-bg: #D2D7D7; --s-sidebar-hover-text: #252A2B; --s-sidebar-border: #C3C9C9;
+  --s-header-bg: #FDFDFB; --s-header-text: #252A2B; --s-header-border: #C9CECE; --s-brand-bg: #E26E32; --s-brand-text: #FFFFFF; --s-brand-radius: 2px; --s-crumb-sep: #9BA4A4; --s-radius-card: 5px; --s-radius-control: 4px; --s-radius-pill: 4px; --s-shadow: 0 2px 7px rgba(31,40,40,.05); --s-table-head-bg: #E7EAEA; --s-table-head-text: #6D7474; --s-row-line: #DCE0E0; --s-row-hover: #FFF1E9; --s-track-bg: #D6DCDC; --s-bar: #E26E32; --s-notice-bg: #252A2B; --s-notice-text: #FFFFFF;
+  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px,4vw,56px) 72px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 650; --s-panel-title-size: 15px; --s-panel-title-weight: 650; --s-label-transform: uppercase; --s-label-tracking: .06em; --s-action-weight: 700; --s-active-weight: 650;
+  --v-bg: #E9EBEB; --v-surface: #FDFDFB; --v-text: #252A2B; --v-muted: #6D7474; --v-line: #C9CECE; --v-accent: #E26E32; --v-tint: #FBE8DD; --v-radius: 5px; --v-font: var(--s-font); --v-title-weight: 650; --v-title-size: 32px;
+}
+[data-theme="concrete-signal"] .metric-cell strong { color: #C95720; }
+
 /* ---------- Responsive: layout rules stay shared ---------- */
 @media (max-width: 1080px) {
   .lab-bar { gap: 14px; padding: 10px 16px; }

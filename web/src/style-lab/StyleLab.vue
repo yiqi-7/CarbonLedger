@@ -4,15 +4,16 @@ import StyleShell from './StyleShell.vue'
 import { providePreview } from '../design-preview/state'
 import type { PageId } from '../design-preview/types'
 
-type ThemeId = 'soft-utility' | 'graphite-editorial' | 'oceanic-system' | 'terracotta-studio' | 'signal-green' | 'cloud-blue'
+type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'deep-navy' | 'limestone-ink' | 'indigo-grid' | 'concrete-signal'
 
 const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = [
   { id: 'soft-utility', letter: 'D', name: 'Soft Utility', detail: '柔和工具界面（保留）' },
-  { id: 'graphite-editorial', letter: 'E', name: 'Graphite Editorial', detail: '石墨编辑系统' },
-  { id: 'oceanic-system', letter: 'F', name: 'Oceanic System', detail: '海洋系统界面' },
-  { id: 'terracotta-studio', letter: 'G', name: 'Terracotta Studio', detail: '陶土工作室' },
-  { id: 'signal-green', letter: 'H', name: 'Signal Green', detail: '信号绿色数据' },
-  { id: 'cloud-blue', letter: 'I', name: 'Cloud Blue', detail: '云端蓝灰' },
+  { id: 'graphite-editorial', letter: 'E', name: 'Graphite Editorial', detail: '石墨编辑系统（保留）' },
+  { id: 'cloud-blue', letter: 'I', name: 'Cloud Blue', detail: '云端蓝灰（保留）' },
+  { id: 'deep-navy', letter: 'J', name: 'Deep Navy Console', detail: '深海蓝控制台' },
+  { id: 'limestone-ink', letter: 'K', name: 'Limestone & Ink', detail: '石灰岩与墨色' },
+  { id: 'indigo-grid', letter: 'L', name: 'Indigo Grid', detail: '靛蓝网格系统' },
+  { id: 'concrete-signal', letter: 'M', name: 'Concrete Signal', detail: '混凝土信号' },
 ]
 
 const pages: { id: PageId; name: string }[] = [
