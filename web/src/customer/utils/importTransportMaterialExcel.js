@@ -1,4 +1,4 @@
-import { transportEnergyTypes } from '../data/transportMaterialInfo.js'
+import { transportEnergyTypes } from '../data/transportMaterialInfo.ts'
 import { parseNumericCell, resolveSheetRows } from './excelSheetLookup.js'
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024

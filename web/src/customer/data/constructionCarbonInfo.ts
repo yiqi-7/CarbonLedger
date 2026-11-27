@@ -1,6 +1,25 @@
-import { constructionEnergyTypes } from './constructionMaterialInfo.js'
+import { constructionEnergyTypes } from './constructionMaterialInfo'
+
+export interface ConstructionCarbonMaterial {
+  energyType: string
+  shiftCount: number
+  totalEnergy: number
+  emissionAmount: number
+}
+
+export interface ConstructionEnergyTotal {
+  energyTotal: number
+  emissionAmount: number
+  share: number
+  unit: string
+  emissionFactor: number
+}
 
 export class ConstructionCarbonInfo {
+  totalEmission: number
+  totalShiftCount: number
+  energyTotals: Record<string, ConstructionEnergyTotal>
+
   constructor() {
     this.totalEmission = 0
     this.totalShiftCount = 0
@@ -12,7 +31,7 @@ export class ConstructionCarbonInfo {
     )
   }
 
-  update(materials) {
+  update(materials: ConstructionCarbonMaterial[]): void {
     this.totalShiftCount = materials.reduce((total, material) => total + material.shiftCount, 0)
     this.totalEmission = materials.reduce((total, material) => total + material.emissionAmount, 0)
 

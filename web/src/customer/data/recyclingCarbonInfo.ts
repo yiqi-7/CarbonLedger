@@ -1,4 +1,16 @@
+export interface RecyclingCarbonMaterial {
+  recyclingQuantity: number
+  recyclingFactor: number
+  recyclingCoefficient: number
+  residualValue: number
+}
+
 export class RecyclingCarbonInfo {
+  totalReduction: number
+  totalRecyclingQuantity: number
+  recyclingUtilizationRate: number
+  estimatedResidualValue: number
+
   constructor() {
     this.totalReduction = 0
     this.totalRecyclingQuantity = 0
@@ -6,7 +18,7 @@ export class RecyclingCarbonInfo {
     this.estimatedResidualValue = 0
   }
 
-  update(materials, totalBuildingEmission) {
+  update(materials: RecyclingCarbonMaterial[], totalBuildingEmission: number): void {
     this.totalReduction = materials.reduce(
       (total, material) => total + material.recyclingQuantity *
         material.recyclingFactor * material.recyclingCoefficient / 1000,

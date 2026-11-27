@@ -1,4 +1,4 @@
-import { constructionEnergyTypes } from '../data/constructionMaterialInfo.js'
+import { constructionEnergyTypes } from '../data/constructionMaterialInfo.ts'
 import { parseNumericCell, resolveSheetRows } from './excelSheetLookup.js'
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024

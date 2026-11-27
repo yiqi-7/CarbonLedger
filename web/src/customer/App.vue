@@ -19,23 +19,23 @@ import DashboardHome from './components/DashboardHome.vue'
 import chinaCities from '@/data/chinaCities.json'
 import { ProjectInfo, saveProjectInfo } from './data/projectInfo.ts'
 import { BuildMaterialInfo, buildMaterialInfoList } from './data/buildMaterialInfo.ts'
-import { BuildCarbonInfo } from './data/buildCarbonInfo.js'
+import { BuildCarbonInfo } from './data/buildCarbonInfo.ts'
 import {
   BuildCarbonConfigInfo,
   BuildCarbonConfigInfoList,
   buildCarbonConfigInfoList
-} from './data/buildCarbonConfigInfo.js'
-import { RecyclingMateiralInfo, recyclingMateiralInfoList } from './data/recyclingMaterialInfo.js'
-import { RecyclingCarbonInfo } from './data/recyclingCarbonInfo.js'
-import { ConstructionMaterialInfo, constructionEnergyTypes, constructionMaterialInfoList } from './data/constructionMaterialInfo.js'
-import { ConstructionCarbonInfo } from './data/constructionCarbonInfo.js'
-import { TransportMaterialInfo, transportEnergyTypes, transportMaterialInfoList } from './data/transportMaterialInfo.js'
-import { TransportCarbonInfo } from './data/transportCarbonInfo.js'
+} from './data/buildCarbonConfigInfo.ts'
+import { RecyclingMateiralInfo, recyclingMateiralInfoList } from './data/recyclingMaterialInfo.ts'
+import { RecyclingCarbonInfo } from './data/recyclingCarbonInfo.ts'
+import { ConstructionMaterialInfo, constructionEnergyTypes, constructionMaterialInfoList } from './data/constructionMaterialInfo.ts'
+import { ConstructionCarbonInfo } from './data/constructionCarbonInfo.ts'
+import { TransportMaterialInfo, transportEnergyTypes, transportMaterialInfoList } from './data/transportMaterialInfo.ts'
+import { TransportCarbonInfo } from './data/transportCarbonInfo.ts'
 import {
   TransportCarbonConfigInfo,
   TransportCarbonConfigInfoList,
   transportCarbonConfigInfoList
-} from './data/transportCarbonConfigInfo.js'
+} from './data/transportCarbonConfigInfo.ts'
 
 
 const navigation = [

@@ -1,6 +1,6 @@
 // 工作表定位与数值解析的共享工具：让三份清单导入器既能读取本系统导出的文件，
 // 也能读取用户自行整理（工作表名、列名、含单位文本）的 Excel。
-import { listWorkbookSheetNames, readWorkbookSheetRows } from '../data/transportCarbonConfigInfo.js'
+import { listWorkbookSheetNames, readWorkbookSheetRows } from '../data/transportCarbonConfigInfo.ts'
 
 // 从单元格文本中提取数值，兼容“2050kg/t”“3.71 kg柴油/台班”这类带单位的写法。
 export function parseNumericCell(value) {

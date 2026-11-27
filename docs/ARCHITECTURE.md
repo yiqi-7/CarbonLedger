@@ -226,12 +226,13 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 - `AnalysisService` 已拆为授权数据 loader 与 shared 公式 calculator；`ReportsService` 已拆为 Excel/PDF renderer；`VersionsService` 已拆为 snapshot factory 与 project-scoped repository。
 - shared/web/server controller 依赖方向已有 AST 架构测试；records 内部 deep import 使用精确 baseline，已有违规不得增加。
 
-仍待逐步完成：
+持续演进项：
 
 - `ProjectToolsView.vue` 已通过项目 API facade 访问项目、因子、版本和报告；Versions 已将名称更新迁移到独立 metadata，并保留历史 snapshot 名称回退。
 - customer 当前报告导出已归入 `useCustomerReports`，版本列表/查看/重命名/删除/保存与版本报告继续由 `ProjectToolsView` 负责；`App.vue` 不再承载报告导出实现。
 - 版本编号已增加限定 composite unique 冲突的有界重试，并在重试时重建带最终编号的 snapshot。
-- customer data model 已开始 TypeScript 迁移，`projectInfo` 与 `buildMaterialInfo` 已完成；其余 9 个 legacy data model 仍待迁移。
+- customer 下 11 个 data model 已迁移为 TypeScript，保留旧构造函数、链表、公式、全局对象和导入导出行为；customer utils 与 App 引用已同步更新。
+- 后续可继续将 customer composables 与 utils 的 JavaScript 类型化，并按运行环境恢复情况执行生产部署验证。
 
 ### 9.6 API、数据和持久化契约
 

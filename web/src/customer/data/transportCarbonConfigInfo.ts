@@ -5,8 +5,21 @@ const spreadsheetNamespace = 'http://schemas.openxmlformats.org/spreadsheetml/20
 const relationshipsNamespace = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 const packageRelationshipsNamespace = 'http://schemas.openxmlformats.org/package/2006/relationships'
 
+type WorkbookFiles = Record<string, Uint8Array>
+type WorkbookRows = string[][]
+
+export interface TransportCarbonConfigInfoInput {
+  vehicleName: string
+  energyType: string
+  emissionFactor: number
+}
+
 export class TransportCarbonConfigInfo {
-  constructor({ vehicleName, energyType, emissionFactor }) {
+  vehicleName: string
+  energyType: string
+  emissionFactor: number
+
+  constructor({ vehicleName, energyType, emissionFactor }: TransportCarbonConfigInfoInput) {
     this.vehicleName = vehicleName
     this.energyType = energyType
     this.emissionFactor = emissionFactor
@@ -14,20 +27,26 @@ export class TransportCarbonConfigInfo {
 }
 
 class TransportCarbonConfigNode {
-  constructor(config) {
+  config: TransportCarbonConfigInfo
+  next: TransportCarbonConfigNode | null
+
+  constructor(config: TransportCarbonConfigInfo) {
     this.config = config
     this.next = null
   }
 }
 
 export class TransportCarbonConfigInfoList {
-  constructor(configurations = []) {
+  head: TransportCarbonConfigNode | null
+  count: number
+
+  constructor(configurations: TransportCarbonConfigInfo[] = []) {
     this.head = null
     this.count = 0
     configurations.forEach(configuration => this.append(configuration))
   }
 
-  append(configuration) {
+  append(configuration: TransportCarbonConfigInfo): TransportCarbonConfigInfo {
     const node = new TransportCarbonConfigNode(configuration)
     if (!this.head) {
       this.head = node
@@ -40,14 +59,14 @@ export class TransportCarbonConfigInfoList {
     return node.config
   }
 
-  replaceAll(configurations) {
+  replaceAll(configurations: TransportCarbonConfigInfo[]): void {
     this.head = null
     this.count = 0
     configurations.forEach(configuration => this.append(configuration))
   }
 
-  toArray() {
-    const configurations = []
+  toArray(): TransportCarbonConfigInfo[] {
+    const configurations: TransportCarbonConfigInfo[] = []
     let current = this.head
     while (current) {
       configurations.push(current.config)
@@ -56,7 +75,7 @@ export class TransportCarbonConfigInfoList {
     return configurations
   }
 
-  findByVehicleName(vehicleName) {
+  findByVehicleName(vehicleName: string): TransportCarbonConfigInfo | null {
     let current = this.head
     while (current) {
       if (current.config.vehicleName === vehicleName) return current.config
@@ -66,20 +85,20 @@ export class TransportCarbonConfigInfoList {
   }
 }
 
-function parseXml(content, description) {
+function parseXml(content: string, description: string): XMLDocument {
   const document = new DOMParser().parseFromString(content, 'application/xml')
   if (document.querySelector('parsererror')) throw new Error(`运输配置文件${description}格式无效`)
   return document
 }
 
-function readXml(files, path, description) {
+function readXml(files: WorkbookFiles, path: string, description: string): XMLDocument {
   const content = files[path]
   if (!content) throw new Error(`运输配置文件缺少${description}`)
   return parseXml(strFromU8(content), description)
 }
 
-function normalizeWorkbookPath(target) {
-  const parts = []
+function normalizeWorkbookPath(target: string): string {
+  const parts: string[] = []
   for (const part of target.replace(/\\/g, '/').split('/')) {
     if (!part || part === '.') continue
     if (part === '..') parts.pop()
@@ -88,7 +107,7 @@ function normalizeWorkbookPath(target) {
   return parts[0] === 'xl' ? parts.join('/') : `xl/${parts.join('/')}`
 }
 
-function columnIndex(reference) {
+function columnIndex(reference: string): number {
   const letters = reference.match(/^[A-Z]+/i)?.[0]
   if (!letters) throw new Error(`运输配置文件单元格地址无效：${reference}`)
   let index = 0
@@ -98,14 +117,14 @@ function columnIndex(reference) {
   return index - 1
 }
 
-function decodeWorkbookUrl(url) {
+function decodeWorkbookUrl(url: string): Uint8Array {
   const match = url.match(/^data:[^,]*;base64,(.+)$/)
   if (!match) throw new Error('运输配置文件未以内嵌方式加载')
   const binary = atob(match[1])
   return Uint8Array.from(binary, character => character.charCodeAt(0))
 }
 
-function readCell(cell, sharedStrings) {
+function readCell(cell: Element, sharedStrings: string[]): string {
   const type = cell.getAttribute('t')
   if (type === 'inlineStr') {
     return cell.getElementsByTagNameNS(spreadsheetNamespace, 'is')[0]?.textContent ?? ''
@@ -120,7 +139,7 @@ function readCell(cell, sharedStrings) {
   return value
 }
 
-export function listWorkbookSheetNames(workbookBytes) {
+export function listWorkbookSheetNames(workbookBytes: Uint8Array): string[] {
   const coreFiles = unzipSync(workbookBytes, {
     filter: file => file.name === 'xl/workbook.xml'
   })
@@ -131,7 +150,7 @@ export function listWorkbookSheetNames(workbookBytes) {
   ).filter(Boolean)
 }
 
-export function readWorkbookSheetRows(workbookBytes, sheetName) {
+export function readWorkbookSheetRows(workbookBytes: Uint8Array, sheetName: string): WorkbookRows | null {
   const coreFiles = unzipSync(workbookBytes, {
     filter: file => file.name === 'xl/workbook.xml' || file.name === 'xl/_rels/workbook.xml.rels'
   })
@@ -146,7 +165,9 @@ export function readWorkbookSheetRows(workbookBytes, sheetName) {
     .find(candidate => candidate.getAttribute('Id') === relationshipId)
   if (!relationship?.getAttribute('Target')) throw new Error(`无法读取“${sheetName}”工作表`)
 
-  const worksheetPath = normalizeWorkbookPath(relationship.getAttribute('Target'))
+  const target = relationship.getAttribute('Target')
+  if (!target) throw new Error(`无法读取“${sheetName}”工作表`)
+  const worksheetPath = normalizeWorkbookPath(target)
   const contentFiles = unzipSync(workbookBytes, {
     filter: file => file.name === worksheetPath || file.name === 'xl/sharedStrings.xml'
   })
@@ -161,7 +182,7 @@ export function readWorkbookSheetRows(workbookBytes, sheetName) {
     )
     : []
   return Array.from(worksheet.getElementsByTagNameNS(spreadsheetNamespace, 'row'), row => {
-    const values = []
+    const values: string[] = []
     for (const cell of row.getElementsByTagNameNS(spreadsheetNamespace, 'c')) {
       const reference = cell.getAttribute('r')
       if (!reference) throw new Error(`${sheetName}工作表中有缺少地址的单元格`)
@@ -171,7 +192,7 @@ export function readWorkbookSheetRows(workbookBytes, sheetName) {
   })
 }
 
-export function parseTransportCarbonConfigWorkbook(workbookBytes) {
+export function parseTransportCarbonConfigWorkbook(workbookBytes: Uint8Array): TransportCarbonConfigInfo[] {
   const rows = readWorkbookSheetRows(workbookBytes, '运输碳排配置')
   if (!rows) throw new Error('运输配置文件中没有“运输碳排配置”工作表')
   const headerRowIndex = rows.findIndex(row => row.some(value => String(value ?? '').trim()))
@@ -185,7 +206,7 @@ export function parseTransportCarbonConfigWorkbook(workbookBytes) {
     throw new Error('运输碳排配置表必须包含“名称”“能源类型”“因子”三列')
   }
 
-  const configurations = []
+  const configurations: TransportCarbonConfigInfo[] = []
   for (let rowIndex = headerRowIndex + 1; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex]
     const vehicleName = String(row[nameIndex] ?? '').trim()

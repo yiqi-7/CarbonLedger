@@ -1,4 +1,35 @@
+export interface RecyclingMateiralInfoInput {
+  materialName: string
+  materialType: string
+  recyclingQuantity: number
+  unit: string
+  recyclingFactor: number
+  recyclingCoefficient?: number
+  recyclingUnitPrice?: number
+  sourceBuildMaterialId?: number | null
+  isCustomMaterial?: boolean
+}
+
+export interface RecyclingMateiralInfoUpdates {
+  [key: string]: unknown
+}
+
 export class RecyclingMateiralInfo {
+  static nextId: number
+
+  id: number
+  materialName: string
+  materialType: string
+  recyclingQuantity: number
+  unit: string
+  recyclingFactor: number
+  recyclingCoefficient: number
+  reductionAmount: number
+  recyclingUnitPrice: number
+  residualValue: number
+  sourceBuildMaterialId: number | null
+  isCustomMaterial: boolean
+
   constructor({
     materialName,
     materialType,
@@ -9,7 +40,7 @@ export class RecyclingMateiralInfo {
     recyclingUnitPrice = 0,
     sourceBuildMaterialId = null,
     isCustomMaterial = false
-  }) {
+  }: RecyclingMateiralInfoInput) {
     this.id = RecyclingMateiralInfo.nextId++
     this.materialName = materialName
     this.materialType = materialType
@@ -28,20 +59,26 @@ export class RecyclingMateiralInfo {
 RecyclingMateiralInfo.nextId = 1
 
 class RecyclingMateiralNode {
-  constructor(material) {
+  material: RecyclingMateiralInfo
+  next: RecyclingMateiralNode | null
+
+  constructor(material: RecyclingMateiralInfo) {
     this.material = material
     this.next = null
   }
 }
 
 export class RecyclingMateiralInfoList {
-  constructor(materials = []) {
+  head: RecyclingMateiralNode | null
+  count: number
+
+  constructor(materials: RecyclingMateiralInfo[] = []) {
     this.head = null
     this.count = 0
     materials.forEach(material => this.append(material))
   }
 
-  append(material) {
+  append(material: RecyclingMateiralInfo): RecyclingMateiralInfo {
     const node = new RecyclingMateiralNode(material)
     if (!this.head) {
       this.head = node
@@ -54,8 +91,8 @@ export class RecyclingMateiralInfoList {
     return node.material
   }
 
-  removeById(id) {
-    let previous = null
+  removeById(id: number): RecyclingMateiralInfo | null {
+    let previous: RecyclingMateiralNode | null = null
     let current = this.head
 
     while (current) {
@@ -72,8 +109,8 @@ export class RecyclingMateiralInfoList {
     return null
   }
 
-  toArray() {
-    const materials = []
+  toArray(): RecyclingMateiralInfo[] {
+    const materials: RecyclingMateiralInfo[] = []
     let current = this.head
     while (current) {
       materials.push(current.material)
@@ -82,7 +119,7 @@ export class RecyclingMateiralInfoList {
     return materials
   }
 
-  updateById(id, updates) {
+  updateById(id: number, updates: RecyclingMateiralInfoUpdates): RecyclingMateiralInfo | null {
     let current = this.head
     while (current) {
       if (current.material.id === id) {

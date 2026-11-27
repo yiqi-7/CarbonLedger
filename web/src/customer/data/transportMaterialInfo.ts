@@ -1,6 +1,35 @@
-export const transportEnergyTypes = ['柴油', '汽油']
+export const transportEnergyTypes: string[] = ['柴油', '汽油']
+
+export interface TransportMaterialInfoInput {
+  vehicleName: string
+  transportedMaterial: string
+  transportQuantity: number
+  transportDistance: number
+  energyType: string
+  emissionFactor: number
+  transportUnitPrice: number
+  isCustomMaterial?: boolean
+}
+
+export interface TransportMaterialInfoUpdates {
+  [key: string]: unknown
+}
 
 export class TransportMaterialInfo {
+  static nextId: number
+
+  id: number
+  vehicleName: string
+  transportedMaterial: string
+  transportQuantity: number
+  transportDistance: number
+  energyType: string
+  emissionFactor: number
+  emissionAmount: number
+  transportUnitPrice: number
+  transportTotalPrice: number
+  isCustomMaterial: boolean
+
   constructor({
     vehicleName,
     transportedMaterial,
@@ -10,7 +39,7 @@ export class TransportMaterialInfo {
     emissionFactor,
     transportUnitPrice,
     isCustomMaterial = false
-  }) {
+  }: TransportMaterialInfoInput) {
     if (!transportEnergyTypes.includes(energyType)) {
       throw new Error(`Unsupported transport energy type: ${energyType}`)
     }
@@ -32,20 +61,26 @@ export class TransportMaterialInfo {
 TransportMaterialInfo.nextId = 1
 
 class TransportMaterialNode {
-  constructor(material) {
+  material: TransportMaterialInfo
+  next: TransportMaterialNode | null
+
+  constructor(material: TransportMaterialInfo) {
     this.material = material
     this.next = null
   }
 }
 
 export class TransportMaterialInfoList {
-  constructor(materials = []) {
+  head: TransportMaterialNode | null
+  count: number
+
+  constructor(materials: TransportMaterialInfo[] = []) {
     this.head = null
     this.count = 0
     materials.forEach(material => this.append(material))
   }
 
-  append(material) {
+  append(material: TransportMaterialInfo): TransportMaterialInfo {
     const node = new TransportMaterialNode(material)
     if (!this.head) {
       this.head = node
@@ -58,8 +93,8 @@ export class TransportMaterialInfoList {
     return node.material
   }
 
-  removeById(id) {
-    let previous = null
+  removeById(id: number): TransportMaterialInfo | null {
+    let previous: TransportMaterialNode | null = null
     let current = this.head
     while (current) {
       if (current.material.id === id) {
@@ -74,8 +109,8 @@ export class TransportMaterialInfoList {
     return null
   }
 
-  toArray() {
-    const materials = []
+  toArray(): TransportMaterialInfo[] {
+    const materials: TransportMaterialInfo[] = []
     let current = this.head
     while (current) {
       materials.push(current.material)
@@ -84,7 +119,7 @@ export class TransportMaterialInfoList {
     return materials
   }
 
-  updateById(id, updates) {
+  updateById(id: number, updates: TransportMaterialInfoUpdates): TransportMaterialInfo | null {
     let current = this.head
     while (current) {
       if (current.material.id === id) {

@@ -1,10 +1,44 @@
-export const constructionEnergyTypes = {
+export interface ConstructionEnergyType {
+  unit: string
+  emissionFactor: number
+}
+
+export const constructionEnergyTypes: Record<string, ConstructionEnergyType> = {
   电力: { unit: 'kWh', emissionFactor: 0.581 },
   柴油: { unit: 'kg', emissionFactor: 2.632 },
   汽油: { unit: 'kg', emissionFactor: 2.34 }
 }
 
+export interface ConstructionMaterialInfoInput {
+  machineryName: string
+  shiftCount: number
+  energyType: string
+  energyPerShift: number
+  shiftUnitPrice: number
+  emissionFactor?: number
+  isCustomMaterial?: boolean
+}
+
+export interface ConstructionMaterialInfoUpdates {
+  [key: string]: unknown
+}
+
 export class ConstructionMaterialInfo {
+  static nextId: number
+
+  id: number
+  machineryName: string
+  shiftCount: number
+  energyType: string
+  energyUnit: string
+  energyPerShift: number
+  totalEnergy: number
+  emissionFactor: number
+  emissionAmount: number
+  shiftUnitPrice: number
+  totalPrice: number
+  isCustomMaterial: boolean
+
   constructor({
     machineryName,
     shiftCount,
@@ -13,7 +47,7 @@ export class ConstructionMaterialInfo {
     shiftUnitPrice,
     emissionFactor,
     isCustomMaterial = false
-  }) {
+  }: ConstructionMaterialInfoInput) {
     const energy = constructionEnergyTypes[energyType]
     if (!energy) throw new Error(`Unsupported construction energy type: ${energyType}`)
 
@@ -35,20 +69,26 @@ export class ConstructionMaterialInfo {
 ConstructionMaterialInfo.nextId = 1
 
 class ConstructionMaterialNode {
-  constructor(material) {
+  material: ConstructionMaterialInfo
+  next: ConstructionMaterialNode | null
+
+  constructor(material: ConstructionMaterialInfo) {
     this.material = material
     this.next = null
   }
 }
 
 export class ConstructionMaterialInfoList {
-  constructor(materials = []) {
+  head: ConstructionMaterialNode | null
+  count: number
+
+  constructor(materials: ConstructionMaterialInfo[] = []) {
     this.head = null
     this.count = 0
     materials.forEach(material => this.append(material))
   }
 
-  append(material) {
+  append(material: ConstructionMaterialInfo): ConstructionMaterialInfo {
     const node = new ConstructionMaterialNode(material)
     if (!this.head) {
       this.head = node
@@ -61,8 +101,8 @@ export class ConstructionMaterialInfoList {
     return node.material
   }
 
-  removeById(id) {
-    let previous = null
+  removeById(id: number): ConstructionMaterialInfo | null {
+    let previous: ConstructionMaterialNode | null = null
     let current = this.head
     while (current) {
       if (current.material.id === id) {
@@ -77,8 +117,8 @@ export class ConstructionMaterialInfoList {
     return null
   }
 
-  toArray() {
-    const materials = []
+  toArray(): ConstructionMaterialInfo[] {
+    const materials: ConstructionMaterialInfo[] = []
     let current = this.head
     while (current) {
       materials.push(current.material)
@@ -87,12 +127,12 @@ export class ConstructionMaterialInfoList {
     return materials
   }
 
-  updateById(id, updates) {
+  updateById(id: number, updates: ConstructionMaterialInfoUpdates): ConstructionMaterialInfo | null {
     let current = this.head
     while (current) {
       if (current.material.id === id) {
         const material = current.material
-        const values = { ...material, ...updates }
+        const values = { ...material, ...updates } as ConstructionMaterialInfo & ConstructionMaterialInfoInput
         const energy = constructionEnergyTypes[values.energyType]
         if (!energy) throw new Error(`Unsupported construction energy type: ${values.energyType}`)
         const emissionFactor = Object.hasOwn(updates, 'energyType')
