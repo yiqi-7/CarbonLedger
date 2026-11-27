@@ -23,7 +23,8 @@ export class ReportsService {
     await this.projects.assertOwner(projectId, userId)
     const version = await this.prisma.calcVersion.findFirst({ where: { id: versionId, projectId } })
     if (!version) throw new NotFoundException('核算版本不存在')
-    return parseSnapshotOrThrow(version.snapshot)
+    const snapshot = parseSnapshotOrThrow(version.snapshot)
+    return { ...snapshot, name: version.name ?? snapshot.name }
   }
 
   async currentSnapshot(projectId: number, userId: number): Promise<CalcVersionSnapshot> {

@@ -19,6 +19,7 @@ describe('CalcVersionRepository', () => {
     expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { projectId: 42 },
       orderBy: { versionNumber: 'desc' },
+      select: expect.objectContaining({ name: true, snapshot: true }),
     }))
   })
 

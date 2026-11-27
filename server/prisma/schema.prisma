@@ -175,6 +175,7 @@ model CalcVersion {
   project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   versionNumber Int
   snapshot      String // CalcVersionSnapshot JSON
+  name          String?
   createdAt     DateTime @default(now())
   createdByUserId Int
   createdBy     User     @relation(fields: [createdByUserId], references: [id])

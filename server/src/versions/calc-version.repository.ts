@@ -36,6 +36,7 @@ export class CalcVersionRepository {
         id: true,
         versionNumber: true,
         createdAt: true,
+        name: true,
         snapshot: true,
         createdBy: { select: { username: true } },
       },
@@ -46,8 +47,12 @@ export class CalcVersionRepository {
     return this.prisma.calcVersion.findFirst({ where: { id: versionId, projectId } })
   }
 
-  create(input: { projectId: number; versionNumber: number; snapshot: string; createdByUserId: number }) {
+  create(input: { projectId: number; versionNumber: number; name: string | null; snapshot: string; createdByUserId: number }) {
     return this.prisma.calcVersion.create({ data: input })
+  }
+
+  updateName(versionId: number, name: string) {
+    return this.prisma.calcVersion.update({ where: { id: versionId }, data: { name } })
   }
 
   updateSnapshot(versionId: number, snapshot: string) {

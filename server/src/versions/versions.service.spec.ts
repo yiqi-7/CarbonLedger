@@ -66,6 +66,24 @@ describe('VersionsService boundaries', () => {
     expect(audit.record).toHaveBeenCalledWith(7, 'VERSION_SAVED', 'PROJECT', '42', '版本 v2')
   })
 
+  it('renames metadata without rewriting the stored snapshot JSON', async () => {
+    const snapshots = new SnapshotFactory()
+    const snapshot = snapshots.create(3, 7, bundle)
+    const serialized = snapshots.serialize(snapshot)
+    const updateName = vi.fn().mockResolvedValue(undefined)
+    const service = new VersionsService(
+      { findById: vi.fn().mockResolvedValue({ id: 8, versionNumber: 3, name: snapshot.name, snapshot: serialized }), updateName } as unknown as CalcVersionRepository,
+      snapshots,
+      {} as AnalysisService,
+      { assertOwner: vi.fn().mockResolvedValue(undefined) } as unknown as ProjectsService,
+      { record: vi.fn().mockResolvedValue(undefined) } as unknown as AuditService,
+    )
+
+    await expect(service.rename(42, 7, 8, '方案一')).resolves.toEqual({ id: 8, name: '方案一' })
+    expect(updateName).toHaveBeenCalledWith(8, '方案一')
+    expect(JSON.parse(serialized).name).toBe('版本 v3')
+  })
+
   it('delegates detail parsing and preserves the public response shape', async () => {
     const snapshots = new SnapshotFactory()
     const snapshot = snapshots.create(3, 7, bundle)

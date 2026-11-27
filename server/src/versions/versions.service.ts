@@ -31,6 +31,7 @@ export class VersionsService {
         const created = await this.repository.create({
           projectId,
           versionNumber,
+          name: snapshot.name ?? null,
           snapshot: this.snapshots.serialize(snapshot),
           createdByUserId: userId,
         })
@@ -53,20 +54,25 @@ export class VersionsService {
   async list(projectId: number, userId: number) {
     await this.projects.assertOwner(projectId, userId)
     const versions = await this.repository.findMany(projectId)
-    return versions.map(version => ({
-      id: version.id,
-      versionNumber: version.versionNumber,
-      ...this.snapshots.project(version.snapshot, version.versionNumber),
-      createdAt: version.createdAt,
-      createdBy: version.createdBy.username,
-    }))
+    return versions.map(version => {
+      const projection = this.snapshots.project(version.snapshot, version.versionNumber)
+      return {
+        id: version.id,
+        versionNumber: version.versionNumber,
+        ...projection,
+        name: version.name ?? projection.name,
+        createdAt: version.createdAt,
+        createdBy: version.createdBy.username,
+      }
+    })
   }
 
   async detail(projectId: number, userId: number, versionId: number): Promise<CalcVersionSnapshot & { id: number }> {
     await this.projects.assertOwner(projectId, userId)
     const version = await this.repository.findById(projectId, versionId)
     if (!version) throw new NotFoundException('核算版本不存在')
-    return { id: version.id, ...this.snapshots.parse(version.snapshot) }
+    const snapshot = this.snapshots.parse(version.snapshot)
+    return { id: version.id, ...snapshot, name: version.name ?? snapshot.name }
   }
 
   async rename(projectId: number, userId: number, versionId: number, name: string) {
@@ -75,8 +81,7 @@ export class VersionsService {
     if (!version) throw new NotFoundException('核算版本不存在')
     const trimmed = name.trim()
     if (!trimmed) throw new BadRequestException('版本名称不能为空')
-    const snapshot = this.snapshots.rename(version.snapshot, trimmed)
-    await this.repository.updateSnapshot(version.id, snapshot)
+    await this.repository.updateName(version.id, trimmed)
     await this.audit.record(userId, 'VERSION_RENAMED', 'PROJECT', String(projectId), `版本 v${version.versionNumber}：${trimmed}`)
     return { id: version.id, name: trimmed }
   }

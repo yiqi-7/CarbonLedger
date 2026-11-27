@@ -79,7 +79,7 @@
 ## 6. 核算版本
 
 - 用户显式点击“保存核算版本”→ 服务端将项目信息、因子配置、四类记录（含派生值）与汇总序列化为快照存储，`versionNumber` 项目内自增。
-- 核算 payload 不可变；后续编辑只影响当前数据与之后的新版本。当前版本名称仍沿用旧兼容语义写回 snapshot JSON，名称可变；迁移到独立名称元数据后再恢复严格的整行不可变。
+- 核算 payload 不可变；版本名称存储为独立可变 metadata，后续编辑只影响当前数据与之后的新版本。历史 snapshot 中的名称仅作为兼容回退。
 - 报告（PDF + Excel）从指定版本快照生成，不读取当前编辑态。
 
 ## 7. 导入 / 导出（与旧版格式一致）
@@ -229,8 +229,8 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 仍待逐步完成：
 
 - customer `App.vue` 中的项目编辑；新增 feature 不应继续堆入此文件。
-- `ProjectToolsView.vue` 已通过项目 API facade 访问项目、因子、版本和报告；Versions 当前仍保留旧的名称写回 snapshot JSON 语义。
-- 版本编号已增加限定 composite unique 冲突的有界重试，并在重试时重建带最终编号的 snapshot；仍待迁移独立名称元数据、customer 版本页面和报告页面的 feature 归属。
+- `ProjectToolsView.vue` 已通过项目 API facade 访问项目、因子、版本和报告；Versions 已将名称更新迁移到独立 metadata，并保留历史 snapshot 名称回退。
+- 版本编号已增加限定 composite unique 冲突的有界重试，并在重试时重建带最终编号的 snapshot；仍待 customer 版本页面和报告页面的 feature 归属迁移。
 - 最后的 JavaScript data model 到 TypeScript 迁移。
 
 ### 9.6 API、数据和持久化契约
@@ -242,7 +242,7 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 - 项目权限仍先于子资源查询，其他用户和管理员越权仍返回原有 403；
 - 不存在项目仍返回 404，跨项目记录 ID 仍按原规则返回记录不存在；
 - shared 计算结果、运输总价旧公式和回收增量同步语义不变；
-- `CalcVersion` 的核算 payload 保持不可变；版本名称沿用兼容语义允许更新，报告仍从当前数据或指定快照生成。
+- `CalcVersion` 的核算 payload 保持不可变；版本名称作为独立 metadata 允许更新，报告仍从当前数据或指定快照生成。
 
 不得在内部服务拆分时直接引入会裁剪 Prisma 字段的白名单 response mapper。若未来需要版本化响应，使用新的 API contract 或 `/api/v2`，不破坏当前接口。
 
