@@ -276,519 +276,99 @@
 }
 
 /* ============================================================
-   B. Carbon Instrument — 深色仪表
+   B. Neo Memphis — 新孟菲斯工具感
+   Playful colour blocks with the same disciplined workspace geometry.
    ============================================================ */
-[data-theme="carbon-dark"] {
+[data-theme="neo-memphis"] {
+  color-scheme: light;
+  --s-canvas: #F8F5EC; --s-surface: #FFFDF7; --s-text: #181818; --s-muted: #6B6861;
+  --s-border: #181818; --s-border-w: 2px; --s-accent: #7357FF; --s-accent-hover: #5D43DE; --s-accent-text: #6049E5; --s-accent-contrast: #FFFFFF;
+  --s-tint: #EAE4FF; --s-field-bg: #FFFDF7; --s-focus: #181818;
+  --s-font: "Helvetica Neue", Inter, "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
+  --s-sidebar-width: 224px; --s-sidebar-bg: #F7D34A; --s-sidebar-text: #181818; --s-sidebar-muted: #5B4F24; --s-sidebar-icon: #181818; --s-sidebar-active-bg: #181818; --s-sidebar-active-text: #FFFFFF; --s-sidebar-hover-bg: #FFE47A; --s-sidebar-hover-text: #181818; --s-sidebar-border: #181818;
+  --s-header-bg: #FFFDF7; --s-header-text: #181818; --s-header-border: #181818; --s-brand-bg: #F05A47; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #9C9484;
+  --s-radius-card: 0; --s-radius-control: 0; --s-radius-pill: 0; --s-shadow: none; --s-table-head-bg: #181818; --s-table-head-text: #FFFFFF; --s-row-line: #C9C4B7; --s-row-hover: #F0EBFF; --s-track-bg: #DFD9CA; --s-bar: #7357FF; --s-notice-bg: #181818; --s-notice-text: #FFFFFF;
+  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px; --s-content-width: 1120px; --s-metric-size: clamp(26px, 2.6vw, 34px); --s-metric-weight: 700; --s-panel-title-size: 15px; --s-panel-title-weight: 700; --s-label-transform: uppercase; --s-label-tracking: .06em; --s-action-weight: 700; --s-active-weight: 700;
+  --v-bg: #F8F5EC; --v-surface: #FFFDF7; --v-text: #181818; --v-muted: #6B6861; --v-line: #C9C4B7; --v-accent: #7357FF; --v-tint: #EAE4FF; --v-radius: 0; --v-font: var(--s-font); --v-title-weight: 700; --v-title-size: 34px;
+}
+[data-theme="neo-memphis"] .metrics-strip { border-top: 8px solid #F05A47; }
+[data-theme="neo-memphis"] .shell-nav button.active { outline: 2px solid #181818; outline-offset: -2px; }
+
+/* ============================================================
+   C. Industrial Safety — 工业安全标识
+   Charcoal, hazard yellow and orange: clear, practical, high-signal.
+   ============================================================ */
+[data-theme="industrial-safety"] {
   color-scheme: dark;
-  --s-canvas: #0E1012;
-  --s-surface: #171A1C;
-  --s-text: #ECEFEA;
-  --s-muted: #8B948E;
-  --s-border: #2A2F31;
-  --s-border-w: 1px;
-  --s-accent: #A8E63F;
-  --s-accent-hover: #B9F257;
-  --s-accent-text: #A8E63F;
-  --s-accent-contrast: #0E1012;
-  --s-tint: #1E2A1F;
-  --s-field-bg: #121517;
-  --s-focus: #A8E63F;
-  --s-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --s-heading-font: var(--s-font);
-  --s-sidebar-width: 224px;
-  --s-sidebar-bg: #121517;
-  --s-sidebar-text: #B9C0BA;
-  --s-sidebar-muted: #6F7873;
-  --s-sidebar-icon: #7E8781;
-  --s-sidebar-active-bg: #1E2A1F;
-  --s-sidebar-active-text: #A8E63F;
-  --s-sidebar-hover-bg: #1A1E20;
-  --s-sidebar-hover-text: #ECEFEA;
-  --s-sidebar-border: #23282A;
-  --s-header-bg: #121517;
-  --s-header-text: #ECEFEA;
-  --s-header-border: #23282A;
-  --s-brand-bg: #A8E63F;
-  --s-brand-text: #0E1012;
-  --s-brand-radius: 8px;
-  --s-crumb-sep: #4A5250;
-  --s-radius-card: 14px;
-  --s-radius-control: 8px;
-  --s-radius-pill: 8px;
-  --s-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
-  --s-header-height: 60px;
-  --s-gutter: 32px;
-  --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px;
-  --s-content-width: 1120px;
-  --s-table-head-bg: #1B1F21;
-  --s-table-head-text: #8B948E;
-  --s-row-line: #23282A;
-  --s-row-hover: #1C2123;
-  --s-track-bg: #23282A;
-  --s-bar: #A8E63F;
-  --s-metric-size: clamp(26px, 2.6vw, 34px);
-  --s-metric-weight: 600;
-  --s-panel-title-size: 15px;
-  --s-panel-title-weight: 600;
-  --s-label-transform: none;
-  --s-label-tracking: 0;
-  --s-action-weight: 600;
-  --s-accent-shadow: 0 4px 16px rgba(168, 230, 63, .18);
-  --s-notice-bg: #A8E63F;
-  --s-notice-text: #0E1012;
-  --s-active-weight: 600;
-
-  --v-bg: #0E1012;
-  --v-surface: #171A1C;
-  --v-text: #ECEFEA;
-  --v-muted: #8B948E;
-  --v-line: #2A2F31;
-  --v-accent: #A8E63F;
-  --v-tint: #1E2A1F;
-  --v-radius: 14px;
-  --v-font: var(--s-font);
-  --v-title-weight: 600;
-  --v-title-size: 32px;
+  --s-canvas: #171A1B; --s-surface: #202526; --s-text: #F1F0E8; --s-muted: #A4A69B;
+  --s-border: #3A4140; --s-border-w: 1px; --s-accent: #F6C945; --s-accent-hover: #FFD95A; --s-accent-text: #F6C945; --s-accent-contrast: #151718;
+  --s-tint: #39331B; --s-field-bg: #191E1F; --s-focus: #F6C945;
+  --s-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
+  --s-sidebar-width: 224px; --s-sidebar-bg: #101313; --s-sidebar-text: #D8D9CE; --s-sidebar-muted: #777C76; --s-sidebar-icon: #9DA197; --s-sidebar-active-bg: #F6C945; --s-sidebar-active-text: #151718; --s-sidebar-hover-bg: #252A2A; --s-sidebar-hover-text: #F1F0E8; --s-sidebar-border: #303635;
+  --s-header-bg: #1D2223; --s-header-text: #F1F0E8; --s-header-border: #3A4140; --s-brand-bg: #F17A38; --s-brand-text: #151718; --s-brand-radius: 3px; --s-crumb-sep: #69706A;
+  --s-radius-card: 5px; --s-radius-control: 3px; --s-radius-pill: 3px; --s-shadow: inset 0 1px 0 rgba(255,255,255,.04); --s-table-head-bg: #292F2F; --s-table-head-text: #B9BCAF; --s-row-line: #343B3A; --s-row-hover: #2A2E23; --s-track-bg: #343B3A; --s-bar: #F17A38; --s-notice-bg: #F6C945; --s-notice-text: #151718;
+  --s-header-height: 58px; --s-gutter: 30px; --s-main-padding: 36px clamp(20px, 4vw, 54px) 70px; --s-content-width: 1140px; --s-metric-size: clamp(25px, 2.5vw, 32px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 700; --s-label-transform: uppercase; --s-label-tracking: .08em; --s-action-weight: 700; --s-active-weight: 700;
+  --v-bg: #171A1B; --v-surface: #202526; --v-text: #F1F0E8; --v-muted: #A4A69B; --v-line: #3A4140; --v-accent: #F6C945; --v-tint: #39331B; --v-radius: 5px; --v-font: var(--s-font); --v-title-weight: 700; --v-title-size: 31px;
 }
+[data-theme="industrial-safety"] .emission-value { color: #F17A38; }
+[data-theme="industrial-safety"] .recovery-line b { color: #A7DB55; }
 
 /* ============================================================
-   C. Architect Neutral — 建筑暖中性
+   D. Soft Utility — 柔和工具界面
+   Friendly product UI with lavender-grey surfaces and coral actions.
    ============================================================ */
-[data-theme="architect"] {
+[data-theme="soft-utility"] {
   color-scheme: light;
-  --s-canvas: #F4F1EA;
-  --s-surface: #FCFBF7;
-  --s-text: #24261F;
-  --s-muted: #77766F;
-  --s-border: #D9D4C7;
-  --s-border-w: 1px;
-  --s-accent: #3D5A45;
-  --s-accent-hover: #31493A;
-  --s-accent-text: #3D5A45;
-  --s-accent-contrast: #FFFFFF;
-  --s-tint: #E7EDE4;
-  --s-field-bg: #FCFBF7;
-  --s-focus: #3D5A45;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif;
-  --s-sidebar-width: 236px;
-  --s-sidebar-bg: #F0EDE4;
-  --s-sidebar-text: #4A4B42;
-  --s-sidebar-muted: #8C8B80;
-  --s-sidebar-icon: #7A796E;
-  --s-sidebar-active-bg: #E1E7DA;
-  --s-sidebar-active-text: #2F4737;
-  --s-sidebar-hover-bg: #E8E4D9;
-  --s-sidebar-hover-text: #24261F;
-  --s-sidebar-border: #DED9CC;
-  --s-header-bg: #F7F5EF;
-  --s-header-text: #24261F;
-  --s-header-border: #DED9CC;
-  --s-brand-bg: #3D5A45;
-  --s-brand-text: #FCFBF7;
-  --s-brand-radius: 6px;
-  --s-crumb-sep: #BDB9AC;
-  --s-radius-card: 10px;
-  --s-radius-control: 6px;
-  --s-radius-pill: 6px;
-  --s-shadow: 0 1px 2px rgba(60, 55, 40, .05);
-  --s-header-height: 62px;
-  --s-gutter: 34px;
-  --s-main-padding: 44px clamp(20px, 4vw, 60px) 76px;
-  --s-content-width: 1100px;
-  --s-table-head-bg: #EFEBE1;
-  --s-table-head-text: #77766F;
-  --s-row-line: #E6E1D5;
-  --s-row-hover: #F5F2EA;
-  --s-track-bg: #E6E1D5;
-  --s-bar: #3D5A45;
-  --s-metric-size: clamp(25px, 2.5vw, 32px);
-  --s-metric-weight: 600;
-  --s-panel-title-size: 16px;
-  --s-panel-title-weight: 600;
-  --s-label-transform: none;
-  --s-label-tracking: .01em;
-  --s-action-weight: 500;
-  --s-accent-shadow: none;
-  --s-notice-bg: #3D5A45;
-  --s-notice-text: #FCFBF7;
-  --s-active-weight: 600;
-
-  --v-bg: #F4F1EA;
-  --v-surface: #FCFBF7;
-  --v-text: #24261F;
-  --v-muted: #77766F;
-  --v-line: #D9D4C7;
-  --v-accent: #3D5A45;
-  --v-tint: #E7EDE4;
-  --v-radius: 10px;
-  --v-font: var(--s-font);
-  --v-title-weight: 600;
-  --v-title-size: 33px;
+  --s-canvas: #F1F0F7; --s-surface: #FFFFFF; --s-text: #29283A; --s-muted: #77758A;
+  --s-border: #E1DFEA; --s-border-w: 1px; --s-accent: #E86F61; --s-accent-hover: #D85D50; --s-accent-text: #D85D50; --s-accent-contrast: #FFFFFF;
+  --s-tint: #FCEAE7; --s-field-bg: #FAF9FD; --s-focus: #E86F61;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
+  --s-sidebar-width: 230px; --s-sidebar-bg: #FAF9FD; --s-sidebar-text: #4F4C63; --s-sidebar-muted: #9290A2; --s-sidebar-icon: #77738D; --s-sidebar-active-bg: #FCEAE7; --s-sidebar-active-text: #C65348; --s-sidebar-hover-bg: #F0EEF6; --s-sidebar-hover-text: #29283A; --s-sidebar-border: #E5E2ED;
+  --s-header-bg: rgba(255,255,255,.9); --s-header-text: #29283A; --s-header-border: #E5E2ED; --s-header-shadow: 0 2px 10px rgba(45, 40, 80, .04); --s-brand-bg: #6E64C5; --s-brand-text: #FFFFFF; --s-brand-radius: 10px; --s-crumb-sep: #C8C5D4;
+  --s-radius-card: 18px; --s-radius-control: 11px; --s-radius-pill: 999px; --s-shadow: 0 5px 20px rgba(51, 46, 86, .06); --s-table-head-bg: #F7F6FB; --s-table-head-text: #77758A; --s-row-line: #EEEAF3; --s-row-hover: #FCF3F1; --s-track-bg: #E8E5F0; --s-bar: #6E64C5; --s-notice-bg: #29283A; --s-notice-text: #FFFFFF;
+  --s-header-height: 64px; --s-gutter: 34px; --s-main-padding: 44px clamp(20px, 4vw, 60px) 78px; --s-content-width: 1120px; --s-metric-size: clamp(26px, 2.6vw, 34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F1F0F7; --v-surface: #FFFFFF; --v-text: #29283A; --v-muted: #77758A; --v-line: #E1DFEA; --v-accent: #E86F61; --v-tint: #FCEAE7; --v-radius: 18px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
 }
-[data-theme="architect"] .preview-content h1,
-[data-theme="architect"] .preview-content h2 { letter-spacing: -.01em; }
+[data-theme="soft-utility"] .metric-cell strong { color: #6E64C5; }
 
 /* ============================================================
-   D. Nordic Frost — 北欧冷调
+   E. Ink & Vermilion — 墨色朱砂编辑
+   Editorial hierarchy, warm paper and one decisive red signal.
    ============================================================ */
-[data-theme="nordic"] {
+[data-theme="ink-vermilion"] {
   color-scheme: light;
-  --s-canvas: #EDF0F4;
-  --s-surface: #FFFFFF;
-  --s-text: #17222C;
-  --s-muted: #66737F;
-  --s-border: #D5DDE5;
-  --s-border-w: 1px;
-  --s-accent: #0E7490;
-  --s-accent-hover: #0B5F76;
-  --s-accent-text: #0E7490;
-  --s-accent-contrast: #FFFFFF;
-  --s-tint: #E0F2F6;
-  --s-field-bg: #F7FAFC;
-  --s-focus: #0E7490;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --s-heading-font: var(--s-font);
-  --s-sidebar-width: 228px;
-  --s-sidebar-bg: #FFFFFF;
-  --s-sidebar-text: #3E4C58;
-  --s-sidebar-muted: #8494A2;
-  --s-sidebar-icon: #6B7C8A;
-  --s-sidebar-active-bg: #E0F2F6;
-  --s-sidebar-active-text: #0B5F76;
-  --s-sidebar-hover-bg: #F2F6F9;
-  --s-sidebar-hover-text: #17222C;
-  --s-sidebar-border: #E1E8EE;
-  --s-header-bg: rgba(255, 255, 255, .88);
-  --s-header-text: #17222C;
-  --s-header-border: #E1E8EE;
-  --s-header-shadow: 0 1px 0 rgba(23, 34, 44, .04);
-  --s-brand-bg: #0E7490;
-  --s-brand-text: #FFFFFF;
-  --s-brand-radius: 9px;
-  --s-crumb-sep: #C3CDD6;
-  --s-radius-card: 14px;
-  --s-radius-control: 9px;
-  --s-radius-pill: 999px;
-  --s-shadow: 0 2px 10px rgba(23, 34, 44, .05);
-  --s-header-height: 62px;
-  --s-gutter: 32px;
-  --s-main-padding: 42px clamp(20px, 4vw, 58px) 76px;
-  --s-content-width: 1120px;
-  --s-table-head-bg: #F3F7FA;
-  --s-table-head-text: #66737F;
-  --s-row-line: #E7EDF2;
-  --s-row-hover: #F4F9FB;
-  --s-track-bg: #E2EAF0;
-  --s-bar: #0E7490;
-  --s-metric-size: clamp(26px, 2.6vw, 33px);
-  --s-metric-weight: 600;
-  --s-panel-title-size: 15px;
-  --s-panel-title-weight: 600;
-  --s-label-transform: none;
-  --s-label-tracking: 0;
-  --s-action-weight: 500;
-  --s-accent-shadow: 0 2px 8px rgba(14, 116, 144, .18);
-  --s-notice-bg: #17222C;
-  --s-notice-text: #FFFFFF;
-  --s-active-weight: 600;
-
-  --v-bg: #EDF0F4;
-  --v-surface: #FFFFFF;
-  --v-text: #17222C;
-  --v-muted: #66737F;
-  --v-line: #D5DDE5;
-  --v-accent: #0E7490;
-  --v-tint: #E0F2F6;
-  --v-radius: 14px;
-  --v-font: var(--s-font);
-  --v-title-weight: 600;
-  --v-title-size: 32px;
+  --s-canvas: #F7F4EE; --s-surface: #FFFEFA; --s-text: #201E1B; --s-muted: #77726A;
+  --s-border: #D6D0C7; --s-border-w: 1px; --s-accent: #B7372B; --s-accent-hover: #922A22; --s-accent-text: #A22F26; --s-accent-contrast: #FFFEFA;
+  --s-tint: #F5E4DF; --s-field-bg: #FFFEFA; --s-focus: #B7372B;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif;
+  --s-sidebar-width: 218px; --s-sidebar-bg: #201E1B; --s-sidebar-text: #F4F0E8; --s-sidebar-muted: #ADA79D; --s-sidebar-icon: #C2BAB0; --s-sidebar-active-bg: #B7372B; --s-sidebar-active-text: #FFFEFA; --s-sidebar-hover-bg: #39332F; --s-sidebar-hover-text: #FFFEFA; --s-sidebar-border: #201E1B;
+  --s-header-bg: #FFFEFA; --s-header-text: #201E1B; --s-header-border: #D6D0C7; --s-brand-bg: #B7372B; --s-brand-text: #FFFEFA; --s-brand-radius: 2px; --s-crumb-sep: #B6AFA5;
+  --s-radius-card: 5px; --s-radius-control: 4px; --s-radius-pill: 4px; --s-shadow: 0 2px 8px rgba(61, 48, 37, .04); --s-table-head-bg: #F0EBE2; --s-table-head-text: #77726A; --s-row-line: #E7E0D6; --s-row-hover: #FCF0EC; --s-track-bg: #E3DCD1; --s-bar: #201E1B; --s-notice-bg: #201E1B; --s-notice-text: #FFFEFA;
+  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px, 4vw, 56px) 74px; --s-content-width: 1100px; --s-metric-size: clamp(28px, 2.7vw, 36px); --s-metric-weight: 600; --s-panel-title-size: 17px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F7F4EE; --v-surface: #FFFEFA; --v-text: #201E1B; --v-muted: #77726A; --v-line: #D6D0C7; --v-accent: #B7372B; --v-tint: #F5E4DF; --v-radius: 5px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 35px;
 }
+[data-theme="ink-vermilion"] .preview-content h1,
+[data-theme="ink-vermilion"] .preview-content h2 { letter-spacing: 0; }
+[data-theme="ink-vermilion"] .net-line strong { color: #B7372B; }
 
 /* ============================================================
-   E. Editorial Print — 印刷刊物
+   F. Blueprint Office — 蓝图事务所
+   Technical blue field, cyan controls and amber measurement accents.
    ============================================================ */
-[data-theme="print"] {
-  color-scheme: light;
-  --s-canvas: #FAF9F6;
-  --s-surface: #FFFFFF;
-  --s-text: #101010;
-  --s-muted: #5C5C5C;
-  --s-border: #101010;
-  --s-border-w: 1px;
-  --s-accent: #C8102E;
-  --s-accent-hover: #A50D26;
-  --s-accent-text: #C8102E;
-  --s-accent-contrast: #FFFFFF;
-  --s-tint: #FBEAEC;
-  --s-field-bg: #FFFFFF;
-  --s-focus: #C8102E;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif;
-  --s-sidebar-width: 216px;
-  --s-sidebar-bg: #FFFFFF;
-  --s-sidebar-text: #2A2A2A;
-  --s-sidebar-muted: #767676;
-  --s-sidebar-icon: #5C5C5C;
-  --s-sidebar-active-bg: #101010;
-  --s-sidebar-active-text: #FFFFFF;
-  --s-sidebar-hover-bg: #F1F0EC;
-  --s-sidebar-hover-text: #101010;
-  --s-sidebar-border: #101010;
-  --s-header-bg: #FFFFFF;
-  --s-header-text: #101010;
-  --s-header-border: #101010;
-  --s-brand-bg: #101010;
-  --s-brand-text: #FFFFFF;
-  --s-brand-radius: 0;
-  --s-crumb-sep: #9A9A9A;
-  --s-radius-card: 2px;
-  --s-radius-control: 2px;
-  --s-radius-pill: 2px;
-  --s-shadow: none;
-  --s-header-height: 58px;
-  --s-gutter: 30px;
-  --s-main-padding: 40px clamp(20px, 4vw, 54px) 72px;
-  --s-content-width: 1080px;
-  --s-table-head-bg: #FFFFFF;
-  --s-table-head-text: #101010;
-  --s-row-line: #DADADA;
-  --s-row-hover: #F6F5F1;
-  --s-track-bg: #E4E4E4;
-  --s-bar: #101010;
-  --s-emission-text: #101010;
-  --s-metric-size: clamp(27px, 2.8vw, 36px);
-  --s-metric-weight: 700;
-  --s-panel-title-size: 17px;
-  --s-panel-title-weight: 700;
-  --s-label-transform: uppercase;
-  --s-label-tracking: .12em;
-  --s-action-weight: 600;
-  --s-accent-shadow: none;
-  --s-notice-bg: #101010;
-  --s-notice-text: #FFFFFF;
-  --s-active-weight: 600;
-
-  --v-bg: #FAF9F6;
-  --v-surface: #FFFFFF;
-  --v-text: #101010;
-  --v-muted: #5C5C5C;
-  --v-line: #DADADA;
-  --v-accent: #C8102E;
-  --v-tint: #FBEAEC;
-  --v-radius: 2px;
-  --v-font: var(--s-font);
-  --v-title-weight: 700;
-  --v-title-size: 36px;
-}
-[data-theme="print"] .preview-content h1,
-[data-theme="print"] .preview-content h2 { letter-spacing: -.005em; }
-[data-theme="print"] .preview-table th { border-bottom-width: 2px; border-bottom-color: #101010; }
-[data-theme="print"] .metrics-strip .metric-cell + .metric-cell { border-left: 1px solid #DADADA; }
-[data-theme="print"] .panel-heading { border-bottom: 1px solid #E4E4E4; }
-[data-theme="print"] .emission-value { font-weight: 700; }
-
-/* ============================================================
-   F. Data Terminal — 数据终端
-   ============================================================ */
-[data-theme="terminal"] {
+[data-theme="blueprint-office"] {
   color-scheme: dark;
-  --s-canvas: #0B1016;
-  --s-surface: #121A22;
-  --s-text: #CFDCE8;
-  --s-muted: #7C8B9A;
-  --s-border: #24303C;
-  --s-border-w: 1px;
-  --s-accent: #38BDF8;
-  --s-accent-hover: #5CCBF9;
-  --s-accent-text: #38BDF8;
-  --s-accent-contrast: #05131C;
-  --s-tint: #10222E;
-  --s-field-bg: #0E161D;
-  --s-focus: #38BDF8;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --s-heading-font: var(--s-font);
-  --s-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --s-sidebar-width: 220px;
-  --s-sidebar-bg: #0E151C;
-  --s-sidebar-text: #A7B6C4;
-  --s-sidebar-muted: #66757F;
-  --s-sidebar-icon: #6E7E8B;
-  --s-sidebar-active-bg: #10222E;
-  --s-sidebar-active-text: #38BDF8;
-  --s-sidebar-hover-bg: #131C24;
-  --s-sidebar-hover-text: #CFDCE8;
-  --s-sidebar-border: #1B242D;
-  --s-header-bg: #0E151C;
-  --s-header-text: #CFDCE8;
-  --s-header-border: #1B242D;
-  --s-brand-bg: #38BDF8;
-  --s-brand-text: #05131C;
-  --s-brand-radius: 4px;
-  --s-crumb-sep: #3A4753;
-  --s-radius-card: 4px;
-  --s-radius-control: 4px;
-  --s-radius-pill: 4px;
-  --s-shadow: none;
-  --s-header-height: 56px;
-  --s-gutter: 28px;
-  --s-main-padding: 34px clamp(18px, 3.4vw, 48px) 64px;
-  --s-content-width: 1180px;
-  --s-table-head-bg: #16202A;
-  --s-table-head-text: #7C8B9A;
-  --s-row-line: #1F2A34;
-  --s-row-hover: #15202A;
-  --s-track-bg: #1F2A34;
-  --s-bar: #38BDF8;
-  --s-emission-text: #CFDCE8;
-  --s-metric-size: clamp(24px, 2.4vw, 31px);
-  --s-metric-weight: 600;
-  --s-panel-title-size: 14px;
-  --s-panel-title-weight: 600;
-  --s-label-transform: uppercase;
-  --s-label-tracking: .1em;
-  --s-action-weight: 600;
-  --s-accent-shadow: none;
-  --s-notice-bg: #38BDF8;
-  --s-notice-text: #05131C;
-  --s-active-weight: 600;
-
-  --v-bg: #0B1016;
-  --v-surface: #121A22;
-  --v-text: #CFDCE8;
-  --v-muted: #7C8B9A;
-  --v-line: #24303C;
-  --v-accent: #38BDF8;
-  --v-tint: #10222E;
-  --v-radius: 4px;
-  --v-font: var(--s-font);
-  --v-title-weight: 600;
-  --v-title-size: 28px;
+  --s-canvas: #123B59; --s-surface: #174A6C; --s-text: #F0F7FA; --s-muted: #B4CFDB;
+  --s-border: rgba(185, 225, 236, .42); --s-border-w: 1px; --s-accent: #55D6E8; --s-accent-hover: #7CE4F0; --s-accent-text: #55D6E8; --s-accent-contrast: #073249;
+  --s-tint: rgba(85, 214, 232, .14); --s-field-bg: #123B59; --s-focus: #55D6E8;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
+  --s-sidebar-width: 224px; --s-sidebar-bg: #0B2D47; --s-sidebar-text: #E4F3F7; --s-sidebar-muted: #8FB4C3; --s-sidebar-icon: #A9CFD9; --s-sidebar-active-bg: #1B6686; --s-sidebar-active-text: #FFFFFF; --s-sidebar-hover-bg: #12425F; --s-sidebar-hover-text: #FFFFFF; --s-sidebar-border: rgba(185,225,236,.25);
+  --s-header-bg: #174A6C; --s-header-text: #F0F7FA; --s-header-border: rgba(185,225,236,.34); --s-brand-bg: #55D6E8; --s-brand-text: #073249; --s-brand-radius: 3px; --s-crumb-sep: #76A7B8;
+  --s-radius-card: 6px; --s-radius-control: 4px; --s-radius-pill: 4px; --s-shadow: inset 0 1px 0 rgba(255,255,255,.06); --s-table-head-bg: #0F354F; --s-table-head-text: #B4CFDB; --s-row-line: rgba(185,225,236,.24); --s-row-hover: #1B5678; --s-track-bg: #28617D; --s-bar: #E9B94E; --s-notice-bg: #E9B94E; --s-notice-text: #17374B;
+  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px; --s-content-width: 1140px; --s-metric-size: clamp(26px, 2.6vw, 34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: .04em; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #123B59; --v-surface: #174A6C; --v-text: #F0F7FA; --v-muted: #B4CFDB; --v-line: rgba(185,225,236,.42); --v-accent: #55D6E8; --v-tint: rgba(85,214,232,.14); --v-radius: 6px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
 }
-[data-theme="terminal"] .preview-content .numeric,
-[data-theme="terminal"] .metric-cell strong,
-[data-theme="terminal"] .net-line strong { font-family: var(--s-mono); letter-spacing: -.02em; }
-[data-theme="terminal"] .shell-nav button,
-[data-theme="terminal"] .shell-project span { font-family: var(--s-mono); }
-
-/* ============================================================
-   G. Bauhaus Signal — 包豪斯信号
-   Geometry-first, warm paper, black structure and one red action colour.
-   ============================================================ */
-[data-theme="bauhaus"],
-[data-theme="biophilic"],
-[data-theme="cobalt"],
-[data-theme="museum"],
-[data-theme="brutalist"] {
-  --s-border-w: 1px;
-  --s-font: "Helvetica Neue", Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --s-heading-font: var(--s-font);
-  --s-sidebar-width: 224px;
-  --s-brand-radius: 0;
-  --s-header-height: 60px;
-  --s-gutter: 32px;
-  --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px;
-  --s-content-width: 1120px;
-  --s-metric-size: clamp(26px, 2.6vw, 34px);
-  --s-metric-weight: 600;
-  --s-panel-title-size: 15px;
-  --s-panel-title-weight: 600;
-  --s-label-transform: none;
-  --s-label-tracking: 0;
-  --s-action-weight: 600;
-  --s-active-weight: 600;
-  --v-font: var(--s-font);
-  --v-title-weight: 600;
-  --v-title-size: 32px;
-}
-
-[data-theme="bauhaus"] {
-  color-scheme: light;
-  --s-canvas: #F2EFE8; --s-surface: #FFFDF7; --s-text: #191919; --s-muted: #696862;
-  --s-border: #191919; --s-accent: #D83A2E; --s-accent-hover: #B92E25; --s-accent-text: #C53228; --s-accent-contrast: #FFFDF7;
-  --s-tint: #F9E3DE; --s-field-bg: #FFFDF7; --s-focus: #D83A2E;
-  --s-heading-font: var(--s-font); --s-sidebar-bg: #F7F3EA; --s-sidebar-text: #272727; --s-sidebar-muted: #77746B;
-  --s-sidebar-icon: #55534E; --s-sidebar-active-bg: #191919; --s-sidebar-active-text: #FFFDF7; --s-sidebar-hover-bg: #EDE7DA; --s-sidebar-hover-text: #191919; --s-sidebar-border: #191919;
-  --s-header-bg: #FFFDF7; --s-header-text: #191919; --s-header-border: #191919; --s-brand-bg: #D83A2E; --s-brand-text: #FFFDF7; --s-crumb-sep: #9C9990;
-  --s-radius-card: 0; --s-radius-control: 0; --s-radius-pill: 0; --s-shadow: none; --s-table-head-bg: #191919; --s-table-head-text: #FFFDF7; --s-row-line: #D8D3C8; --s-row-hover: #F7EDE7; --s-track-bg: #D8D3C8; --s-bar: #D83A2E; --s-notice-bg: #191919; --s-notice-text: #FFFDF7;
-  --v-bg: #F2EFE8; --v-surface: #FFFDF7; --v-text: #191919; --v-muted: #696862; --v-line: #D8D3C8; --v-accent: #D83A2E; --v-tint: #F9E3DE; --v-radius: 0;
-}
-[data-theme="bauhaus"] .metrics-strip { border-top: 6px solid #191919; }
-[data-theme="bauhaus"] .shell-nav button.active { box-shadow: 5px 5px 0 #D83A2E; }
-
-/* ============================================================
-   H. Biophilic Ledger — 生态账本
-   Quiet mineral greens, soft surfaces and a calm environmental tone.
-   ============================================================ */
-[data-theme="biophilic"] {
-  color-scheme: light;
-  --s-canvas: #EEF2EA; --s-surface: #FAFCF7; --s-text: #203128; --s-muted: #6B7D70;
-  --s-border: #D5E0D4; --s-accent: #28724C; --s-accent-hover: #1D5C3B; --s-accent-text: #28724C; --s-accent-contrast: #FFFFFF;
-  --s-tint: #E0EEE2; --s-field-bg: #F8FBF6; --s-focus: #28724C;
-  --s-sidebar-bg: #E5EDE3; --s-sidebar-text: #345441; --s-sidebar-muted: #78917E; --s-sidebar-icon: #5D7C67; --s-sidebar-active-bg: #D0E5D4; --s-sidebar-active-text: #205A39; --s-sidebar-hover-bg: #DCE8DA; --s-sidebar-hover-text: #203128; --s-sidebar-border: #D0DDD0;
-  --s-header-bg: #F8FBF6; --s-header-text: #203128; --s-header-border: #D5E0D4; --s-brand-bg: #28724C; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #A8B9A9;
-  --s-radius-card: 18px; --s-radius-control: 11px; --s-radius-pill: 999px; --s-shadow: 0 3px 14px rgba(32, 49, 40, .06); --s-table-head-bg: #EAF2E9; --s-table-head-text: #58715F; --s-row-line: #E3ECE1; --s-row-hover: #F1F7F0; --s-track-bg: #DCE9DC; --s-bar: #28724C; --s-notice-bg: #28724C; --s-notice-text: #FFFFFF;
-  --v-bg: #EEF2EA; --v-surface: #FAFCF7; --v-text: #203128; --v-muted: #6B7D70; --v-line: #D5E0D4; --v-accent: #28724C; --v-tint: #E0EEE2; --v-radius: 18px;
-}
-[data-theme="biophilic"] .shell-brand-name { letter-spacing: .015em; }
-[data-theme="biophilic"] .recovery-line b { color: #28724C; }
-
-/* ============================================================
-   I. Cobalt Editorial — 钴蓝编辑部
-   Crisp white pages, cobalt action colour and restrained blue hierarchy.
-   ============================================================ */
-[data-theme="cobalt"] {
-  color-scheme: light;
-  --s-canvas: #F5F7FB; --s-surface: #FFFFFF; --s-text: #172033; --s-muted: #68748A;
-  --s-border: #DCE3F0; --s-accent: #3457E8; --s-accent-hover: #2946C8; --s-accent-text: #3457E8; --s-accent-contrast: #FFFFFF;
-  --s-tint: #EAF0FF; --s-field-bg: #F8FAFE; --s-focus: #3457E8;
-  --s-sidebar-bg: #FFFFFF; --s-sidebar-text: #45536A; --s-sidebar-muted: #8692A6; --s-sidebar-icon: #68758A; --s-sidebar-active-bg: #EAF0FF; --s-sidebar-active-text: #2946C8; --s-sidebar-hover-bg: #F2F5FA; --s-sidebar-hover-text: #172033; --s-sidebar-border: #E0E6F0;
-  --s-header-bg: #FFFFFF; --s-header-text: #172033; --s-header-border: #E0E6F0; --s-brand-bg: #3457E8; --s-brand-text: #FFFFFF; --s-brand-radius: 8px; --s-crumb-sep: #BCC6D6;
-  --s-radius-card: 12px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 4px 18px rgba(35, 58, 110, .06); --s-table-head-bg: #F2F5FA; --s-table-head-text: #68748A; --s-row-line: #E7ECF4; --s-row-hover: #F4F7FF; --s-track-bg: #DDE5F3; --s-bar: #3457E8; --s-notice-bg: #172033; --s-notice-text: #FFFFFF;
-  --v-bg: #F5F7FB; --v-surface: #FFFFFF; --v-text: #172033; --v-muted: #68748A; --v-line: #DCE3F0; --v-accent: #3457E8; --v-tint: #EAF0FF; --v-radius: 12px;
-}
-[data-theme="cobalt"] .metric-cell strong { color: #2946C8; }
-[data-theme="cobalt"] .shell-crumb strong { color: #3457E8; }
-
-/* ============================================================
-   J. Museum Paper — 博物馆纸张
-   Quiet ivory paper, serif titles and a restrained ochre accent.
-   ============================================================ */
-[data-theme="museum"] {
-  color-scheme: light;
-  --s-canvas: #F3F0E8; --s-surface: #FBFAF5; --s-text: #29261F; --s-muted: #797266;
-  --s-border: #D8D1C1; --s-accent: #A06A2C; --s-accent-hover: #835522; --s-accent-text: #925D25; --s-accent-contrast: #FBFAF5;
-  --s-tint: #EFE6D6; --s-field-bg: #FBFAF5; --s-focus: #A06A2C;
-  --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif; --s-sidebar-bg: #EBE5D8; --s-sidebar-text: #4C473C; --s-sidebar-muted: #8B8374; --s-sidebar-icon: #756C5E; --s-sidebar-active-bg: #D9CDB9; --s-sidebar-active-text: #6C431D; --s-sidebar-hover-bg: #E3DCCD; --s-sidebar-hover-text: #29261F; --s-sidebar-border: #D2C9B7;
-  --s-header-bg: #FBFAF5; --s-header-text: #29261F; --s-header-border: #D8D1C1; --s-brand-bg: #29261F; --s-brand-text: #FBFAF5; --s-brand-radius: 50%; --s-crumb-sep: #B9AF9D;
-  --s-radius-card: 6px; --s-radius-control: 5px; --s-radius-pill: 5px; --s-shadow: 0 2px 10px rgba(62, 51, 34, .05); --s-table-head-bg: #F1EDE3; --s-table-head-text: #797266; --s-row-line: #E5DED0; --s-row-hover: #F6F1E8; --s-track-bg: #E2D9C9; --s-bar: #A06A2C; --s-notice-bg: #29261F; --s-notice-text: #FBFAF5;
-  --v-bg: #F3F0E8; --v-surface: #FBFAF5; --v-text: #29261F; --v-muted: #797266; --v-line: #D8D1C1; --v-accent: #A06A2C; --v-tint: #EFE6D6; --v-radius: 6px;
-  --v-title-weight: 600; --v-title-size: 34px;
-}
-[data-theme="museum"] .preview-content h1,
-[data-theme="museum"] .preview-content h2 { letter-spacing: 0; }
-[data-theme="museum"] .preview-table th { font-family: var(--s-heading-font); }
-
-/* ============================================================
-   K. Grid Brutalist — 网格粗野主义
-   Strong black rules, yellow signal colour and unapologetic structure.
-   ============================================================ */
-[data-theme="brutalist"] {
-  color-scheme: light;
-  --s-canvas: #F5F4ED; --s-surface: #FFFFFF; --s-text: #101010; --s-muted: #555555;
-  --s-border: #101010; --s-border-w: 2px; --s-accent: #F2C600; --s-accent-hover: #DDB500; --s-accent-text: #8A6900; --s-accent-contrast: #101010;
-  --s-tint: #FFF5BF; --s-field-bg: #FFFFFF; --s-focus: #101010;
-  --s-sidebar-bg: #101010; --s-sidebar-text: #FFFFFF; --s-sidebar-muted: #BDBDBD; --s-sidebar-icon: #D0D0D0; --s-sidebar-active-bg: #F2C600; --s-sidebar-active-text: #101010; --s-sidebar-hover-bg: #292929; --s-sidebar-hover-text: #FFFFFF; --s-sidebar-border: #101010;
-  --s-header-bg: #FFFFFF; --s-header-text: #101010; --s-header-border: #101010; --s-brand-bg: #F2C600; --s-brand-text: #101010; --s-brand-radius: 0; --s-crumb-sep: #7A7A7A;
-  --s-radius-card: 0; --s-radius-control: 0; --s-radius-pill: 0; --s-shadow: 6px 6px 0 #101010; --s-table-head-bg: #101010; --s-table-head-text: #FFFFFF; --s-row-line: #101010; --s-row-hover: #FFF5BF; --s-track-bg: #D8D5C6; --s-bar: #101010; --s-notice-bg: #101010; --s-notice-text: #F2C600;
-  --v-bg: #F5F4ED; --v-surface: #FFFFFF; --v-text: #101010; --v-muted: #555555; --v-line: #101010; --v-accent: #F2C600; --v-tint: #FFF5BF; --v-radius: 0;
-  --v-title-weight: 800; --v-title-size: 34px;
-}
-[data-theme="brutalist"] .shell-nav button.active { box-shadow: 4px 4px 0 #F2C600; }
-[data-theme="brutalist"] .primary-action { border: 2px solid #101010; }
-[data-theme="brutalist"] .preview-table th { font-weight: 700; }
-
+[data-theme="blueprint-office"] .metric-cell strong { color: #E9B94E; }
+[data-theme="blueprint-office"] .stage-fill { background: #E9B94E; }
 /* ---------- Responsive: layout rules stay shared ---------- */
 @media (max-width: 1080px) {
   .lab-bar { gap: 14px; padding: 10px 16px; }
