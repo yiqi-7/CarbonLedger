@@ -11,6 +11,7 @@ export default defineConfig({
         platform: fileURLToPath(new URL('./index.html', import.meta.url)),
         customer: fileURLToPath(new URL('./customer.html', import.meta.url)),
         designPreview: fileURLToPath(new URL('./design-preview.html', import.meta.url)),
+        styleLab: fileURLToPath(new URL('./style-lab.html', import.meta.url)),
       },
     },
   },

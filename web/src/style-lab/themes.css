@@ -1,0 +1,695 @@
+/* ============================================================
+   Style lab — one fixed layout, six interchangeable skins.
+   Only colour, type, radius, border and elevation tokens change.
+   ============================================================ */
+
+/* ---------- Lab chrome ---------- */
+.style-lab { min-height: 100vh; background: #E9E9EC; }
+.lab-bar {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  padding: 12px 24px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #D9D9DE;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+.lab-bar-title { display: grid; gap: 3px; white-space: nowrap; }
+.lab-bar-title strong { font-size: 14px; font-weight: 600; color: #17171A; }
+.lab-bar-title span { font-size: 11px; color: #71717A; }
+.lab-bar-themes { display: flex; gap: 6px; flex-wrap: wrap; }
+.lab-bar-themes button {
+  display: flex; align-items: center; gap: 9px;
+  min-height: 46px; padding: 7px 13px;
+  border: 1px solid #DCDCE1; border-radius: 8px;
+  background: #FFFFFF; color: #4A4A52; text-align: left;
+  transition: border-color 140ms, background-color 140ms;
+}
+.lab-bar-themes button:hover { background: #F5F5F7; }
+.lab-bar-themes button.selected { border-color: #17171A; background: #F0F0F3; color: #17171A; }
+.lab-bar-letter { font-size: 12px; font-weight: 700; color: #8A8A94; }
+.lab-bar-themes button.selected .lab-bar-letter { color: #17171A; }
+.lab-bar-copy b { display: block; font-size: 12px; font-weight: 600; }
+.lab-bar-copy small { display: block; margin-top: 2px; font-size: 10px; color: #71717A; }
+.lab-bar-pages { margin-left: auto; }
+.lab-bar-pages select {
+  min-height: 38px; padding: 0 28px 0 12px;
+  border: 1px solid #DCDCE1; border-radius: 8px;
+  background: #FFFFFF; color: #17171A; font-size: 12px;
+}
+
+/* ---------- Shell layout (identical in every skin) ---------- */
+.lab-stage { min-height: calc(100vh - 72px); }
+.style-shell {
+  min-height: calc(100vh - 72px);
+  display: flex; flex-direction: column;
+  background: var(--s-canvas);
+  color: var(--s-text);
+  font-family: var(--s-font);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.shell-topbar {
+  display: flex; align-items: center; gap: 26px;
+  height: var(--s-header-height);
+  padding: 0 var(--s-gutter);
+  background: var(--s-header-bg);
+  color: var(--s-header-text);
+  border-bottom: var(--s-border-w) solid var(--s-header-border);
+  box-shadow: var(--s-header-shadow, none);
+}
+.shell-brand { display: flex; align-items: center; gap: 10px; }
+.shell-brand-mark {
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  border-radius: var(--s-brand-radius);
+  background: var(--s-brand-bg); color: var(--s-brand-text);
+  font-size: 12px; font-weight: 700; letter-spacing: 0;
+}
+.shell-brand-name { font-size: 13px; font-weight: 600; letter-spacing: var(--s-brand-tracking, 0); white-space: nowrap; }
+.shell-crumb { display: flex; align-items: center; gap: 9px; font-size: 12px; color: var(--s-muted); }
+.shell-crumb b { color: var(--s-crumb-sep); font-weight: 400; }
+.shell-crumb strong { color: var(--s-text); font-weight: 500; }
+.shell-account { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.shell-user { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--s-muted); white-space: nowrap; }
+.shell-user svg { width: 15px; height: 15px; }
+.shell-logout {
+  min-height: 30px; padding: 0 10px;
+  border: 0; border-radius: var(--s-radius-control);
+  background: transparent; color: var(--s-muted); font-size: 12px;
+}
+.shell-logout:hover { background: var(--s-tint); color: var(--s-accent); }
+
+.shell-body { flex: 1; display: grid; grid-template-columns: var(--s-sidebar-width) minmax(0, 1fr); }
+.shell-sidebar {
+  display: flex; flex-direction: column; gap: 22px;
+  padding: 22px 12px 16px;
+  background: var(--s-sidebar-bg);
+  border-right: var(--s-border-w) solid var(--s-sidebar-border);
+}
+.shell-project { display: grid; gap: 4px; padding: 0 8px; }
+.shell-project span { font-size: 10px; letter-spacing: .04em; color: var(--s-sidebar-muted); text-transform: uppercase; }
+.shell-project strong { font-size: 13px; font-weight: 600; color: var(--s-sidebar-text); line-height: 1.4; }
+.shell-project small { font-size: 11px; color: var(--s-sidebar-muted); }
+.shell-nav { display: grid; gap: 2px; }
+.shell-nav button {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; min-height: 34px; padding: 0 9px;
+  border: 0; border-radius: var(--s-radius-control);
+  background: transparent; color: var(--s-sidebar-text);
+  font-size: 12px; text-align: left;
+  transition: background-color 140ms, color 140ms;
+}
+.shell-nav button svg { width: 15px; height: 15px; color: var(--s-sidebar-icon); }
+.shell-nav button:hover:not(:disabled) { background: var(--s-sidebar-hover-bg); color: var(--s-sidebar-hover-text); }
+.shell-nav button.active {
+  background: var(--s-sidebar-active-bg);
+  color: var(--s-sidebar-active-text);
+  font-weight: var(--s-active-weight, 600);
+}
+.shell-nav button.active svg { color: var(--s-sidebar-active-text); }
+.shell-nav button:disabled { color: var(--s-sidebar-muted); opacity: .55; cursor: not-allowed; }
+.shell-nav button:disabled svg { color: var(--s-sidebar-muted); }
+.shell-scope { margin-top: auto; padding: 12px 9px 0; border-top: 1px solid var(--s-sidebar-border); }
+.shell-scope span { display: block; font-size: 10px; letter-spacing: .04em; color: var(--s-sidebar-muted); text-transform: uppercase; }
+.shell-scope p { margin: 5px 0 2px; font-size: 12px; color: var(--s-sidebar-text); }
+.shell-scope small { font-size: 11px; color: var(--s-sidebar-muted); }
+
+.shell-main { min-width: 0; padding: var(--s-main-padding); }
+.shell-main .preview-content { max-width: var(--s-content-width); margin: 0 auto; }
+
+/* ---------- Content surfaces (token-driven, layout untouched) ---------- */
+.style-shell .preview-content { font-family: var(--s-font); }
+.style-shell .preview-content h1,
+.style-shell .preview-content h2 { font-family: var(--s-heading-font, var(--s-font)); }
+.style-shell .preview-content h1 { font-size: var(--v-title-size); font-weight: var(--v-title-weight); letter-spacing: var(--s-title-tracking, -.025em); }
+
+.style-shell .metrics-strip,
+.style-shell .stage-panel,
+.style-shell .ledger-panel,
+.style-shell .project-summary,
+.style-shell .material-ledger,
+.style-shell .project-form,
+.style-shell .login-form,
+.style-shell .material-editor {
+  background: var(--s-surface);
+  border: var(--s-border-w) solid var(--s-border);
+  border-radius: var(--s-radius-card);
+  box-shadow: var(--s-shadow);
+}
+.style-shell .metric-cell strong { font-size: var(--s-metric-size); font-weight: var(--s-metric-weight); letter-spacing: var(--s-metric-tracking, -.02em); }
+.style-shell .metric-cell > span { font-size: 11px; letter-spacing: var(--s-label-tracking, 0); text-transform: var(--s-label-transform, none); }
+.style-shell .panel-heading h2 { font-size: var(--s-panel-title-size); font-weight: var(--s-panel-title-weight); }
+
+.style-shell .primary-action {
+  border-radius: var(--s-radius-pill);
+  background: var(--s-accent);
+  color: var(--s-accent-contrast);
+  font-weight: var(--s-action-weight, 500);
+  box-shadow: var(--s-accent-shadow, none);
+}
+.style-shell .primary-action:hover { background: var(--s-accent-hover); }
+.style-shell .secondary-action {
+  border-radius: var(--s-radius-pill);
+  background: var(--s-surface);
+  border: var(--s-border-w) solid var(--s-border);
+  color: var(--s-text);
+}
+.style-shell .secondary-action:hover { background: var(--s-tint); border-color: var(--s-accent); color: var(--s-accent-text, var(--s-accent)); }
+.style-shell .text-action { border-radius: var(--s-radius-control); color: var(--s-accent-text, var(--s-accent)); }
+.style-shell .text-action:hover { background: var(--s-tint); }
+
+.style-shell .preview-content input,
+.style-shell .preview-content select {
+  border: var(--s-border-w) solid var(--s-border);
+  border-radius: var(--s-radius-control);
+  background: var(--s-field-bg);
+  color: var(--s-text);
+}
+.style-shell .preview-content input:focus,
+.style-shell .preview-content select:focus { outline: 2px solid var(--s-focus); outline-offset: 1px; }
+
+.style-shell .preview-table th {
+  background: var(--s-table-head-bg);
+  color: var(--s-table-head-text);
+  font-size: 10px;
+  letter-spacing: var(--s-label-tracking, 0);
+  text-transform: var(--s-label-transform, none);
+  border-bottom: var(--s-border-w) solid var(--s-border);
+}
+.style-shell .preview-table td { border-bottom: var(--s-border-w) solid var(--s-row-line); }
+.style-shell .preview-table tbody tr:hover { background: var(--s-row-hover); }
+.style-shell .preview-table .numeric { font-variant-numeric: tabular-nums; }
+.style-shell .stage-track { background: var(--s-track-bg); border-radius: var(--s-track-radius); }
+.style-shell .stage-fill { background: var(--s-bar); border-radius: var(--s-track-radius); }
+.style-shell .emission-value { color: var(--s-emission-text, inherit); }
+
+.style-shell .directory-project {
+  border: var(--s-border-w) solid var(--s-border);
+  border-radius: var(--s-radius-card);
+  background: var(--s-surface);
+  box-shadow: var(--s-shadow);
+}
+.style-shell .directory-project:hover { background: var(--s-tint); border-color: var(--s-accent); }
+.style-shell .directory-icon { color: var(--s-accent-text, var(--s-accent)); }
+
+.style-shell .preview-notice:not(:empty) {
+  background: var(--s-notice-bg);
+  color: var(--s-notice-text);
+  border-radius: var(--s-radius-control);
+}
+
+/* ============================================================
+   A. Swiss Data — 瑞士数据排版
+   ============================================================ */
+[data-theme="swiss"] {
+  color-scheme: light;
+  --s-canvas: #F1F1EE;
+  --s-surface: #FFFFFF;
+  --s-text: #16181A;
+  --s-muted: #6B7075;
+  --s-border: #DCDCD6;
+  --s-border-w: 1px;
+  --s-accent: #1B4DFF;
+  --s-accent-hover: #0F3FE0;
+  --s-accent-text: #1B4DFF;
+  --s-accent-contrast: #FFFFFF;
+  --s-tint: #EAEDFF;
+  --s-field-bg: #FFFFFF;
+  --s-focus: #1B4DFF;
+  --s-font: "Helvetica Neue", Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --s-heading-font: var(--s-font);
+  --s-sidebar-width: 224px;
+  --s-sidebar-bg: #FFFFFF;
+  --s-sidebar-text: #3F4448;
+  --s-sidebar-muted: #8A9095;
+  --s-sidebar-icon: #6B7075;
+  --s-sidebar-active-bg: #EAEDFF;
+  --s-sidebar-active-text: #1B4DFF;
+  --s-sidebar-hover-bg: #F4F4F1;
+  --s-sidebar-hover-text: #16181A;
+  --s-sidebar-border: #DCDCD6;
+  --s-header-bg: #FFFFFF;
+  --s-header-text: #16181A;
+  --s-header-border: #DCDCD6;
+  --s-brand-bg: #16181A;
+  --s-brand-text: #FFFFFF;
+  --s-brand-radius: 3px;
+  --s-crumb-sep: #C4C4BC;
+  --s-radius-card: 4px;
+  --s-radius-control: 3px;
+  --s-radius-pill: 3px;
+  --s-shadow: none;
+  --s-header-height: 60px;
+  --s-gutter: 32px;
+  --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px;
+  --s-content-width: 1120px;
+  --s-table-head-bg: #F6F6F3;
+  --s-table-head-text: #6B7075;
+  --s-row-line: #E8E8E2;
+  --s-row-hover: #F7F7F4;
+  --s-track-bg: #E8E8E2;
+  --s-bar: #1B4DFF;
+  --s-metric-size: clamp(26px, 2.6vw, 34px);
+  --s-metric-weight: 600;
+  --s-panel-title-size: 15px;
+  --s-panel-title-weight: 600;
+  --s-label-transform: uppercase;
+  --s-label-tracking: .08em;
+  --s-action-weight: 600;
+  --s-accent-shadow: none;
+  --s-notice-bg: #16181A;
+  --s-notice-text: #FFFFFF;
+  --s-active-weight: 600;
+
+  /* bridge to shared preview content */
+  --v-bg: #F1F1EE;
+  --v-surface: #FFFFFF;
+  --v-text: #16181A;
+  --v-muted: #6B7075;
+  --v-line: #DCDCD6;
+  --v-accent: #1B4DFF;
+  --v-tint: #EAEDFF;
+  --v-radius: 4px;
+  --v-font: var(--s-font);
+  --v-title-weight: 600;
+  --v-title-size: 32px;
+}
+
+/* ============================================================
+   B. Carbon Instrument — 深色仪表
+   ============================================================ */
+[data-theme="carbon-dark"] {
+  color-scheme: dark;
+  --s-canvas: #0E1012;
+  --s-surface: #171A1C;
+  --s-text: #ECEFEA;
+  --s-muted: #8B948E;
+  --s-border: #2A2F31;
+  --s-border-w: 1px;
+  --s-accent: #A8E63F;
+  --s-accent-hover: #B9F257;
+  --s-accent-text: #A8E63F;
+  --s-accent-contrast: #0E1012;
+  --s-tint: #1E2A1F;
+  --s-field-bg: #121517;
+  --s-focus: #A8E63F;
+  --s-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --s-heading-font: var(--s-font);
+  --s-sidebar-width: 224px;
+  --s-sidebar-bg: #121517;
+  --s-sidebar-text: #B9C0BA;
+  --s-sidebar-muted: #6F7873;
+  --s-sidebar-icon: #7E8781;
+  --s-sidebar-active-bg: #1E2A1F;
+  --s-sidebar-active-text: #A8E63F;
+  --s-sidebar-hover-bg: #1A1E20;
+  --s-sidebar-hover-text: #ECEFEA;
+  --s-sidebar-border: #23282A;
+  --s-header-bg: #121517;
+  --s-header-text: #ECEFEA;
+  --s-header-border: #23282A;
+  --s-brand-bg: #A8E63F;
+  --s-brand-text: #0E1012;
+  --s-brand-radius: 8px;
+  --s-crumb-sep: #4A5250;
+  --s-radius-card: 14px;
+  --s-radius-control: 8px;
+  --s-radius-pill: 8px;
+  --s-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+  --s-header-height: 60px;
+  --s-gutter: 32px;
+  --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px;
+  --s-content-width: 1120px;
+  --s-table-head-bg: #1B1F21;
+  --s-table-head-text: #8B948E;
+  --s-row-line: #23282A;
+  --s-row-hover: #1C2123;
+  --s-track-bg: #23282A;
+  --s-bar: #A8E63F;
+  --s-metric-size: clamp(26px, 2.6vw, 34px);
+  --s-metric-weight: 600;
+  --s-panel-title-size: 15px;
+  --s-panel-title-weight: 600;
+  --s-label-transform: none;
+  --s-label-tracking: 0;
+  --s-action-weight: 600;
+  --s-accent-shadow: 0 4px 16px rgba(168, 230, 63, .18);
+  --s-notice-bg: #A8E63F;
+  --s-notice-text: #0E1012;
+  --s-active-weight: 600;
+
+  --v-bg: #0E1012;
+  --v-surface: #171A1C;
+  --v-text: #ECEFEA;
+  --v-muted: #8B948E;
+  --v-line: #2A2F31;
+  --v-accent: #A8E63F;
+  --v-tint: #1E2A1F;
+  --v-radius: 14px;
+  --v-font: var(--s-font);
+  --v-title-weight: 600;
+  --v-title-size: 32px;
+}
+
+/* ============================================================
+   C. Architect Neutral — 建筑暖中性
+   ============================================================ */
+[data-theme="architect"] {
+  color-scheme: light;
+  --s-canvas: #F4F1EA;
+  --s-surface: #FCFBF7;
+  --s-text: #24261F;
+  --s-muted: #77766F;
+  --s-border: #D9D4C7;
+  --s-border-w: 1px;
+  --s-accent: #3D5A45;
+  --s-accent-hover: #31493A;
+  --s-accent-text: #3D5A45;
+  --s-accent-contrast: #FFFFFF;
+  --s-tint: #E7EDE4;
+  --s-field-bg: #FCFBF7;
+  --s-focus: #3D5A45;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif;
+  --s-sidebar-width: 236px;
+  --s-sidebar-bg: #F0EDE4;
+  --s-sidebar-text: #4A4B42;
+  --s-sidebar-muted: #8C8B80;
+  --s-sidebar-icon: #7A796E;
+  --s-sidebar-active-bg: #E1E7DA;
+  --s-sidebar-active-text: #2F4737;
+  --s-sidebar-hover-bg: #E8E4D9;
+  --s-sidebar-hover-text: #24261F;
+  --s-sidebar-border: #DED9CC;
+  --s-header-bg: #F7F5EF;
+  --s-header-text: #24261F;
+  --s-header-border: #DED9CC;
+  --s-brand-bg: #3D5A45;
+  --s-brand-text: #FCFBF7;
+  --s-brand-radius: 6px;
+  --s-crumb-sep: #BDB9AC;
+  --s-radius-card: 10px;
+  --s-radius-control: 6px;
+  --s-radius-pill: 6px;
+  --s-shadow: 0 1px 2px rgba(60, 55, 40, .05);
+  --s-header-height: 62px;
+  --s-gutter: 34px;
+  --s-main-padding: 44px clamp(20px, 4vw, 60px) 76px;
+  --s-content-width: 1100px;
+  --s-table-head-bg: #EFEBE1;
+  --s-table-head-text: #77766F;
+  --s-row-line: #E6E1D5;
+  --s-row-hover: #F5F2EA;
+  --s-track-bg: #E6E1D5;
+  --s-bar: #3D5A45;
+  --s-metric-size: clamp(25px, 2.5vw, 32px);
+  --s-metric-weight: 600;
+  --s-panel-title-size: 16px;
+  --s-panel-title-weight: 600;
+  --s-label-transform: none;
+  --s-label-tracking: .01em;
+  --s-action-weight: 500;
+  --s-accent-shadow: none;
+  --s-notice-bg: #3D5A45;
+  --s-notice-text: #FCFBF7;
+  --s-active-weight: 600;
+
+  --v-bg: #F4F1EA;
+  --v-surface: #FCFBF7;
+  --v-text: #24261F;
+  --v-muted: #77766F;
+  --v-line: #D9D4C7;
+  --v-accent: #3D5A45;
+  --v-tint: #E7EDE4;
+  --v-radius: 10px;
+  --v-font: var(--s-font);
+  --v-title-weight: 600;
+  --v-title-size: 33px;
+}
+[data-theme="architect"] .preview-content h1,
+[data-theme="architect"] .preview-content h2 { letter-spacing: -.01em; }
+
+/* ============================================================
+   D. Nordic Frost — 北欧冷调
+   ============================================================ */
+[data-theme="nordic"] {
+  color-scheme: light;
+  --s-canvas: #EDF0F4;
+  --s-surface: #FFFFFF;
+  --s-text: #17222C;
+  --s-muted: #66737F;
+  --s-border: #D5DDE5;
+  --s-border-w: 1px;
+  --s-accent: #0E7490;
+  --s-accent-hover: #0B5F76;
+  --s-accent-text: #0E7490;
+  --s-accent-contrast: #FFFFFF;
+  --s-tint: #E0F2F6;
+  --s-field-bg: #F7FAFC;
+  --s-focus: #0E7490;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --s-heading-font: var(--s-font);
+  --s-sidebar-width: 228px;
+  --s-sidebar-bg: #FFFFFF;
+  --s-sidebar-text: #3E4C58;
+  --s-sidebar-muted: #8494A2;
+  --s-sidebar-icon: #6B7C8A;
+  --s-sidebar-active-bg: #E0F2F6;
+  --s-sidebar-active-text: #0B5F76;
+  --s-sidebar-hover-bg: #F2F6F9;
+  --s-sidebar-hover-text: #17222C;
+  --s-sidebar-border: #E1E8EE;
+  --s-header-bg: rgba(255, 255, 255, .88);
+  --s-header-text: #17222C;
+  --s-header-border: #E1E8EE;
+  --s-header-shadow: 0 1px 0 rgba(23, 34, 44, .04);
+  --s-brand-bg: #0E7490;
+  --s-brand-text: #FFFFFF;
+  --s-brand-radius: 9px;
+  --s-crumb-sep: #C3CDD6;
+  --s-radius-card: 14px;
+  --s-radius-control: 9px;
+  --s-radius-pill: 999px;
+  --s-shadow: 0 2px 10px rgba(23, 34, 44, .05);
+  --s-header-height: 62px;
+  --s-gutter: 32px;
+  --s-main-padding: 42px clamp(20px, 4vw, 58px) 76px;
+  --s-content-width: 1120px;
+  --s-table-head-bg: #F3F7FA;
+  --s-table-head-text: #66737F;
+  --s-row-line: #E7EDF2;
+  --s-row-hover: #F4F9FB;
+  --s-track-bg: #E2EAF0;
+  --s-bar: #0E7490;
+  --s-metric-size: clamp(26px, 2.6vw, 33px);
+  --s-metric-weight: 600;
+  --s-panel-title-size: 15px;
+  --s-panel-title-weight: 600;
+  --s-label-transform: none;
+  --s-label-tracking: 0;
+  --s-action-weight: 500;
+  --s-accent-shadow: 0 2px 8px rgba(14, 116, 144, .18);
+  --s-notice-bg: #17222C;
+  --s-notice-text: #FFFFFF;
+  --s-active-weight: 600;
+
+  --v-bg: #EDF0F4;
+  --v-surface: #FFFFFF;
+  --v-text: #17222C;
+  --v-muted: #66737F;
+  --v-line: #D5DDE5;
+  --v-accent: #0E7490;
+  --v-tint: #E0F2F6;
+  --v-radius: 14px;
+  --v-font: var(--s-font);
+  --v-title-weight: 600;
+  --v-title-size: 32px;
+}
+
+/* ============================================================
+   E. Editorial Print — 印刷刊物
+   ============================================================ */
+[data-theme="print"] {
+  color-scheme: light;
+  --s-canvas: #FAF9F6;
+  --s-surface: #FFFFFF;
+  --s-text: #101010;
+  --s-muted: #5C5C5C;
+  --s-border: #101010;
+  --s-border-w: 1px;
+  --s-accent: #C8102E;
+  --s-accent-hover: #A50D26;
+  --s-accent-text: #C8102E;
+  --s-accent-contrast: #FFFFFF;
+  --s-tint: #FBEAEC;
+  --s-field-bg: #FFFFFF;
+  --s-focus: #C8102E;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif;
+  --s-sidebar-width: 216px;
+  --s-sidebar-bg: #FFFFFF;
+  --s-sidebar-text: #2A2A2A;
+  --s-sidebar-muted: #767676;
+  --s-sidebar-icon: #5C5C5C;
+  --s-sidebar-active-bg: #101010;
+  --s-sidebar-active-text: #FFFFFF;
+  --s-sidebar-hover-bg: #F1F0EC;
+  --s-sidebar-hover-text: #101010;
+  --s-sidebar-border: #101010;
+  --s-header-bg: #FFFFFF;
+  --s-header-text: #101010;
+  --s-header-border: #101010;
+  --s-brand-bg: #101010;
+  --s-brand-text: #FFFFFF;
+  --s-brand-radius: 0;
+  --s-crumb-sep: #9A9A9A;
+  --s-radius-card: 2px;
+  --s-radius-control: 2px;
+  --s-radius-pill: 2px;
+  --s-shadow: none;
+  --s-header-height: 58px;
+  --s-gutter: 30px;
+  --s-main-padding: 40px clamp(20px, 4vw, 54px) 72px;
+  --s-content-width: 1080px;
+  --s-table-head-bg: #FFFFFF;
+  --s-table-head-text: #101010;
+  --s-row-line: #DADADA;
+  --s-row-hover: #F6F5F1;
+  --s-track-bg: #E4E4E4;
+  --s-bar: #101010;
+  --s-emission-text: #101010;
+  --s-metric-size: clamp(27px, 2.8vw, 36px);
+  --s-metric-weight: 700;
+  --s-panel-title-size: 17px;
+  --s-panel-title-weight: 700;
+  --s-label-transform: uppercase;
+  --s-label-tracking: .12em;
+  --s-action-weight: 600;
+  --s-accent-shadow: none;
+  --s-notice-bg: #101010;
+  --s-notice-text: #FFFFFF;
+  --s-active-weight: 600;
+
+  --v-bg: #FAF9F6;
+  --v-surface: #FFFFFF;
+  --v-text: #101010;
+  --v-muted: #5C5C5C;
+  --v-line: #DADADA;
+  --v-accent: #C8102E;
+  --v-tint: #FBEAEC;
+  --v-radius: 2px;
+  --v-font: var(--s-font);
+  --v-title-weight: 700;
+  --v-title-size: 36px;
+}
+[data-theme="print"] .preview-content h1,
+[data-theme="print"] .preview-content h2 { letter-spacing: -.005em; }
+[data-theme="print"] .preview-table th { border-bottom-width: 2px; border-bottom-color: #101010; }
+[data-theme="print"] .metrics-strip .metric-cell + .metric-cell { border-left: 1px solid #DADADA; }
+[data-theme="print"] .panel-heading { border-bottom: 1px solid #E4E4E4; }
+[data-theme="print"] .emission-value { font-weight: 700; }
+
+/* ============================================================
+   F. Data Terminal — 数据终端
+   ============================================================ */
+[data-theme="terminal"] {
+  color-scheme: dark;
+  --s-canvas: #0B1016;
+  --s-surface: #121A22;
+  --s-text: #CFDCE8;
+  --s-muted: #7C8B9A;
+  --s-border: #24303C;
+  --s-border-w: 1px;
+  --s-accent: #38BDF8;
+  --s-accent-hover: #5CCBF9;
+  --s-accent-text: #38BDF8;
+  --s-accent-contrast: #05131C;
+  --s-tint: #10222E;
+  --s-field-bg: #0E161D;
+  --s-focus: #38BDF8;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --s-heading-font: var(--s-font);
+  --s-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --s-sidebar-width: 220px;
+  --s-sidebar-bg: #0E151C;
+  --s-sidebar-text: #A7B6C4;
+  --s-sidebar-muted: #66757F;
+  --s-sidebar-icon: #6E7E8B;
+  --s-sidebar-active-bg: #10222E;
+  --s-sidebar-active-text: #38BDF8;
+  --s-sidebar-hover-bg: #131C24;
+  --s-sidebar-hover-text: #CFDCE8;
+  --s-sidebar-border: #1B242D;
+  --s-header-bg: #0E151C;
+  --s-header-text: #CFDCE8;
+  --s-header-border: #1B242D;
+  --s-brand-bg: #38BDF8;
+  --s-brand-text: #05131C;
+  --s-brand-radius: 4px;
+  --s-crumb-sep: #3A4753;
+  --s-radius-card: 4px;
+  --s-radius-control: 4px;
+  --s-radius-pill: 4px;
+  --s-shadow: none;
+  --s-header-height: 56px;
+  --s-gutter: 28px;
+  --s-main-padding: 34px clamp(18px, 3.4vw, 48px) 64px;
+  --s-content-width: 1180px;
+  --s-table-head-bg: #16202A;
+  --s-table-head-text: #7C8B9A;
+  --s-row-line: #1F2A34;
+  --s-row-hover: #15202A;
+  --s-track-bg: #1F2A34;
+  --s-bar: #38BDF8;
+  --s-emission-text: #CFDCE8;
+  --s-metric-size: clamp(24px, 2.4vw, 31px);
+  --s-metric-weight: 600;
+  --s-panel-title-size: 14px;
+  --s-panel-title-weight: 600;
+  --s-label-transform: uppercase;
+  --s-label-tracking: .1em;
+  --s-action-weight: 600;
+  --s-accent-shadow: none;
+  --s-notice-bg: #38BDF8;
+  --s-notice-text: #05131C;
+  --s-active-weight: 600;
+
+  --v-bg: #0B1016;
+  --v-surface: #121A22;
+  --v-text: #CFDCE8;
+  --v-muted: #7C8B9A;
+  --v-line: #24303C;
+  --v-accent: #38BDF8;
+  --v-tint: #10222E;
+  --v-radius: 4px;
+  --v-font: var(--s-font);
+  --v-title-weight: 600;
+  --v-title-size: 28px;
+}
+[data-theme="terminal"] .preview-content .numeric,
+[data-theme="terminal"] .metric-cell strong,
+[data-theme="terminal"] .net-line strong { font-family: var(--s-mono); letter-spacing: -.02em; }
+[data-theme="terminal"] .shell-nav button,
+[data-theme="terminal"] .shell-project span { font-family: var(--s-mono); }
+
+/* ---------- Responsive: layout rules stay shared ---------- */
+@media (max-width: 1080px) {
+  .lab-bar { gap: 14px; padding: 10px 16px; }
+  .lab-bar-title span { display: none; }
+}
+@media (max-width: 860px) {
+  .shell-body { grid-template-columns: 76px minmax(0, 1fr); }
+  .shell-sidebar { align-items: center; padding-inline: 10px; }
+  .shell-project strong, .shell-project span, .shell-project small,
+  .shell-nav button span, .shell-scope { display: none; }
+  .shell-project { padding: 0; }
+  .shell-nav { width: 100%; }
+  .shell-nav button { justify-content: center; padding-inline: 0; }
+  .shell-crumb { display: none; }
+}
+@media (max-width: 560px) {
+  .shell-body { display: block; }
+  .shell-sidebar { display: none; }
+  .shell-main { padding: 26px 16px 48px; }
+  .lab-bar-pages { margin-left: 0; }
+}
