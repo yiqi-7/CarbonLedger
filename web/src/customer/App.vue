@@ -3,10 +3,10 @@ import { computed, markRaw, nextTick, reactive, ref } from 'vue'
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
 import { useCustomerRuntime } from './composables/useCustomerRuntime.js'
 import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
+import { useProjectImportExport } from './composables/useProjectImportExport.js'
 import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
-import { hasMeaningfulTemporaryRows, hasRowDraftChanges } from './unsavedChanges.js'
 import AppSidebar from './components/AppSidebar.vue'
 import DashboardHome from './components/DashboardHome.vue'
 import chinaCities from '@/data/chinaCities.json'
@@ -142,6 +142,24 @@ const runtime = useCustomerRuntime({
   loadCarbonConfigurations,
 })
 const { hasUnsavedChanges, prepareToLeave, returnToProjects } = runtime
+const projectImportExport = useProjectImportExport({
+  projectApi,
+  persistence,
+  canSave,
+  notify,
+  loadCarbonConfigurations,
+  hasUnsavedChanges,
+  materialEditDrafts,
+  transportEditDrafts,
+  constructionEditDrafts,
+  materialList,
+  transportMaterialList,
+  constructionMaterialList,
+  pendingBuildMaterials,
+  getProjectName: () => ProjectInfo.projectName,
+  documentRef: document,
+})
+const { importRows, exportRows, prepareExport, exportProjectReport } = projectImportExport
 
 function flushPendingBuildInput(id) {
   const active = document.activeElement
@@ -228,58 +246,6 @@ async function saveRow(kind, material, field, updates, drafts, input, target) {
 function deleteRow(kind, material, drafts) {
   if (!canSave()) return
   return persistence.enqueue(() => persistence.remove(kind, material, drafts))
-}
-
-async function importRows(kind, event, label) {
-  const file = event.target.files?.[0]
-  if (!file || !canSave()) return
-  const form = new FormData()
-  form.append('file', file)
-  let configurationRefreshFailed = false
-  try {
-    await persistence.enqueue(async () => {
-      const { data } = await projectApi.importRecords(kind, form)
-      try {
-        await loadCarbonConfigurations()
-      } catch {
-        configurationRefreshFailed = true
-      }
-      return data
-    }, true, result => {
-      if (result) notify(`已导入 ${result.imported} 条${label}${result.skippedRows ? `，跳过 ${result.skippedRows} 行数据` : ''}${configurationRefreshFailed ? '；配置刷新失败，请刷新页面后继续新增' : ''}`)
-    })
-  } finally {
-    event.target.value = ''
-  }
-}
-
-async function exportRows(kind, filename, label) {
-  if (!canSave()) return
-  if (!await prepareExport(kind)) return
-  const result = await persistence.enqueue(async () => {
-    await projectApi.exportRecords(kind, filename)
-    return true
-  }, false)
-  if (result) notify(`${label}已导出`)
-}
-
-async function prepareExport(kind = null) {
-  document.activeElement?.blur?.()
-  await persistence.waitForIdle()
-  const build = kind === null || kind === 'build-materials'
-  const transport = kind === null || kind === 'transport-records'
-  const construction = kind === null || kind === 'construction-records'
-  const dirty = (kind === null && hasUnsavedChanges())
-    || (build && hasRowDraftChanges(materialEditDrafts, [...materialList.toArray(), ...pendingBuildMaterials.value]))
-    || (transport && hasRowDraftChanges(transportEditDrafts, transportMaterialList.toArray()))
-    || (construction && hasRowDraftChanges(constructionEditDrafts, constructionMaterialList.toArray()))
-    || hasMeaningfulTemporaryRows({
-      build: build ? pendingBuildMaterials.value : [],
-      transport: transport ? transportMaterialList.toArray() : [],
-      construction: construction ? constructionMaterialList.toArray() : [],
-    })
-  if (dirty) notify('还有未保存的内容，请先完成保存或取消未完成的记录，再导出')
-  return !dirty
 }
 
 async function navigateToPage(page) {
@@ -776,16 +742,6 @@ function getRecyclingQuantityLimit(recyclingMaterial) {
     ? allMaterials.value.find(material => material.id === recyclingMaterial.sourceBuildMaterialId)
     : allMaterials.value.find(material => material.materialName === recyclingMaterial.materialName)
   return sourceMaterial ? sourceMaterial.quantity : null
-}
-
-async function exportProjectReport() {
-  if (!canSave()) return
-  if (!await prepareExport()) return
-  const result = await persistence.enqueue(async () => {
-    await projectApi.exportReport(`${ProjectInfo.projectName || '项目'}-报告书.xlsx`)
-    return true
-  }, false)
-  if (result) notify('项目报告书已导出')
 }
 
 function handleFileChange(event) {

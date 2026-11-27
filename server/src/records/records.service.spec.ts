@@ -1,14 +1,17 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { PrismaService } from '../prisma/prisma.service'
 import type { BuildRecordService } from './build-record.service'
+import type { ConstructionRecordService } from './construction-record.service'
 import type { RecordAccessService } from './record-access.service'
 import { RecordsService } from './records.service'
 import type { RecyclingSyncService } from './recycling-sync.service'
 import type { TransportRecordService } from './transport-record.service'
 import type {
   CreateBuildMaterialDto,
+  CreateConstructionRecordDto,
   CreateTransportRecordDto,
   UpdateBuildMaterialDto,
+  UpdateConstructionRecordDto,
   UpdateTransportRecordDto,
 } from './records.dto'
 
@@ -16,12 +19,14 @@ describe('RecordsService', () => {
   const createService = (
     buildRecords: Partial<BuildRecordService>,
     transportRecords: Partial<TransportRecordService> = {},
+    constructionRecords: Partial<ConstructionRecordService> = {},
   ) => {
     return new RecordsService(
       {} as PrismaService,
       {} as RecordAccessService,
       {} as RecyclingSyncService,
       buildRecords as BuildRecordService,
+      constructionRecords as ConstructionRecordService,
       transportRecords as TransportRecordService,
     )
   }
@@ -50,6 +55,32 @@ describe('RecordsService', () => {
     expect(buildRecords.createBuildMaterial).toHaveBeenCalledWith(42, 7, createDto)
     expect(buildRecords.updateBuildMaterial).toHaveBeenCalledWith(42, 7, 9, updateDto)
     expect(buildRecords.removeBuildMaterial).toHaveBeenCalledWith(42, 7, 9)
+  })
+
+  it('delegates all construction public methods with original arguments and results', async () => {
+    const listResult = [{ id: 1 }]
+    const createResult = { id: 2 }
+    const updateResult = { id: 3 }
+    const removeResult = { deleted: true as const }
+    const constructionRecords = {
+      listConstructionRecords: vi.fn().mockResolvedValue(listResult),
+      createConstructionRecord: vi.fn().mockResolvedValue(createResult),
+      updateConstructionRecord: vi.fn().mockResolvedValue(updateResult),
+      removeConstructionRecord: vi.fn().mockResolvedValue(removeResult),
+    }
+    const service = createService({}, {}, constructionRecords)
+    const createDto = {} as CreateConstructionRecordDto
+    const updateDto = {} as UpdateConstructionRecordDto
+
+    await expect(service.listConstructionRecords(42, 7)).resolves.toBe(listResult)
+    await expect(service.createConstructionRecord(42, 7, createDto)).resolves.toBe(createResult)
+    await expect(service.updateConstructionRecord(42, 7, 9, updateDto)).resolves.toBe(updateResult)
+    await expect(service.removeConstructionRecord(42, 7, 9)).resolves.toBe(removeResult)
+
+    expect(constructionRecords.listConstructionRecords).toHaveBeenCalledWith(42, 7)
+    expect(constructionRecords.createConstructionRecord).toHaveBeenCalledWith(42, 7, createDto)
+    expect(constructionRecords.updateConstructionRecord).toHaveBeenCalledWith(42, 7, 9, updateDto)
+    expect(constructionRecords.removeConstructionRecord).toHaveBeenCalledWith(42, 7, 9)
   })
 
   it('delegates all transport public methods with original arguments and results', async () => {
@@ -85,6 +116,7 @@ describe('RecordsService', () => {
       {} as RecordAccessService,
       { syncRecycling } as unknown as RecyclingSyncService,
       {} as BuildRecordService,
+      {} as ConstructionRecordService,
       {} as TransportRecordService,
     )
 

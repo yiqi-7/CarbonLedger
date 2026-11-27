@@ -5,6 +5,7 @@ import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
 import { createCustomerRuntime } from './composables/useCustomerRuntime.js'
 import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
+import { useProjectImportExport } from './composables/useProjectImportExport.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
 import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
 
@@ -39,13 +40,14 @@ function customerScript() {
     .replace(/^import[\s\S]*?from ['"][^'"]+['"]\r?\n/gm, '')
   const project = reactive({ projectName: '客户项目', buildingArea: 100, accountingStages: [], modelImage: null })
   const context: Record<string, any> = {
-    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, useAnalysisViewModel, formatDisplayNumber,
+    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, useAnalysisViewModel, useProjectImportExport, formatDisplayNumber,
     hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges,
     apiMessage: (_error: unknown, fallback: string) => fallback,
     downloadApiFile: mockedApi.downloadApiFile,
     onMounted: vi.fn(), onBeforeUnmount: vi.fn(),
     window: { location: { search: '?projectId=42', origin: 'http://localhost' }, addEventListener: vi.fn(), removeEventListener: vi.fn(), setTimeout: vi.fn() },
     document: { activeElement: null, addEventListener: vi.fn(), removeEventListener: vi.fn() },
+    documentRef: { activeElement: null },
     HTMLInputElement: class {}, File: class {},
     URL: { createObjectURL: vi.fn().mockReturnValue('blob:model'), revokeObjectURL: vi.fn() },
     chinaCities: {}, ProjectInfo: project, saveProjectInfo: (data: object) => Object.assign(project, data),
