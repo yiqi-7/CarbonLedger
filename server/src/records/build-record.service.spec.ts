@@ -4,8 +4,52 @@ import { BuildRecordService } from './build-record.service'
 import type { RecordAccessService } from './record-access.service'
 import type { RecyclingSyncService } from './recycling-sync.service'
 import type { CreateBuildMaterialDto } from './records.dto'
+import type { ImportedBuildMaterialsInput } from './import-inputs'
 
 describe('BuildRecordService', () => {
+  it('writes authorized imported materials with legacy resolution and sync order', async () => {
+    const calls: string[] = []
+    const findMany = vi.fn(async () => {
+      calls.push('existing')
+      return []
+    })
+    const findConfigs = vi.fn(async () => {
+      calls.push('configs')
+      return [{ name: '混凝土', category: '混凝土', materialUnit: 'm³' }]
+    })
+    const create = vi.fn(async () => {
+      calls.push('create')
+      return { id: 11 }
+    })
+    const transaction = vi.fn(async (operations: unknown[]) => {
+      calls.push('transaction')
+      return Promise.all(operations as Promise<{ id: number }>[])
+    })
+    const syncRecycling = vi.fn(async () => {
+      calls.push('sync')
+    })
+    const service = new BuildRecordService(
+      {
+        buildMaterial: { findMany, create },
+        buildFactorConfig: { findMany: findConfigs },
+        $transaction: transaction,
+      } as unknown as PrismaService,
+      {} as RecordAccessService,
+      { syncRecycling } as unknown as RecyclingSyncService,
+    )
+    const input = {
+      materials: [{
+        materialName: '混凝土', type: '混凝土', quantity: 3, unit: '', emissionFactor: 2.5,
+        marketPrice: null, unitPrice: 10, recyclingFactor: 0.2, recyclingCoefficient: 0.4,
+      }],
+    } as ImportedBuildMaterialsInput
+
+    await expect(service.importBuildMaterials(7, input)).resolves.toEqual({ imported: 1, skippedRows: 0 })
+    expect(calls).toEqual(['existing', 'configs', 'create', 'transaction', 'sync'])
+    expect(create).toHaveBeenCalledWith({ data: expect.objectContaining({ isCustomMaterial: false, unit: 'm³' }) })
+    expect(syncRecycling).toHaveBeenCalledWith(7, [11])
+  })
+
   it('keeps owner check, factor config lookup, persistence, and recycling sync order', async () => {
     const calls: string[] = []
     const config = {

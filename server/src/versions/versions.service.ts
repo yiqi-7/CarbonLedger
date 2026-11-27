@@ -1,15 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import type { CalcVersionSnapshot } from '@carbonledger/shared'
-import { PrismaService } from '../prisma/prisma.service'
 import { AuditService } from '../audit/audit.service'
 import { AnalysisService } from '../analysis/analysis.service'
 import { ProjectsService } from '../projects/projects.service'
-import { parseSnapshotOrThrow } from './snapshot'
+import { CalcVersionRepository } from './calc-version.repository'
+import { SnapshotFactory } from './snapshot.factory'
 
 @Injectable()
 export class VersionsService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly repository: CalcVersionRepository,
+    private readonly snapshots: SnapshotFactory,
     private readonly analysis: AnalysisService,
     private readonly projects: ProjectsService,
     private readonly audit: AuditService,
@@ -19,32 +20,14 @@ export class VersionsService {
   async save(projectId: number, userId: number) {
     await this.projects.assertOwner(projectId, userId)
     const bundle = await this.analysis.buildBundle(projectId, userId)
-    const last = await this.prisma.calcVersion.findFirst({
-      where: { projectId },
-      orderBy: { versionNumber: 'desc' },
-      select: { versionNumber: true },
-    })
+    const last = await this.repository.findLatest(projectId)
     const versionNumber = (last?.versionNumber ?? 0) + 1
-    const snapshot: CalcVersionSnapshot = {
+    const snapshot = this.snapshots.create(versionNumber, userId, bundle)
+    const created = await this.repository.create({
+      projectId,
       versionNumber,
-      name: `版本 v${versionNumber}`,
-      savedAt: new Date().toISOString(),
-      savedByUserId: userId,
-      project: bundle.projectInfo,
-      factors: bundle.factors,
-      buildMaterials: bundle.buildMaterials,
-      transportRecords: bundle.transportRecords,
-      constructionRecords: bundle.constructionRecords,
-      recyclingRecords: bundle.recyclingRecords,
-      summary: bundle.summary,
-    }
-    const created = await this.prisma.calcVersion.create({
-      data: {
-        projectId,
-        versionNumber,
-        snapshot: JSON.stringify(snapshot),
-        createdByUserId: userId,
-      },
+      snapshot: this.snapshots.serialize(snapshot),
+      createdByUserId: userId,
     })
     await this.audit.record(
       userId,
@@ -58,68 +41,40 @@ export class VersionsService {
 
   async list(projectId: number, userId: number) {
     await this.projects.assertOwner(projectId, userId)
-    const versions = await this.prisma.calcVersion.findMany({
-      where: { projectId },
-      orderBy: { versionNumber: 'desc' },
-      select: {
-        id: true,
-        versionNumber: true,
-        createdAt: true,
-        snapshot: true,
-        createdBy: { select: { username: true } },
-      },
-    })
-    return versions.map(version => {
-      let netEmission: number | null = null
-      let totalCost: number | null = null
-      let name = `版本 v${version.versionNumber}`
-      try {
-        const snapshot = parseSnapshotOrThrow(version.snapshot)
-        netEmission = snapshot.summary?.emission?.netEmission ?? null
-        totalCost = snapshot.summary?.cost?.totalCost ?? null
-        name = snapshot.name || name
-      } catch {
-        // 快照损坏时仍允许管理员看到版本列表，详情和导出会明确报错。
-      }
-      return {
-        id: version.id,
-        versionNumber: version.versionNumber,
-        name,
-        createdAt: version.createdAt,
-        createdBy: version.createdBy.username,
-        netEmission,
-        totalCost,
-      }
-    })
+    const versions = await this.repository.findMany(projectId)
+    return versions.map(version => ({
+      id: version.id,
+      versionNumber: version.versionNumber,
+      ...this.snapshots.project(version.snapshot, version.versionNumber),
+      createdAt: version.createdAt,
+      createdBy: version.createdBy.username,
+    }))
   }
 
   async detail(projectId: number, userId: number, versionId: number): Promise<CalcVersionSnapshot & { id: number }> {
     await this.projects.assertOwner(projectId, userId)
-    const version = await this.prisma.calcVersion.findFirst({
-      where: { id: versionId, projectId },
-    })
+    const version = await this.repository.findById(projectId, versionId)
     if (!version) throw new NotFoundException('核算版本不存在')
-    return { id: version.id, ...parseSnapshotOrThrow(version.snapshot) }
+    return { id: version.id, ...this.snapshots.parse(version.snapshot) }
   }
 
   async rename(projectId: number, userId: number, versionId: number, name: string) {
     await this.projects.assertOwner(projectId, userId)
-    const version = await this.prisma.calcVersion.findFirst({ where: { id: versionId, projectId } })
+    const version = await this.repository.findById(projectId, versionId)
     if (!version) throw new NotFoundException('核算版本不存在')
     const trimmed = name.trim()
     if (!trimmed) throw new BadRequestException('版本名称不能为空')
-    const snapshot = parseSnapshotOrThrow(version.snapshot)
-    snapshot.name = trimmed
-    await this.prisma.calcVersion.update({ where: { id: version.id }, data: { snapshot: JSON.stringify(snapshot) } })
+    const snapshot = this.snapshots.rename(version.snapshot, trimmed)
+    await this.repository.updateSnapshot(version.id, snapshot)
     await this.audit.record(userId, 'VERSION_RENAMED', 'PROJECT', String(projectId), `版本 v${version.versionNumber}：${trimmed}`)
     return { id: version.id, name: trimmed }
   }
 
   async remove(projectId: number, userId: number, versionId: number) {
     await this.projects.assertOwner(projectId, userId)
-    const version = await this.prisma.calcVersion.findFirst({ where: { id: versionId, projectId } })
+    const version = await this.repository.findById(projectId, versionId)
     if (!version) throw new NotFoundException('核算版本不存在')
-    await this.prisma.calcVersion.delete({ where: { id: version.id } })
+    await this.repository.remove(version.id)
     await this.audit.record(userId, 'VERSION_DELETED', 'PROJECT', String(projectId), `版本 v${version.versionNumber}`)
     return { id: version.id }
   }

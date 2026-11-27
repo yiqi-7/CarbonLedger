@@ -20,6 +20,18 @@ import type {
   UpdateRecyclingRecordDto,
   UpdateTransportRecordDto,
 } from './records.dto'
+import type {
+  ImportedBuildMaterialsInput,
+  ImportedConstructionRecordsInput,
+  ImportedRecordsWriteResult,
+  ImportedTransportRecordsInput,
+} from './import-inputs'
+export type {
+  ImportedBuildMaterialsInput,
+  ImportedConstructionRecordsInput,
+  ImportedRecordsWriteResult,
+  ImportedTransportRecordsInput,
+} from './import-inputs'
 
 /**
  * 四类核算记录服务：派生字段由服务端按共享引擎（旧版公式）计算后存储，
@@ -64,6 +76,32 @@ export class RecordsService {
     materialId: number,
   ): Promise<{ deleted: true }> {
     return this.buildRecords.removeBuildMaterial(projectId, userId, materialId)
+  }
+
+  // ==================== 导入协调（调用方已完成授权） ====================
+
+  /** Internal authorized import caller; child service must not repeat access checks. */
+  async importBuildMaterials(
+    projectId: number,
+    input: ImportedBuildMaterialsInput,
+  ): Promise<ImportedRecordsWriteResult> {
+    return this.buildRecords.importBuildMaterials(projectId, input)
+  }
+
+  /** Internal authorized import caller; child service must not repeat access checks. */
+  async importTransportRecords(
+    projectId: number,
+    input: ImportedTransportRecordsInput,
+  ): Promise<ImportedRecordsWriteResult> {
+    return this.transportRecords.importTransportRecords(projectId, input)
+  }
+
+  /** Internal authorized import caller; child service must not repeat access checks. */
+  async importConstructionRecords(
+    projectId: number,
+    input: ImportedConstructionRecordsInput,
+  ): Promise<ImportedRecordsWriteResult> {
+    return this.constructionRecords.importConstructionRecords(projectId, input)
   }
 
   // ==================== 运输 ====================

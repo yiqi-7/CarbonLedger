@@ -179,7 +179,7 @@ RecordAccessService.assertOwner(projectId, userId)
 - 回收因子归零或来源删除时清理自动记录；
 - 不因普通读取、分析或快照而重建用户删除的自动记录。
 
-shared 中的 `syncRecyclingRecords()` 仍然是纯数组规则；server 的 `RecyclingSyncService` 负责 Prisma 协调，二者不能混用。拆分完成前，现有 `RecordsService.syncRecycling()` 作为兼容入口承载该职责；拆分后仍由 facade 转发，不能直接暴露给 controller。
+shared 中的 `syncRecyclingRecords()` 仍然是纯数组规则；server 的 `RecyclingSyncService` 负责 Prisma 协调，二者不能混用。当前 `RecordsService.syncRecycling()` 是兼容 facade，转发到 `RecyclingSyncService`，不能直接暴露给 controller。
 
 ### 9.4 ImportExport 统一授权约束
 
@@ -218,6 +218,20 @@ analysis / versions
 迁移期间保留旧 data model 的兼容接口（`append`、`toArray`、`removeById`、`updateById`、`replaceAll`、`findByVehicleName`、`ProjectInfo` 和 `window.ProjectInfo`）。`App.vue` 逐步退化为页面编排层，不再新增 API 路径、保存队列、生命周期保护或四类记录的领域逻辑。
 
 customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.ts` 的类型和消息守卫登记。新增消息不得散落协议字符串，host 侧必须继续校验 origin、iframe source 和消息结构。
+
+当前阶段已完成：
+
+- customer persistence/runtime 生命周期保护、分析排放与成本 view model、记录筛选、导入导出交互和项目版本/报告 API facade 已拆成独立边界；`App.vue` 继续组合旧 data model 与模板 handler。
+- `RecordsService` facade 已将建材、运输、施工、回收 CRUD 分别委托给内部服务；导入写入也通过授权后的 facade 内部入口，回收增量联动仍由 `RecyclingSyncService` 负责。
+- `AnalysisService` 已拆为授权数据 loader 与 shared 公式 calculator；`ReportsService` 已拆为 Excel/PDF renderer；`VersionsService` 已拆为 snapshot factory 与 project-scoped repository。
+- shared/web/server controller 依赖方向已有 AST 架构测试；records 内部 deep import 使用精确 baseline，已有违规不得增加。
+
+仍待逐步完成：
+
+- customer `App.vue` 中的项目编辑、因子配置和四类记录编辑/创建删除逻辑；新增 feature 不应继续堆入此文件。
+- 平台层 `ProjectToolsView.vue` 仍有直接项目 API 调用，需要渐进复用项目 API facade；Versions 当前仍保留旧的名称写回 snapshot JSON 语义。
+- 版本编号的并发冲突重试/事务化，以及 customer 版本页面和报告页面的 feature 归属迁移。
+- 最后的 JavaScript data model 到 TypeScript 迁移。
 
 ### 9.6 API、数据和持久化契约
 

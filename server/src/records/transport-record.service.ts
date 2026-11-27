@@ -4,6 +4,10 @@ import { RecordAccessService } from './record-access.service'
 import { transportEmission, transportTotalPrice } from '@carbonledger/shared'
 import type { TransportRecord } from '@carbonledger/shared'
 import type { CreateTransportRecordDto, UpdateTransportRecordDto } from './records.dto'
+import type {
+  ImportedRecordsWriteResult,
+  ImportedTransportRecordsInput,
+} from './import-inputs'
 
 /**
  * 运输记录的数据库与领域操作。
@@ -22,6 +26,62 @@ export class TransportRecordService {
       where: { projectId },
       orderBy: { id: 'asc' },
     }) as unknown as TransportRecord[]
+  }
+
+  /**
+   * Authorized internal import entry point. Ownership is checked by ImportExportService;
+   * this method keeps every database operation scoped to the authorized project.
+   */
+  async importTransportRecords(
+    projectId: number,
+    input: ImportedTransportRecordsInput,
+  ): Promise<ImportedRecordsWriteResult> {
+    const existing = await this.prisma.transportRecord.findMany({ where: { projectId } })
+    const existingKeys = new Set(
+      existing.map(record => `${record.vehicleName}__${record.transportedMaterial}`),
+    )
+    const toInsert = input.records.filter(
+      record => !existingKeys.has(`${record.vehicleName}__${record.transportedMaterial}`),
+    )
+
+    // Preserve legacy factor-config auto-fill before creating imported records.
+    for (const record of toInsert) {
+      const config = await this.prisma.transportFactorConfig.findFirst({
+        where: { projectId, vehicleName: record.vehicleName },
+      })
+      if (!config) {
+        await this.prisma.transportFactorConfig.create({
+          data: {
+            projectId,
+            vehicleName: record.vehicleName,
+            energyType: record.energyType,
+            emissionFactor: record.emissionFactor,
+          },
+        })
+      }
+    }
+
+    if (toInsert.length > 0) {
+      await this.prisma.transportRecord.createMany({
+        data: toInsert.map(record => ({
+          projectId,
+          vehicleName: record.vehicleName,
+          transportedMaterial: record.transportedMaterial,
+          transportQuantity: record.transportQuantity,
+          transportDistance: record.transportDistance,
+          energyType: record.energyType,
+          emissionFactor: record.emissionFactor,
+          transportUnitPrice: record.transportUnitPrice,
+          isCustomMaterial: false,
+          emissionAmount: transportEmission(record.transportDistance, record.transportQuantity, record.emissionFactor),
+          transportTotalPrice: transportTotalPrice(record.transportDistance, record.transportUnitPrice),
+        })),
+      })
+    }
+    return {
+      imported: toInsert.length,
+      skippedRows: input.skippedRows + (input.records.length - toInsert.length),
+    }
   }
 
   async createTransportRecord(

@@ -16,6 +16,10 @@ import type {
   CreateBuildMaterialDto,
   UpdateBuildMaterialDto,
 } from './records.dto'
+import type {
+  ImportedBuildMaterialsInput,
+  ImportedRecordsWriteResult,
+} from './import-inputs'
 
 /**
  * 建材记录的数据库与领域操作。
@@ -35,6 +39,69 @@ export class BuildRecordService {
       where: { projectId },
       orderBy: { id: 'asc' },
     }) as unknown as BuildMaterialRecord[]
+  }
+
+  /**
+   * Authorized internal import entry point. The caller has already checked ownership;
+   * keep this method free of a second access query while retaining project scoping.
+   */
+  async importBuildMaterials(
+    projectId: number,
+    input: ImportedBuildMaterialsInput,
+  ): Promise<ImportedRecordsWriteResult> {
+    const existing = await this.prisma.buildMaterial.findMany({ where: { projectId } })
+    const existingKeys = new Set(
+      existing.map(material => `${material.materialName}__${material.type}`),
+    )
+    const factorConfigs = await this.prisma.buildFactorConfig.findMany({
+      where: { projectId },
+      orderBy: { id: 'asc' },
+    })
+    const normalizeCategory = (category: string) => category === '钢材' ? '金属' : category
+    const resolved = input.materials.map(material => {
+      const exactConfig = factorConfigs.find(config =>
+        config.name.trim().toLocaleLowerCase() === material.materialName.trim().toLocaleLowerCase(),
+      )
+      const exactCategory = exactConfig && normalizeCategory(exactConfig.category)
+      const type = normalizeCategory(material.type) || exactCategory || '其他'
+      const categoryUnits = [...new Set(factorConfigs
+        .filter(config => normalizeCategory(config.category) === type && config.materialUnit)
+        .map(config => config.materialUnit))]
+      const unit = exactCategory === type && exactConfig?.materialUnit
+        ? exactConfig.materialUnit
+        : categoryUnits.length === 1
+          ? categoryUnits[0]
+          : material.unit || categoryUnits[0] || ''
+      if (!unit) {
+        throw new BadRequestException(`无法根据建材碳排配置唯一确定材料“${material.materialName}”（${type}）的单位，请在表格中补充“单位”列`)
+      }
+      return { ...material, type, unit }
+    })
+    const toInsert = resolved.filter(
+      material => !existingKeys.has(`${material.materialName}__${material.type}`),
+    )
+    if (toInsert.length > 0) {
+      const created = await this.prisma.$transaction(toInsert.map(material => this.prisma.buildMaterial.create({
+        data: {
+          projectId,
+          materialName: material.materialName,
+          type: material.type,
+          quantity: material.quantity,
+          unit: material.unit,
+          emissionFactor: material.emissionFactor,
+          marketPrice: material.marketPrice,
+          unitPrice: material.unitPrice,
+          recyclingFactor: material.recyclingFactor,
+          recyclingCoefficient: material.recyclingCoefficient,
+          isCustomMaterial: false,
+          emissionAmount: buildEmission(material.quantity, material.emissionFactor),
+          totalPrice: buildTotalPrice(material.quantity, material.unitPrice),
+          isParticipatingInRecyclingCalculation: isRecyclingParticipant(material.recyclingFactor),
+        },
+      })))
+      await this.recyclingSync.syncRecycling(projectId, created.map(material => material.id))
+    }
+    return { imported: toInsert.length, skippedRows: input.materials.length - toInsert.length }
   }
 
   async createBuildMaterial(

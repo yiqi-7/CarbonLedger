@@ -9,6 +9,10 @@ import {
 import type { ConstructionEnergyType, ConstructionRecord } from '@carbonledger/shared'
 import type { CreateConstructionRecordDto, UpdateConstructionRecordDto } from './records.dto'
 import { RecordAccessService } from './record-access.service'
+import type {
+  ImportedConstructionRecordsInput,
+  ImportedRecordsWriteResult,
+} from './import-inputs'
 
 /**
  * 施工记录的数据库与领域操作。
@@ -27,6 +31,46 @@ export class ConstructionRecordService {
       where: { projectId },
       orderBy: { id: 'asc' },
     }) as unknown as ConstructionRecord[]
+  }
+
+  /**
+   * Authorized internal import entry point. ImportExportService performs ownership
+   * authorization once; all writes remain project scoped here.
+   */
+  async importConstructionRecords(
+    projectId: number,
+    input: ImportedConstructionRecordsInput,
+  ): Promise<ImportedRecordsWriteResult> {
+    const existing = await this.prisma.constructionRecord.findMany({ where: { projectId } })
+    const existingKeys = new Set(existing.map(record => record.machineryName))
+    const toInsert = input.records.filter(record => !existingKeys.has(record.machineryName))
+
+    if (toInsert.length > 0) {
+      await this.prisma.constructionRecord.createMany({
+        data: toInsert.map(record => {
+          const energy = CONSTRUCTION_ENERGY_TYPES[record.energyType as ConstructionEnergyType]
+          const totalEnergy = constructionTotalEnergy(record.shiftCount, record.energyPerShift)
+          return {
+            projectId,
+            machineryName: record.machineryName,
+            shiftCount: record.shiftCount,
+            energyType: record.energyType,
+            energyPerShift: record.energyPerShift,
+            emissionFactor: record.emissionFactor,
+            shiftUnitPrice: record.shiftUnitPrice,
+            isCustomMaterial: false,
+            energyUnit: energy.unit,
+            totalEnergy,
+            emissionAmount: constructionEmission(totalEnergy, record.emissionFactor),
+            totalPrice: constructionTotalPrice(record.shiftCount, record.shiftUnitPrice),
+          }
+        }),
+      })
+    }
+    return {
+      imported: toInsert.length,
+      skippedRows: input.skippedRows + (input.records.length - toInsert.length),
+    }
   }
 
   async createConstructionRecord(

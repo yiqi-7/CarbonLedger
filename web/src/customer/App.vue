@@ -3,7 +3,9 @@ import { computed, markRaw, nextTick, reactive, ref } from 'vue'
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
 import { useCustomerRuntime } from './composables/useCustomerRuntime.js'
 import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
+import { useCostAnalysisViewModel } from './composables/useCostAnalysisViewModel.js'
 import { useProjectImportExport } from './composables/useProjectImportExport.js'
+import { useRecordFilters } from './composables/useRecordFilters.js'
 import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
@@ -259,55 +261,31 @@ function toggleSidebar() {
 }
 const allMaterials = computed(() => materialList.toArray())
 const allRecyclingMaterials = computed(() => recyclingMaterialList.toArray())
-const recyclingQuantityGroups = computed(() => {
-  const groups = new Map()
-  const aliases = { '㎡': 'm²', m2: 'm²', 'm^2': 'm²', '平方米': 'm²', '㎥': 'm³', m3: 'm³', 'm^3': 'm³', '立方米': 'm³', '吨': 't', '千克': 'kg', '公斤': 'kg' }
-  for (const material of allRecyclingMaterials.value) {
-    const rawUnit = String(material.unit ?? '').trim()
-    const unit = (aliases[rawUnit] ?? rawUnit) || '未标注单位'
-    groups.set(unit, (groups.get(unit) ?? 0) + material.recyclingQuantity)
-  }
-  return [...groups].map(([unit, quantity]) => ({ unit, quantity }))
-})
 const allConstructionMaterials = computed(() => constructionMaterialList.toArray())
 const countedConstructionMaterials = computed(() =>
   allConstructionMaterials.value.filter(material => material.id > 0 && material.machineryName.trim())
 )
 const allTransportMaterials = computed(() => transportMaterialList.toArray())
 const countedTransportMaterials = computed(() => allTransportMaterials.value.filter(material => material.id > 0))
-const filteredMaterials = computed(() => {
-  const query = materialSearch.value.trim().toLocaleLowerCase()
-  return allMaterials.value.filter(material => {
-    const matchesCategory = materialCategory.value === '全部' || material.type === materialCategory.value
-    const matchesName = !query || material.materialName.toLocaleLowerCase() === query
-    return matchesCategory && matchesName
-  })
-})
-const filteredRecyclingMaterials = computed(() => {
-  const query = recyclingSearch.value.trim().toLocaleLowerCase()
-  return allRecyclingMaterials.value.filter(material => {
-    const matchesCategory = recyclingCategory.value === '全部回收' || material.materialType === recyclingCategory.value
-    const matchesName = !query || material.materialName.toLocaleLowerCase() === query
-    return matchesCategory && matchesName
-  })
-})
-const filteredConstructionMaterials = computed(() => {
-  const query = constructionSearch.value.trim().toLocaleLowerCase()
-  return allConstructionMaterials.value.filter(material => {
-    const matchesCategory = constructionCategory.value === '全部' || material.energyType === constructionCategory.value
-    const matchesName = !query || material.machineryName.toLocaleLowerCase().includes(query)
-    return matchesCategory && matchesName
-  })
-})
-const filteredTransportMaterials = computed(() => {
-  const query = transportSearch.value.trim().toLocaleLowerCase()
-  return allTransportMaterials.value.filter(material => {
-    const matchesCategory = transportCategory.value === '全部' || material.energyType === transportCategory.value
-    const matchesName = !query ||
-      material.vehicleName.toLocaleLowerCase().includes(query) ||
-      material.transportedMaterial.toLocaleLowerCase().includes(query)
-    return matchesCategory && matchesName
-  })
+const {
+  recyclingQuantityGroups,
+  filteredMaterials,
+  filteredRecyclingMaterials,
+  filteredConstructionMaterials,
+  filteredTransportMaterials,
+} = useRecordFilters({
+  allMaterials,
+  allRecyclingMaterials,
+  allConstructionMaterials,
+  allTransportMaterials,
+  materialCategory,
+  materialSearch,
+  recyclingCategory,
+  recyclingSearch,
+  constructionCategory,
+  constructionSearch,
+  transportCategory,
+  transportSearch,
 })
 const {
   analysisPieItems,
@@ -331,71 +309,24 @@ const {
   recyclingCarbonInfo,
   ProjectInfo
 })
-const costAnalysisTotal = computed(() =>
-  allMaterials.value.reduce((total, material) => total + material.totalPrice, 0) +
-  countedTransportMaterials.value.reduce((total, material) => total + material.transportTotalPrice, 0) +
-  countedConstructionMaterials.value.reduce((total, material) => total + material.totalPrice, 0)
-)
-const costAnalysisBuildTotal = computed(() =>
-  allMaterials.value.reduce((total, material) => total + material.totalPrice, 0)
-)
-const costAnalysisTopBuildMaterial = computed(() =>
-  allMaterials.value.reduce(
-    (highest, material) => !highest || material.totalPrice > highest.totalPrice ? material : highest,
-    null
-  )
-)
-const costAnalysisArea = computed(() => {
-  const area = Number(ProjectInfo.buildingArea) || 0
-  return area > 0 ? costAnalysisBuildTotal.value / area : 0
+const {
+  costAnalysisTotal,
+  costAnalysisBuildTotal,
+  costAnalysisTopBuildMaterial,
+  costAnalysisArea,
+  costAnalysisCarbonIntensity,
+  costAnalysisChartItems,
+  costAnalysisChartMax,
+  costAnalysisChartTicks,
+  costAnalysisBuildDetails
+} = useCostAnalysisViewModel({
+  costAnalysisSelectedStage,
+  allMaterials,
+  countedTransportMaterials,
+  countedConstructionMaterials,
+  analysisNetEmission,
+  ProjectInfo
 })
-const costAnalysisCarbonIntensity = computed(() =>
-  costAnalysisTotal.value > 0 ? analysisNetEmission.value / costAnalysisTotal.value : 0
-)
-const costAnalysisChartItems = computed(() => {
-  let items
-  if (costAnalysisSelectedStage.value === '运输') {
-    items = countedTransportMaterials.value.map(material => ({
-      id: material.id,
-      name: material.vehicleName,
-      detail: material.transportedMaterial,
-      cost: material.transportTotalPrice
-    }))
-  } else if (costAnalysisSelectedStage.value === '施工') {
-    items = countedConstructionMaterials.value.map(material => ({
-      id: material.id,
-      name: material.machineryName,
-      detail: material.energyType,
-      cost: material.totalPrice
-    }))
-  } else {
-    items = allMaterials.value.map(material => ({
-      id: material.id,
-      name: material.materialName,
-      detail: material.type,
-      cost: material.totalPrice
-    }))
-  }
-  return items.sort((left, right) => right.cost - left.cost)
-})
-const costAnalysisChartMax = computed(() =>
-  Math.max(...costAnalysisChartItems.value.map(item => item.cost), 0) * 1.15
-)
-const costAnalysisChartTicks = computed(() =>
-  [1, 0.75, 0.5, 0.25, 0].map(ratio => ({
-    ratio,
-    value: costAnalysisChartMax.value * ratio
-  }))
-)
-const costAnalysisBuildDetails = computed(() =>
-  allMaterials.value
-    .map(material => ({
-      ...material,
-      costShare: costAnalysisTotal.value > 0 ? material.totalPrice / costAnalysisTotal.value * 100 : 0,
-      carbonCostIntensity: material.totalPrice > 0 ? material.emissionAmount * 1000 / (material.totalPrice * 10000) : null
-    }))
-    .sort((left, right) => right.totalPrice - left.totalPrice)
-)
 const indicators = [
   { name: '建材生产', description: '材料生产与加工产生的排放' },
   { name: '材料运输', description: '材料运至施工现场产生的排放' },

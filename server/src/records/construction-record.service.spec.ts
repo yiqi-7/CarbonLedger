@@ -3,6 +3,7 @@ import type { PrismaService } from '../prisma/prisma.service'
 import { ConstructionRecordService } from './construction-record.service'
 import type { RecordAccessService } from './record-access.service'
 import type { CreateConstructionRecordDto, UpdateConstructionRecordDto } from './records.dto'
+import type { ImportedConstructionRecordsInput } from './import-inputs'
 
 const energyDefaults = {
   电力: { emissionFactor: 0.581, unit: 'kWh' },
@@ -11,6 +12,30 @@ const energyDefaults = {
 }
 
 describe('ConstructionRecordService', () => {
+  it('writes imported records with duplicate filtering and derived fields', async () => {
+    const findMany = vi.fn().mockResolvedValue([])
+    const createMany = vi.fn().mockResolvedValue({ count: 1 })
+    const service = new ConstructionRecordService(
+      { constructionRecord: { findMany, createMany } } as unknown as PrismaService,
+      {} as RecordAccessService,
+    )
+    const input = {
+      records: [{ machineryName: '挖掘机', shiftCount: 3, energyType: '柴油', energyPerShift: 12,
+        emissionFactor: 2.632, shiftUnitPrice: 80 }],
+      skippedRows: 1,
+    } as ImportedConstructionRecordsInput
+
+    await expect(service.importConstructionRecords(7, input)).resolves.toEqual({ imported: 1, skippedRows: 1 })
+    expect(findMany).toHaveBeenCalledWith({ where: { projectId: 7 } })
+    expect(createMany).toHaveBeenCalledWith({ data: [expect.objectContaining({
+      isCustomMaterial: false,
+      energyUnit: 'kg',
+      totalEnergy: 36,
+      emissionAmount: 36 * 2.632,
+      totalPrice: (3 * 80) / 10000,
+    })] })
+  })
+
   it('keeps owner check, default energy factor/unit, and shared formulas on create', async () => {
     const assertOwner = vi.fn().mockResolvedValue(undefined)
     const created = { id: 11 }

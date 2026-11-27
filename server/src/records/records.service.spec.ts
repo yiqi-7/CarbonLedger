@@ -15,6 +15,11 @@ import type {
   UpdateRecyclingRecordDto,
   UpdateTransportRecordDto,
 } from './records.dto'
+import type {
+  ImportedBuildMaterialsInput,
+  ImportedConstructionRecordsInput,
+  ImportedTransportRecordsInput,
+} from './import-inputs'
 
 describe('RecordsService', () => {
   const createService = (
@@ -134,6 +139,27 @@ describe('RecordsService', () => {
     expect(recyclingRecords.createRecyclingRecord).toHaveBeenCalledWith(42, 7, createDto)
     expect(recyclingRecords.updateRecyclingRecord).toHaveBeenCalledWith(42, 7, 9, updateDto)
     expect(recyclingRecords.removeRecyclingRecord).toHaveBeenCalledWith(42, 7, 9)
+  })
+
+  it('delegates authorized import coordination to the matching child services', async () => {
+    const buildInput = { materials: [] } as ImportedBuildMaterialsInput
+    const transportInput = { records: [], skippedRows: 2 } as ImportedTransportRecordsInput
+    const constructionInput = { records: [], skippedRows: 3 } as ImportedConstructionRecordsInput
+    const buildResult = { imported: 1, skippedRows: 4 }
+    const transportResult = { imported: 2, skippedRows: 5 }
+    const constructionResult = { imported: 3, skippedRows: 6 }
+    const buildRecords = { importBuildMaterials: vi.fn().mockResolvedValue(buildResult) }
+    const transportRecords = { importTransportRecords: vi.fn().mockResolvedValue(transportResult) }
+    const constructionRecords = { importConstructionRecords: vi.fn().mockResolvedValue(constructionResult) }
+    const service = createService(buildRecords, transportRecords, constructionRecords)
+
+    await expect(service.importBuildMaterials(42, buildInput)).resolves.toBe(buildResult)
+    await expect(service.importTransportRecords(42, transportInput)).resolves.toBe(transportResult)
+    await expect(service.importConstructionRecords(42, constructionInput)).resolves.toBe(constructionResult)
+
+    expect(buildRecords.importBuildMaterials).toHaveBeenCalledWith(42, buildInput)
+    expect(transportRecords.importTransportRecords).toHaveBeenCalledWith(42, transportInput)
+    expect(constructionRecords.importConstructionRecords).toHaveBeenCalledWith(42, constructionInput)
   })
 
   it('delegates syncRecycling to RecyclingSyncService with the original arguments', async () => {

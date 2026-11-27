@@ -24,6 +24,13 @@ export function createProjectApi({ projectId, apiClient = defaultApi, downloadFi
     importRecords: (kind, form) => post(`imports/${kind}`, form),
     exportRecords: (kind, filename) => download(`exports/${kind}`, filename),
     exportReport: filename => download('reports/current/excel', filename),
+    listVersions: () => apiClient.get(`${path}/versions`),
+    saveVersion: () => apiClient.post(`${path}/versions`),
+    getVersion: versionId => get(`versions/${versionId}`),
+    renameVersion: (versionId, name) => patch(`versions/${versionId}`, { name }),
+    deleteVersion: versionId => remove(`versions/${versionId}`),
+    exportVersionReport: (versionId, type, filename) => download(`reports/${versionId}/${type}`, filename),
+    exportCurrentReportPdf: filename => download('reports/current/pdf', filename),
     patchProject: body => apiClient.patch(path, body),
   }
 }

@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
 import { ReportsController } from './reports.controller'
 import { ReportsService } from './reports.service'
+import { ExcelReportRenderer } from './excel-report.renderer'
+import { PdfReportRenderer } from './pdf-report.renderer'
 import { ProjectsModule } from '../projects/projects.module'
 import { AnalysisModule } from '../analysis/analysis.module'
 import { AuditModule } from '../audit/audit.module'
@@ -8,6 +10,6 @@ import { AuditModule } from '../audit/audit.module'
 @Module({
   imports: [ProjectsModule, AnalysisModule, AuditModule],
   controllers: [ReportsController],
-  providers: [ReportsService],
+  providers: [ReportsService, ExcelReportRenderer, PdfReportRenderer],
 })
 export class ReportsModule {}
