@@ -7,6 +7,14 @@ import { districtsOf, normalizeDistrict, provinces } from '@/data/cities'
 
 const router = useRouter(); const projects = ref<ProjectSummary[]>([]); const loading = ref(true); const saving = ref(false); const dialog = ref(false); const pageError = ref('')
 const removing = ref<number | null>(null)
+const projectStats = computed(() => {
+  const totalArea = projects.value.reduce((sum, project) => sum + Number(project.buildingArea || 0), 0)
+  const latest = projects.value.reduce<string | null>((current, project) => {
+    if (!current || new Date(project.updatedAt) > new Date(current)) return project.updatedAt
+    return current
+  }, null)
+  return { totalArea, latest }
+})
 const cityOptions = computed(() => districtsOf(form.province))
 function syncDistrict() { form.cityDistrict = normalizeDistrict(form.province, form.cityDistrict) }
 const form = reactive({ projectName: '', buildingArea: 0, province: '', cityDistrict: '', address: '', buildingType: '', structureType: '', floorCount: '', designLife: '', startDate: '', plannedCompletionDate: '', projectManager: '', accountingStandard: 'GB/T 51366-2019' })
@@ -22,6 +30,11 @@ onMounted(load)
       <div><h1>我的项目</h1><p class="muted">查看项目资料、核算记录和已保存的版本。</p></div>
       <el-button type="primary" class="primary-button" @click="openCreate">新建项目</el-button>
     </div>
+    <section class="project-overview-strip" aria-label="项目概览">
+      <div class="overview-stat"><span>项目总数</span><strong>{{ projects.length }}</strong><small>个项目</small></div>
+      <div class="overview-stat"><span>建筑总面积</span><strong>{{ projectStats.totalArea.toLocaleString() }}</strong><small>㎡</small></div>
+      <div class="overview-stat overview-stat-date"><span>最近更新</span><strong>{{ projectStats.latest ? new Date(projectStats.latest).toLocaleDateString() : '—' }}</strong><small>{{ projectStats.latest ? '持续维护中' : '尚无项目' }}</small></div>
+    </section>
     <el-alert v-if="pageError" :title="pageError" type="error" show-icon :closable="false" class="project-load-error">
       <template #default><el-button link type="primary" @click="load">重新加载</el-button></template>
     </el-alert>
@@ -74,4 +87,32 @@ onMounted(load)
 .projects-table :deep(td.el-table__cell) { padding-block: 19px; }
 .empty-state { padding: 60px 24px; }
 .empty-state p { margin-bottom: 24px; }
+.project-overview-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 0 32px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  background: rgba(0, 0, 0, 0.08);
+  box-shadow: var(--platform-shadow-sm);
+}
+.overview-stat {
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 22px 24px;
+  background: #FFFFFF;
+}
+.overview-stat span, .overview-stat small { color: var(--platform-muted); font-size: 13px; }
+.overview-stat strong { color: var(--platform-ink); font-size: 28px; font-weight: 600; line-height: 1.2; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+.overview-stat-date strong { color: var(--color-system-blue); font-size: 22px; }
+@media (max-width: 600px) {
+  .project-overview-strip { grid-template-columns: 1fr; border-radius: 20px; }
+  .overview-stat { min-height: 92px; padding: 18px 20px; }
+  .overview-stat + .overview-stat { border-top: 1px solid rgba(0, 0, 0, 0.08); }
+}
 </style>
