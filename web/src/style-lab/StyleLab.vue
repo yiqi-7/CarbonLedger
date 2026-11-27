@@ -4,7 +4,7 @@ import StyleShell from './StyleShell.vue'
 import { providePreview } from '../design-preview/state'
 import type { PageId } from '../design-preview/types'
 
-type ThemeId = 'swiss' | 'carbon-dark' | 'architect' | 'nordic' | 'print' | 'terminal'
+type ThemeId = 'swiss' | 'carbon-dark' | 'architect' | 'nordic' | 'print' | 'terminal' | 'bauhaus' | 'biophilic' | 'cobalt' | 'museum' | 'brutalist'
 
 const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = [
   { id: 'swiss', letter: 'A', name: 'Swiss Data', detail: '瑞士数据排版' },
@@ -13,6 +13,11 @@ const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = 
   { id: 'nordic', letter: 'D', name: 'Nordic Frost', detail: '北欧冷调' },
   { id: 'print', letter: 'E', name: 'Editorial Print', detail: '印刷刊物' },
   { id: 'terminal', letter: 'F', name: 'Data Terminal', detail: '数据终端' },
+  { id: 'bauhaus', letter: 'G', name: 'Bauhaus Signal', detail: '包豪斯信号' },
+  { id: 'biophilic', letter: 'H', name: 'Biophilic Ledger', detail: '生态账本' },
+  { id: 'cobalt', letter: 'I', name: 'Cobalt Editorial', detail: '钴蓝编辑部' },
+  { id: 'museum', letter: 'J', name: 'Museum Paper', detail: '博物馆纸张' },
+  { id: 'brutalist', letter: 'K', name: 'Grid Brutalist', detail: '网格粗野主义' },
 ]
 
 const pages: { id: PageId; name: string }[] = [

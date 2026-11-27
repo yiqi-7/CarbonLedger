@@ -672,6 +672,123 @@
 [data-theme="terminal"] .shell-nav button,
 [data-theme="terminal"] .shell-project span { font-family: var(--s-mono); }
 
+/* ============================================================
+   G. Bauhaus Signal — 包豪斯信号
+   Geometry-first, warm paper, black structure and one red action colour.
+   ============================================================ */
+[data-theme="bauhaus"],
+[data-theme="biophilic"],
+[data-theme="cobalt"],
+[data-theme="museum"],
+[data-theme="brutalist"] {
+  --s-border-w: 1px;
+  --s-font: "Helvetica Neue", Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --s-heading-font: var(--s-font);
+  --s-sidebar-width: 224px;
+  --s-brand-radius: 0;
+  --s-header-height: 60px;
+  --s-gutter: 32px;
+  --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px;
+  --s-content-width: 1120px;
+  --s-metric-size: clamp(26px, 2.6vw, 34px);
+  --s-metric-weight: 600;
+  --s-panel-title-size: 15px;
+  --s-panel-title-weight: 600;
+  --s-label-transform: none;
+  --s-label-tracking: 0;
+  --s-action-weight: 600;
+  --s-active-weight: 600;
+  --v-font: var(--s-font);
+  --v-title-weight: 600;
+  --v-title-size: 32px;
+}
+
+[data-theme="bauhaus"] {
+  color-scheme: light;
+  --s-canvas: #F2EFE8; --s-surface: #FFFDF7; --s-text: #191919; --s-muted: #696862;
+  --s-border: #191919; --s-accent: #D83A2E; --s-accent-hover: #B92E25; --s-accent-text: #C53228; --s-accent-contrast: #FFFDF7;
+  --s-tint: #F9E3DE; --s-field-bg: #FFFDF7; --s-focus: #D83A2E;
+  --s-heading-font: var(--s-font); --s-sidebar-bg: #F7F3EA; --s-sidebar-text: #272727; --s-sidebar-muted: #77746B;
+  --s-sidebar-icon: #55534E; --s-sidebar-active-bg: #191919; --s-sidebar-active-text: #FFFDF7; --s-sidebar-hover-bg: #EDE7DA; --s-sidebar-hover-text: #191919; --s-sidebar-border: #191919;
+  --s-header-bg: #FFFDF7; --s-header-text: #191919; --s-header-border: #191919; --s-brand-bg: #D83A2E; --s-brand-text: #FFFDF7; --s-crumb-sep: #9C9990;
+  --s-radius-card: 0; --s-radius-control: 0; --s-radius-pill: 0; --s-shadow: none; --s-table-head-bg: #191919; --s-table-head-text: #FFFDF7; --s-row-line: #D8D3C8; --s-row-hover: #F7EDE7; --s-track-bg: #D8D3C8; --s-bar: #D83A2E; --s-notice-bg: #191919; --s-notice-text: #FFFDF7;
+  --v-bg: #F2EFE8; --v-surface: #FFFDF7; --v-text: #191919; --v-muted: #696862; --v-line: #D8D3C8; --v-accent: #D83A2E; --v-tint: #F9E3DE; --v-radius: 0;
+}
+[data-theme="bauhaus"] .metrics-strip { border-top: 6px solid #191919; }
+[data-theme="bauhaus"] .shell-nav button.active { box-shadow: 5px 5px 0 #D83A2E; }
+
+/* ============================================================
+   H. Biophilic Ledger — 生态账本
+   Quiet mineral greens, soft surfaces and a calm environmental tone.
+   ============================================================ */
+[data-theme="biophilic"] {
+  color-scheme: light;
+  --s-canvas: #EEF2EA; --s-surface: #FAFCF7; --s-text: #203128; --s-muted: #6B7D70;
+  --s-border: #D5E0D4; --s-accent: #28724C; --s-accent-hover: #1D5C3B; --s-accent-text: #28724C; --s-accent-contrast: #FFFFFF;
+  --s-tint: #E0EEE2; --s-field-bg: #F8FBF6; --s-focus: #28724C;
+  --s-sidebar-bg: #E5EDE3; --s-sidebar-text: #345441; --s-sidebar-muted: #78917E; --s-sidebar-icon: #5D7C67; --s-sidebar-active-bg: #D0E5D4; --s-sidebar-active-text: #205A39; --s-sidebar-hover-bg: #DCE8DA; --s-sidebar-hover-text: #203128; --s-sidebar-border: #D0DDD0;
+  --s-header-bg: #F8FBF6; --s-header-text: #203128; --s-header-border: #D5E0D4; --s-brand-bg: #28724C; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #A8B9A9;
+  --s-radius-card: 18px; --s-radius-control: 11px; --s-radius-pill: 999px; --s-shadow: 0 3px 14px rgba(32, 49, 40, .06); --s-table-head-bg: #EAF2E9; --s-table-head-text: #58715F; --s-row-line: #E3ECE1; --s-row-hover: #F1F7F0; --s-track-bg: #DCE9DC; --s-bar: #28724C; --s-notice-bg: #28724C; --s-notice-text: #FFFFFF;
+  --v-bg: #EEF2EA; --v-surface: #FAFCF7; --v-text: #203128; --v-muted: #6B7D70; --v-line: #D5E0D4; --v-accent: #28724C; --v-tint: #E0EEE2; --v-radius: 18px;
+}
+[data-theme="biophilic"] .shell-brand-name { letter-spacing: .015em; }
+[data-theme="biophilic"] .recovery-line b { color: #28724C; }
+
+/* ============================================================
+   I. Cobalt Editorial — 钴蓝编辑部
+   Crisp white pages, cobalt action colour and restrained blue hierarchy.
+   ============================================================ */
+[data-theme="cobalt"] {
+  color-scheme: light;
+  --s-canvas: #F5F7FB; --s-surface: #FFFFFF; --s-text: #172033; --s-muted: #68748A;
+  --s-border: #DCE3F0; --s-accent: #3457E8; --s-accent-hover: #2946C8; --s-accent-text: #3457E8; --s-accent-contrast: #FFFFFF;
+  --s-tint: #EAF0FF; --s-field-bg: #F8FAFE; --s-focus: #3457E8;
+  --s-sidebar-bg: #FFFFFF; --s-sidebar-text: #45536A; --s-sidebar-muted: #8692A6; --s-sidebar-icon: #68758A; --s-sidebar-active-bg: #EAF0FF; --s-sidebar-active-text: #2946C8; --s-sidebar-hover-bg: #F2F5FA; --s-sidebar-hover-text: #172033; --s-sidebar-border: #E0E6F0;
+  --s-header-bg: #FFFFFF; --s-header-text: #172033; --s-header-border: #E0E6F0; --s-brand-bg: #3457E8; --s-brand-text: #FFFFFF; --s-brand-radius: 8px; --s-crumb-sep: #BCC6D6;
+  --s-radius-card: 12px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 4px 18px rgba(35, 58, 110, .06); --s-table-head-bg: #F2F5FA; --s-table-head-text: #68748A; --s-row-line: #E7ECF4; --s-row-hover: #F4F7FF; --s-track-bg: #DDE5F3; --s-bar: #3457E8; --s-notice-bg: #172033; --s-notice-text: #FFFFFF;
+  --v-bg: #F5F7FB; --v-surface: #FFFFFF; --v-text: #172033; --v-muted: #68748A; --v-line: #DCE3F0; --v-accent: #3457E8; --v-tint: #EAF0FF; --v-radius: 12px;
+}
+[data-theme="cobalt"] .metric-cell strong { color: #2946C8; }
+[data-theme="cobalt"] .shell-crumb strong { color: #3457E8; }
+
+/* ============================================================
+   J. Museum Paper — 博物馆纸张
+   Quiet ivory paper, serif titles and a restrained ochre accent.
+   ============================================================ */
+[data-theme="museum"] {
+  color-scheme: light;
+  --s-canvas: #F3F0E8; --s-surface: #FBFAF5; --s-text: #29261F; --s-muted: #797266;
+  --s-border: #D8D1C1; --s-accent: #A06A2C; --s-accent-hover: #835522; --s-accent-text: #925D25; --s-accent-contrast: #FBFAF5;
+  --s-tint: #EFE6D6; --s-field-bg: #FBFAF5; --s-focus: #A06A2C;
+  --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif; --s-sidebar-bg: #EBE5D8; --s-sidebar-text: #4C473C; --s-sidebar-muted: #8B8374; --s-sidebar-icon: #756C5E; --s-sidebar-active-bg: #D9CDB9; --s-sidebar-active-text: #6C431D; --s-sidebar-hover-bg: #E3DCCD; --s-sidebar-hover-text: #29261F; --s-sidebar-border: #D2C9B7;
+  --s-header-bg: #FBFAF5; --s-header-text: #29261F; --s-header-border: #D8D1C1; --s-brand-bg: #29261F; --s-brand-text: #FBFAF5; --s-brand-radius: 50%; --s-crumb-sep: #B9AF9D;
+  --s-radius-card: 6px; --s-radius-control: 5px; --s-radius-pill: 5px; --s-shadow: 0 2px 10px rgba(62, 51, 34, .05); --s-table-head-bg: #F1EDE3; --s-table-head-text: #797266; --s-row-line: #E5DED0; --s-row-hover: #F6F1E8; --s-track-bg: #E2D9C9; --s-bar: #A06A2C; --s-notice-bg: #29261F; --s-notice-text: #FBFAF5;
+  --v-bg: #F3F0E8; --v-surface: #FBFAF5; --v-text: #29261F; --v-muted: #797266; --v-line: #D8D1C1; --v-accent: #A06A2C; --v-tint: #EFE6D6; --v-radius: 6px;
+  --v-title-weight: 600; --v-title-size: 34px;
+}
+[data-theme="museum"] .preview-content h1,
+[data-theme="museum"] .preview-content h2 { letter-spacing: 0; }
+[data-theme="museum"] .preview-table th { font-family: var(--s-heading-font); }
+
+/* ============================================================
+   K. Grid Brutalist — 网格粗野主义
+   Strong black rules, yellow signal colour and unapologetic structure.
+   ============================================================ */
+[data-theme="brutalist"] {
+  color-scheme: light;
+  --s-canvas: #F5F4ED; --s-surface: #FFFFFF; --s-text: #101010; --s-muted: #555555;
+  --s-border: #101010; --s-border-w: 2px; --s-accent: #F2C600; --s-accent-hover: #DDB500; --s-accent-text: #8A6900; --s-accent-contrast: #101010;
+  --s-tint: #FFF5BF; --s-field-bg: #FFFFFF; --s-focus: #101010;
+  --s-sidebar-bg: #101010; --s-sidebar-text: #FFFFFF; --s-sidebar-muted: #BDBDBD; --s-sidebar-icon: #D0D0D0; --s-sidebar-active-bg: #F2C600; --s-sidebar-active-text: #101010; --s-sidebar-hover-bg: #292929; --s-sidebar-hover-text: #FFFFFF; --s-sidebar-border: #101010;
+  --s-header-bg: #FFFFFF; --s-header-text: #101010; --s-header-border: #101010; --s-brand-bg: #F2C600; --s-brand-text: #101010; --s-brand-radius: 0; --s-crumb-sep: #7A7A7A;
+  --s-radius-card: 0; --s-radius-control: 0; --s-radius-pill: 0; --s-shadow: 6px 6px 0 #101010; --s-table-head-bg: #101010; --s-table-head-text: #FFFFFF; --s-row-line: #101010; --s-row-hover: #FFF5BF; --s-track-bg: #D8D5C6; --s-bar: #101010; --s-notice-bg: #101010; --s-notice-text: #F2C600;
+  --v-bg: #F5F4ED; --v-surface: #FFFFFF; --v-text: #101010; --v-muted: #555555; --v-line: #101010; --v-accent: #F2C600; --v-tint: #FFF5BF; --v-radius: 0;
+  --v-title-weight: 800; --v-title-size: 34px;
+}
+[data-theme="brutalist"] .shell-nav button.active { box-shadow: 4px 4px 0 #F2C600; }
+[data-theme="brutalist"] .primary-action { border: 2px solid #101010; }
+[data-theme="brutalist"] .preview-table th { font-weight: 700; }
+
 /* ---------- Responsive: layout rules stay shared ---------- */
 @media (max-width: 1080px) {
   .lab-bar { gap: 14px; padding: 10px 16px; }
