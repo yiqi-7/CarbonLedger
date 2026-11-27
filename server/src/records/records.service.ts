@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { ProjectsService } from '../projects/projects.service'
+import { RecordAccessService } from './record-access.service'
 import {
   CONSTRUCTION_ENERGY_TYPES,
   buildEmission,
@@ -45,13 +45,13 @@ import type {
 export class RecordsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly projects: ProjectsService,
+    private readonly access: RecordAccessService,
   ) {}
 
   // ==================== 建材 ====================
 
   async listBuildMaterials(projectId: number, userId: number): Promise<BuildMaterialRecord[]> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     return this.prisma.buildMaterial.findMany({
       where: { projectId },
       orderBy: { id: 'asc' },
@@ -63,7 +63,7 @@ export class RecordsService {
     userId: number,
     dto: CreateBuildMaterialDto,
   ): Promise<BuildMaterialRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
 
     let materialName = dto.materialName?.trim()
     let type = dto.type?.trim()
@@ -122,7 +122,7 @@ export class RecordsService {
     materialId: number,
     dto: UpdateBuildMaterialDto,
   ): Promise<BuildMaterialRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.buildMaterial.findFirst({
       where: { id: materialId, projectId },
     })
@@ -173,7 +173,7 @@ export class RecordsService {
     userId: number,
     materialId: number,
   ): Promise<{ deleted: true }> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.buildMaterial.findFirst({
       where: { id: materialId, projectId },
     })
@@ -200,7 +200,7 @@ export class RecordsService {
   // ==================== 运输 ====================
 
   async listTransportRecords(projectId: number, userId: number): Promise<TransportRecord[]> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     return this.prisma.transportRecord.findMany({
       where: { projectId },
       orderBy: { id: 'asc' },
@@ -212,7 +212,7 @@ export class RecordsService {
     userId: number,
     dto: CreateTransportRecordDto,
   ): Promise<TransportRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const config = await this.prisma.transportFactorConfig.findFirst({
       where: { id: dto.factorConfigId, projectId },
     })
@@ -245,7 +245,7 @@ export class RecordsService {
     recordId: number,
     dto: UpdateTransportRecordDto,
   ): Promise<TransportRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.transportRecord.findFirst({
       where: { id: recordId, projectId },
     })
@@ -290,7 +290,7 @@ export class RecordsService {
     userId: number,
     recordId: number,
   ): Promise<{ deleted: true }> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.transportRecord.findFirst({
       where: { id: recordId, projectId },
     })
@@ -302,7 +302,7 @@ export class RecordsService {
   // ==================== 施工 ====================
 
   async listConstructionRecords(projectId: number, userId: number): Promise<ConstructionRecord[]> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     return this.prisma.constructionRecord.findMany({
       where: { projectId },
       orderBy: { id: 'asc' },
@@ -314,7 +314,7 @@ export class RecordsService {
     userId: number,
     dto: CreateConstructionRecordDto,
   ): Promise<ConstructionRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const energy = CONSTRUCTION_ENERGY_TYPES[dto.energyType as ConstructionEnergyType]
     const emissionFactor = dto.emissionFactor == null ? energy.emissionFactor : Number(dto.emissionFactor)
     const shiftCount = Number(dto.shiftCount)
@@ -347,7 +347,7 @@ export class RecordsService {
     recordId: number,
     dto: UpdateConstructionRecordDto,
   ): Promise<ConstructionRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.constructionRecord.findFirst({
       where: { id: recordId, projectId },
     })
@@ -395,7 +395,7 @@ export class RecordsService {
     userId: number,
     recordId: number,
   ): Promise<{ deleted: true }> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.constructionRecord.findFirst({
       where: { id: recordId, projectId },
     })
@@ -407,7 +407,7 @@ export class RecordsService {
   // ==================== 回收 ====================
 
   async listRecyclingRecords(projectId: number, userId: number): Promise<RecyclingRecord[]> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     return this.prisma.recyclingRecord.findMany({
       where: { projectId },
       orderBy: { id: 'asc' },
@@ -419,7 +419,7 @@ export class RecordsService {
     userId: number,
     dto: CreateRecyclingRecordDto,
   ): Promise<RecyclingRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const quantity = Number(dto.recyclingQuantity)
     const factor = Number(dto.recyclingFactor)
     const coefficient = Number(dto.recyclingCoefficient ?? 0)
@@ -449,7 +449,7 @@ export class RecordsService {
     recordId: number,
     dto: UpdateRecyclingRecordDto,
   ): Promise<RecyclingRecord> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.recyclingRecord.findFirst({
       where: { id: recordId, projectId },
     })
@@ -499,7 +499,7 @@ export class RecordsService {
     userId: number,
     recordId: number,
   ): Promise<{ deleted: true }> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const existing = await this.prisma.recyclingRecord.findFirst({
       where: { id: recordId, projectId },
     })
