@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import LineFieldBackground from '@/components/LineFieldBackground.vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Lock, User } from '@element-plus/icons-vue'
@@ -10,6 +11,8 @@ const router = useRouter()
 const auth = useAuthStore()
 const form = reactive({ username: '', password: '' })
 const error = ref('')
+const motionPaused = ref(typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+function toggleMotion() { motionPaused.value = !motionPaused.value }
 async function submit() {
   if (auth.loading) return
   error.value = ''
@@ -29,7 +32,14 @@ async function submit() {
 
 <template>
   <section class="login-page">
+    <LineFieldBackground :paused="motionPaused" />
     <div class="login-content">
+      <div class="login-meta">
+        <span>碳建智算 / 视觉研究</span>
+        <button class="motion-toggle" type="button" :aria-pressed="motionPaused" @click="toggleMotion">
+          {{ motionPaused ? '恢复动态' : '暂停动态' }}
+        </button>
+      </div>
       <header class="login-brand">
         <h1>碳建智算平台</h1>
       </header>
@@ -56,6 +66,7 @@ async function submit() {
 :global(body:has(.login-page)) { min-width: 0; }
 .login-page {
   position: relative;
+  isolation: isolate;
   min-height: 100vh;
   min-height: 100svh;
   color: #FFFFFF;
@@ -70,6 +81,8 @@ async function submit() {
   font-family: var(--el-font-family);
 }
 .login-content {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -79,6 +92,31 @@ async function submit() {
   min-height: 100svh;
   padding: 56px 24px 88px;
 }
+.login-meta {
+  position: absolute;
+  top: 26px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(29, 29, 31, 0.55);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.motion-toggle {
+  min-height: 36px;
+  padding: 7px 14px;
+  border: 1px solid rgba(29, 29, 31, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.64);
+  color: #1D1D1F;
+  font-size: 12px;
+  cursor: pointer;
+}
+.motion-toggle:hover { background: rgba(255, 255, 255, 0.90); }
+.motion-toggle:focus-visible { outline: 2px solid #0071E3; outline-offset: 3px; }
 .login-brand h1 {
   margin: 0;
   color: #FFFFFF;
@@ -188,7 +226,24 @@ async function submit() {
   .login-card { padding-inline: 20px; }
 }
 /* Apple light authentication surface */
-.login-page { color: #1D1D1F; background: #F5F5F7; background-image: none; }
+.login-page { color: #1D1D1F; background: #F5F5F7; background-image: none; overflow: hidden; }
+.login-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(245, 245, 247, 0.18), rgba(245, 245, 247, 0.62));
+}
+.login-card { position: relative; }
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: #FFFFFF;
+}
 .login-content { gap: 48px; padding: 64px 24px 96px; }
 .login-brand h1 { color: #1D1D1F; font-size: 56px; font-weight: 600; letter-spacing: -0.025em; }
 .login-card { width: 460px; padding: 40px; border: 0; border-radius: 24px; background: #FFFFFF; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); backdrop-filter: none; -webkit-backdrop-filter: none; }
