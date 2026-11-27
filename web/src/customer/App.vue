@@ -6,6 +6,7 @@ import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
 import { useCostAnalysisViewModel } from './composables/useCostAnalysisViewModel.js'
 import { useProjectImportExport } from './composables/useProjectImportExport.js'
 import { useProjectInfoEditor } from './composables/useProjectInfoEditor.js'
+import { useCustomerRecordPersistence } from './composables/useCustomerRecordPersistence.js'
 import { useRecordFilters } from './composables/useRecordFilters.js'
 import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
@@ -114,7 +115,6 @@ const persistence = createProjectPersistence({
   onError: notify,
 })
 const creatingBuildMaterials = new Set()
-const rowInputOwners = new WeakMap()
 // Pending numeric inputs use the customer's blur-only binding. Keep their
 // focused text outside reactivity until blur so a render cannot reset typing.
 const pendingBuildInputDrafts = {}
@@ -178,6 +178,16 @@ const projectInfoEditor = useProjectInfoEditor({
   URLRef: URL,
 })
 const { handleFileChange, removeUploadedImage, readFileAsDataUrl, saveProjectChanges } = projectInfoEditor
+const recordPersistence = useCustomerRecordPersistence({
+  projectApi,
+  persistence,
+  canSave,
+  transportVehicleConfigurations,
+  transportMaterialList,
+  constructionMaterialList,
+  documentRef: document,
+})
+const { registerRowInputOwner, saveRow, deleteRow } = recordPersistence
 
 function flushPendingBuildInput(id) {
   const active = document.activeElement
@@ -186,84 +196,10 @@ function flushPendingBuildInput(id) {
   if (originalId === String(id)) active.blur()
 }
 
-function flushCreatedRowInput(kind, id) {
-  const active = document.activeElement
-  const owner = active && rowInputOwners.get(active)
-  if (owner?.kind === kind && owner.id === id) active.blur()
-}
-
 function canSave() {
   if (dataReady.value) return true
   notify('项目数据尚未加载完成，请刷新后重试')
   return false
-}
-
-async function saveRow(kind, material, field, updates, drafts, input, target) {
-  if (!canSave()) return
-  const originalId = material.id
-  const isTemporary = originalId < 0
-  if (!drafts[originalId]) drafts[originalId] = {}
-  drafts[originalId][field] = input
-  const unchanged = Object.entries(updates).every(([key, value]) => {
-    if (kind === 'transport-records' && key === 'factorConfigId') {
-      const config = transportVehicleConfigurations.value.find(item => item.id === value)
-      return config && material.vehicleName === config.vehicleName
-        && material.energyType === config.energyType && material.emissionFactor === config.emissionFactor
-    }
-    return material[key] === value
-  })
-  if (!isTemporary && unchanged && persistence.pendingCount === 0) {
-    persistence.clearDraft(drafts, originalId, field, input)
-    return
-  }
-  if (isTemporary) {
-    // Empty customer rows stay local until their required name is entered.
-    const localUpdates = { ...updates }
-    if (kind === 'transport-records' && updates.factorConfigId) {
-      const config = transportVehicleConfigurations.value.find(item => item.id === updates.factorConfigId)
-      Object.assign(localUpdates, {
-        vehicleName: config.vehicleName, energyType: config.energyType, emissionFactor: config.emissionFactor,
-      })
-    }
-    const list = kind === 'transport-records' ? transportMaterialList : constructionMaterialList
-    list.updateById(material.id, localUpdates)
-    const name = kind === 'transport-records' ? material.transportedMaterial : material.machineryName
-    if (!name.trim()) {
-      persistence.clearDraft(drafts, originalId, field, input)
-      return
-    }
-  }
-  const result = await persistence.enqueue(async () => {
-    const id = persistence.resolveId(originalId)
-    if (id > 0) return persistence.patch(kind, id, updates)
-    const list = kind === 'transport-records' ? transportMaterialList : constructionMaterialList
-    if (!list.toArray().some(row => row.id === id)) return false
-    const payload = kind === 'transport-records'
-      ? {
-          factorConfigId: material.factorConfigId,
-          transportedMaterial: material.transportedMaterial,
-          transportQuantity: material.transportQuantity,
-          transportDistance: material.transportDistance,
-          transportUnitPrice: material.transportUnitPrice,
-        }
-      : {
-          machineryName: material.machineryName, energyType: material.energyType,
-          shiftCount: material.shiftCount, energyPerShift: material.energyPerShift,
-          shiftUnitPrice: material.shiftUnitPrice,
-        }
-    const { data } = await projectApi.createRecord(kind, payload)
-    flushCreatedRowInput(kind, originalId)
-    persistence.adoptCreated(list, material, data, drafts)
-    return data
-  })
-  if (result !== null) {
-    persistence.clearDraft(drafts, originalId, field, input)
-  }
-}
-
-function deleteRow(kind, material, drafts) {
-  if (!canSave()) return
-  return persistence.enqueue(() => persistence.remove(kind, material, drafts))
 }
 
 async function navigateToPage(page) {
@@ -555,13 +491,13 @@ function setRecyclingDraft(materialId, field, event) {
 }
 
 function setConstructionDraft(materialId, field, event) {
-  rowInputOwners.set(event.target, { kind: 'construction-records', id: materialId })
+  registerRowInputOwner(event.target, 'construction-records', materialId)
   if (!constructionEditDrafts[materialId]) constructionEditDrafts[materialId] = {}
   constructionEditDrafts[materialId][field] = event.target.value
 }
 
 function setTransportDraft(materialId, field, event) {
-  rowInputOwners.set(event.target, { kind: 'transport-records', id: materialId })
+  registerRowInputOwner(event.target, 'transport-records', materialId)
   if (!transportEditDrafts[materialId]) transportEditDrafts[materialId] = {}
   transportEditDrafts[materialId][field] = event.target.value
 }

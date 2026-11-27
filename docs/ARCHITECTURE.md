@@ -221,14 +221,14 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 
 当前阶段已完成：
 
-- customer persistence/runtime 生命周期保护、分析排放与成本 view model、记录筛选、导入导出交互和项目版本/报告 API facade 已拆成独立边界；`App.vue` 继续组合旧 data model 与模板 handler。
+- customer persistence/runtime 生命周期保护、分析排放与成本 view model、记录筛选、导入导出交互、项目版本/报告 API facade，以及记录保存/删除队列协调已拆成独立边界；`App.vue` 继续组合旧 data model 与模板 handler。
 - `RecordsService` facade 已将建材、运输、施工、回收 CRUD 分别委托给内部服务；导入写入也通过授权后的 facade 内部入口，回收增量联动仍由 `RecyclingSyncService` 负责。
 - `AnalysisService` 已拆为授权数据 loader 与 shared 公式 calculator；`ReportsService` 已拆为 Excel/PDF renderer；`VersionsService` 已拆为 snapshot factory 与 project-scoped repository。
 - shared/web/server controller 依赖方向已有 AST 架构测试；records 内部 deep import 使用精确 baseline，已有违规不得增加。
 
 仍待逐步完成：
 
-- customer `App.vue` 中的项目编辑、因子配置和四类记录编辑/创建删除逻辑；新增 feature 不应继续堆入此文件。
+- customer `App.vue` 中的项目编辑、因子配置和四类记录字段校验/配置选择逻辑；新增 feature 不应继续堆入此文件。
 - `ProjectToolsView.vue` 已通过项目 API facade 访问项目、因子、版本和报告；Versions 当前仍保留旧的名称写回 snapshot JSON 语义。
 - 版本编号已增加限定 composite unique 冲突的有界重试，并在重试时重建带最终编号的 snapshot；仍待迁移独立名称元数据、customer 版本页面和报告页面的 feature 归属。
 - 最后的 JavaScript data model 到 TypeScript 迁移。
@@ -242,7 +242,7 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 - 项目权限仍先于子资源查询，其他用户和管理员越权仍返回原有 403；
 - 不存在项目仍返回 404，跨项目记录 ID 仍按原规则返回记录不存在；
 - shared 计算结果、运输总价旧公式和回收增量同步语义不变；
-- `CalcVersion` 快照保持不可变，报告仍从当前数据或指定快照生成。
+- `CalcVersion` 的核算 payload 保持不可变；版本名称沿用兼容语义允许更新，报告仍从当前数据或指定快照生成。
 
 不得在内部服务拆分时直接引入会裁剪 Prisma 字段的白名单 response mapper。若未来需要版本化响应，使用新的 API contract 或 `/api/v2`，不破坏当前接口。
 
