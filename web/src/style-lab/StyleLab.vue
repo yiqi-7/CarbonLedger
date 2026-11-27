@@ -4,23 +4,23 @@ import StyleShell from './StyleShell.vue'
 import { providePreview } from '../design-preview/state'
 import type { PageId } from '../design-preview/types'
 
-type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'alpine-air' | 'copper-circuit' | 'mineral-blue' | 'saffron-archive' | 'plum-office' | 'paper-graph' | 'atlas-utility' | 'quartz-studio' | 'transit-orange' | 'charcoal-lime'
+type ThemeId = 'soft-utility' | 'graphite-editorial' | 'cloud-blue' | 'indigo-grid' | 'risograph-poster' | 'topographic-field' | 'bauhaus-archive' | 'ink-wash-data' | 'opal-prism' | 'kinetic-type' | 'riso-night' | 'field-notes' | 'topaz-monolith' | 'cyber-folk'
 
 const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = [
   { id: 'soft-utility', letter: 'D', name: 'Soft Utility', detail: '柔和工具界面（保留）' },
   { id: 'graphite-editorial', letter: 'E', name: 'Graphite Editorial', detail: '石墨编辑系统（保留）' },
   { id: 'cloud-blue', letter: 'I', name: 'Cloud Blue', detail: '云端蓝灰（保留）' },
   { id: 'indigo-grid', letter: 'L', name: 'Indigo Grid', detail: '靛蓝网格系统（保留）' },
-  { id: 'alpine-air', letter: 'N', name: 'Alpine Air', detail: '高山空气' },
-  { id: 'copper-circuit', letter: 'O', name: 'Copper Circuit', detail: '铜色线路' },
-  { id: 'mineral-blue', letter: 'P', name: 'Mineral Blue', detail: '矿物蓝灰' },
-  { id: 'saffron-archive', letter: 'Q', name: 'Saffron Archive', detail: '藏金档案' },
-  { id: 'plum-office', letter: 'R', name: 'Plum Office', detail: '李子紫事务所' },
-  { id: 'paper-graph', letter: 'S', name: 'Paper Graph', detail: '纸张图谱' },
-  { id: 'atlas-utility', letter: 'T', name: 'Atlas Utility', detail: '地图册工具' },
-  { id: 'quartz-studio', letter: 'U', name: 'Quartz Studio', detail: '石英工作室' },
-  { id: 'transit-orange', letter: 'V', name: 'Transit Orange', detail: '交通橙信号' },
-  { id: 'charcoal-lime', letter: 'W', name: 'Charcoal Lime', detail: '炭黑酸橙' },
+  { id: 'risograph-poster', letter: 'N', name: 'Risograph Poster', detail: '孔版海报' },
+  { id: 'topographic-field', letter: 'O', name: 'Topographic Field', detail: '等高线地形场' },
+  { id: 'bauhaus-archive', letter: 'P', name: 'Bauhaus Archive', detail: '几何档案' },
+  { id: 'ink-wash-data', letter: 'Q', name: 'Ink Wash Data', detail: '水墨数据' },
+  { id: 'opal-prism', letter: 'R', name: 'Opal Prism', detail: '蛋白石棱镜' },
+  { id: 'kinetic-type', letter: 'S', name: 'Kinetic Type', detail: '动态字场' },
+  { id: 'riso-night', letter: 'T', name: 'Riso Night', detail: '夜色套印' },
+  { id: 'field-notes', letter: 'U', name: 'Field Notes', detail: '现场笔记' },
+  { id: 'topaz-monolith', letter: 'V', name: 'Topaz Monolith', detail: '黄玉单体' },
+  { id: 'cyber-folk', letter: 'W', name: 'Cyber Folk', detail: '数字民艺' },
 ]
 
 const pages: { id: PageId; name: string }[] = [
