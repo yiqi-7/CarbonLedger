@@ -49,21 +49,46 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
       <ArrowLeft class="directory-icon" aria-hidden="true" /><span class="project-directory-label">返回我的项目</span>
     </a>
 
-    <button
-      class="sidebar-toggle"
-      type="button"
-      :aria-label="collapsed ? '展开导航栏' : '隐藏导航栏'"
-      :title="collapsed ? '展开导航栏' : '隐藏导航栏'"
-      @click="emit('toggle')"
-    >
-      <span class="sidebar-toggle-icon" aria-hidden="true"><component :is="collapsed ? ArrowRight : ArrowLeft" /></span>
-    </button>
   </aside>
+
+  <button
+    class="sidebar-toggle"
+    :class="{ 'sidebar-toggle-collapsed': collapsed }"
+    type="button"
+    :aria-label="collapsed ? '展开导航栏' : '隐藏导航栏'"
+    :title="collapsed ? '展开导航栏' : '隐藏导航栏'"
+    @click="emit('toggle')"
+  >
+    <span class="sidebar-toggle-icon" aria-hidden="true"><component :is="collapsed ? ArrowRight : ArrowLeft" /></span>
+  </button>
 </template>
 
 <style scoped>
 .brand-icon { width: 20px; height: 20px; }
-.nav-icon, .sidebar-toggle-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar-toggle {
+  position: fixed !important;
+  left: 14px !important;
+  bottom: 18px !important;
+  z-index: 1001 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  margin: 0 !important;
+  padding: 0;
+  border: 1px solid rgba(37, 65, 74, 0.14);
+  border-radius: 999px;
+  background: #F5F5F7;
+  color: #3D4E4E;
+  box-shadow: 0 4px 14px rgba(19, 37, 41, 0.16);
+  pointer-events: auto;
+}
+.sidebar-toggle:hover { background: #E8F2FC; border-color: rgba(0, 113, 227, 0.30); color: #0071E3; }
+.sidebar-toggle:focus-visible { outline: 2px solid #0071E3; outline-offset: 3px; }
+.sidebar-toggle-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
 .nav-icon svg, .sidebar-toggle-icon svg { width: 1em; height: 1em; }
 .directory-icon { width: 16px; height: 16px; flex-shrink: 0; }
 .project-directory-link {
