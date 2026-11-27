@@ -232,6 +232,9 @@ customer 的 API 只通过项目 facade 访问；iframe 通信只通过 `bridge.
 - customer 当前报告导出已归入 `useCustomerReports`，版本列表/查看/重命名/删除/保存与版本报告继续由 `ProjectToolsView` 负责；`App.vue` 不再承载报告导出实现。
 - 版本编号已增加限定 composite unique 冲突的有界重试，并在重试时重建带最终编号的 snapshot。
 - customer 下 11 个 data model 已迁移为 TypeScript，保留旧构造函数、链表、公式、全局对象和导入导出行为；customer utils 与 App 引用已同步更新。
+- UI 控件测试已补齐路由页核心动作：Login/Register/Projects/Admin 共 13 项，ProjectTools 因子与版本操作 8 项，Sidebar/TopHeader 控件契约 2 项；现有 customer interaction、Workspace iframe/session recovery 和 composable tests 继续覆盖工作区内记录、导入导出、分析与离开保护。
+- 当前测试环境没有 Vue Test Utils、Testing Library 或 jsdom，因此新增页面测试执行真实 `<script setup>` handlers，并对 Sidebar/TopHeader 做模板事件/ARIA 契约检查；未宣称浏览器 DOM、CSS、Element Plus 渲染层已覆盖。
+- TopHeader 搜索与组织切换、EmissionForm 取消、RecentRecords 操作、EmissionTrend 周期按钮目前是无业务 handler 的展示控件，已作为待产品确认项保留；通知和 Sidebar 导航/退出/折叠已有事件契约测试。
 - 后续可继续将 customer composables 与 utils 的 JavaScript 类型化，并按运行环境恢复情况执行生产部署验证。
 
 ### 9.6 API、数据和持久化契约
