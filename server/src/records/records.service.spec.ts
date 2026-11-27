@@ -1,17 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { PrismaService } from '../prisma/prisma.service'
 import type { BuildRecordService } from './build-record.service'
 import type { ConstructionRecordService } from './construction-record.service'
-import type { RecordAccessService } from './record-access.service'
 import { RecordsService } from './records.service'
+import type { RecyclingRecordService } from './recycling-record.service'
 import type { RecyclingSyncService } from './recycling-sync.service'
 import type { TransportRecordService } from './transport-record.service'
 import type {
   CreateBuildMaterialDto,
   CreateConstructionRecordDto,
+  CreateRecyclingRecordDto,
   CreateTransportRecordDto,
   UpdateBuildMaterialDto,
   UpdateConstructionRecordDto,
+  UpdateRecyclingRecordDto,
   UpdateTransportRecordDto,
 } from './records.dto'
 
@@ -20,11 +21,11 @@ describe('RecordsService', () => {
     buildRecords: Partial<BuildRecordService>,
     transportRecords: Partial<TransportRecordService> = {},
     constructionRecords: Partial<ConstructionRecordService> = {},
+    recyclingRecords: Partial<RecyclingRecordService> = {},
   ) => {
     return new RecordsService(
-      {} as PrismaService,
-      {} as RecordAccessService,
       {} as RecyclingSyncService,
+      recyclingRecords as RecyclingRecordService,
       buildRecords as BuildRecordService,
       constructionRecords as ConstructionRecordService,
       transportRecords as TransportRecordService,
@@ -109,12 +110,37 @@ describe('RecordsService', () => {
     expect(transportRecords.removeTransportRecord).toHaveBeenCalledWith(42, 7, 9)
   })
 
+  it('delegates all recycling public methods with original arguments and results', async () => {
+    const listResult = [{ id: 1 }]
+    const createResult = { id: 2 }
+    const updateResult = { id: 3 }
+    const removeResult = { deleted: true as const }
+    const recyclingRecords = {
+      listRecyclingRecords: vi.fn().mockResolvedValue(listResult),
+      createRecyclingRecord: vi.fn().mockResolvedValue(createResult),
+      updateRecyclingRecord: vi.fn().mockResolvedValue(updateResult),
+      removeRecyclingRecord: vi.fn().mockResolvedValue(removeResult),
+    }
+    const service = createService({}, {}, {}, recyclingRecords)
+    const createDto = {} as CreateRecyclingRecordDto
+    const updateDto = {} as UpdateRecyclingRecordDto
+
+    await expect(service.listRecyclingRecords(42, 7)).resolves.toBe(listResult)
+    await expect(service.createRecyclingRecord(42, 7, createDto)).resolves.toBe(createResult)
+    await expect(service.updateRecyclingRecord(42, 7, 9, updateDto)).resolves.toBe(updateResult)
+    await expect(service.removeRecyclingRecord(42, 7, 9)).resolves.toBe(removeResult)
+
+    expect(recyclingRecords.listRecyclingRecords).toHaveBeenCalledWith(42, 7)
+    expect(recyclingRecords.createRecyclingRecord).toHaveBeenCalledWith(42, 7, createDto)
+    expect(recyclingRecords.updateRecyclingRecord).toHaveBeenCalledWith(42, 7, 9, updateDto)
+    expect(recyclingRecords.removeRecyclingRecord).toHaveBeenCalledWith(42, 7, 9)
+  })
+
   it('delegates syncRecycling to RecyclingSyncService with the original arguments', async () => {
     const syncRecycling = vi.fn().mockResolvedValue(undefined)
     const service = new RecordsService(
-      {} as PrismaService,
-      {} as RecordAccessService,
       { syncRecycling } as unknown as RecyclingSyncService,
+      {} as RecyclingRecordService,
       {} as BuildRecordService,
       {} as ConstructionRecordService,
       {} as TransportRecordService,
