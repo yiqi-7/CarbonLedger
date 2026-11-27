@@ -1072,3 +1072,13 @@ button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue);
   .sidebar-toggle,
   .sidebar-collapsed .sidebar-toggle { left: 14px; bottom: 14px; }
 }
+
+/* Mouse selection should not add a second halo around building-type radios. */
+#project-form .choice input[type="radio"]:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+#project-form .choice input[type="radio"]:focus-visible {
+  outline: 2px solid #0071E3;
+  outline-offset: 3px;
+}
