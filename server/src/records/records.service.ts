@@ -1,12 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { BuildRecordService } from './build-record.service'
 import { RecordAccessService } from './record-access.service'
 import { RecyclingSyncService } from './recycling-sync.service'
+import { TransportRecordService } from './transport-record.service'
 import {
   CONSTRUCTION_ENERGY_TYPES,
   constructionEmission,
@@ -14,8 +11,6 @@ import {
   constructionTotalPrice,
   recyclingReduction,
   recyclingResidualValue,
-  transportEmission,
-  transportTotalPrice,
 } from '@carbonledger/shared'
 import type {
   BuildMaterialRecord,
@@ -46,6 +41,7 @@ export class RecordsService {
     private readonly access: RecordAccessService,
     private readonly recyclingSync: RecyclingSyncService,
     private readonly buildRecords: BuildRecordService,
+    private readonly transportRecords: TransportRecordService,
   ) {}
 
   // ==================== 建材 ====================
@@ -82,11 +78,7 @@ export class RecordsService {
   // ==================== 运输 ====================
 
   async listTransportRecords(projectId: number, userId: number): Promise<TransportRecord[]> {
-    await this.access.assertOwner(projectId, userId)
-    return this.prisma.transportRecord.findMany({
-      where: { projectId },
-      orderBy: { id: 'asc' },
-    }) as unknown as TransportRecord[]
+    return this.transportRecords.listTransportRecords(projectId, userId)
   }
 
   async createTransportRecord(
@@ -94,31 +86,7 @@ export class RecordsService {
     userId: number,
     dto: CreateTransportRecordDto,
   ): Promise<TransportRecord> {
-    await this.access.assertOwner(projectId, userId)
-    const config = await this.prisma.transportFactorConfig.findFirst({
-      where: { id: dto.factorConfigId, projectId },
-    })
-    if (!config) throw new NotFoundException('车辆配置不存在，请先在因子配置中添加运输方式')
-
-    const quantity = Number(dto.transportQuantity)
-    const distance = Number(dto.transportDistance)
-    const unitPrice = Number(dto.transportUnitPrice)
-    const created = await this.prisma.transportRecord.create({
-      data: {
-        projectId,
-        vehicleName: config.vehicleName,
-        transportedMaterial: dto.transportedMaterial,
-        transportQuantity: quantity,
-        transportDistance: distance,
-        energyType: config.energyType,
-        emissionFactor: config.emissionFactor,
-        transportUnitPrice: unitPrice,
-        isCustomMaterial: true,
-        emissionAmount: transportEmission(distance, quantity, config.emissionFactor),
-        transportTotalPrice: transportTotalPrice(distance, unitPrice),
-      },
-    })
-    return created as unknown as TransportRecord
+    return this.transportRecords.createTransportRecord(projectId, userId, dto)
   }
 
   async updateTransportRecord(
@@ -127,44 +95,7 @@ export class RecordsService {
     recordId: number,
     dto: UpdateTransportRecordDto,
   ): Promise<TransportRecord> {
-    await this.access.assertOwner(projectId, userId)
-    const existing = await this.prisma.transportRecord.findFirst({
-      where: { id: recordId, projectId },
-    })
-    if (!existing) throw new NotFoundException('运输记录不存在')
-
-    let vehicleName = existing.vehicleName
-    let energyType = existing.energyType
-    let emissionFactor = existing.emissionFactor
-    if (existing.isCustomMaterial && dto.factorConfigId != null) {
-      const config = await this.prisma.transportFactorConfig.findFirst({
-        where: { id: dto.factorConfigId, projectId },
-      })
-      if (!config) throw new NotFoundException('车辆配置不存在，请先在因子配置中添加运输方式')
-      vehicleName = config.vehicleName
-      energyType = config.energyType
-      emissionFactor = config.emissionFactor
-    }
-
-    const quantity = dto.transportQuantity == null ? existing.transportQuantity : Number(dto.transportQuantity)
-    const distance = dto.transportDistance == null ? existing.transportDistance : Number(dto.transportDistance)
-    const unitPrice =
-      dto.transportUnitPrice == null ? existing.transportUnitPrice : Number(dto.transportUnitPrice)
-    const updated = await this.prisma.transportRecord.update({
-      where: { id: recordId },
-      data: {
-        vehicleName,
-        energyType,
-        emissionFactor,
-        transportedMaterial: dto.transportedMaterial ?? existing.transportedMaterial,
-        transportQuantity: quantity,
-        transportDistance: distance,
-        transportUnitPrice: unitPrice,
-        emissionAmount: transportEmission(distance, quantity, emissionFactor),
-        transportTotalPrice: transportTotalPrice(distance, unitPrice),
-      },
-    })
-    return updated as unknown as TransportRecord
+    return this.transportRecords.updateTransportRecord(projectId, userId, recordId, dto)
   }
 
   async removeTransportRecord(
@@ -172,13 +103,7 @@ export class RecordsService {
     userId: number,
     recordId: number,
   ): Promise<{ deleted: true }> {
-    await this.access.assertOwner(projectId, userId)
-    const existing = await this.prisma.transportRecord.findFirst({
-      where: { id: recordId, projectId },
-    })
-    if (!existing) throw new NotFoundException('运输记录不存在')
-    await this.prisma.transportRecord.delete({ where: { id: recordId } })
-    return { deleted: true }
+    return this.transportRecords.removeTransportRecord(projectId, userId, recordId)
   }
 
   // ==================== 施工 ====================

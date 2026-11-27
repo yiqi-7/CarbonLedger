@@ -2,6 +2,7 @@
 import { computed, markRaw, nextTick, reactive, ref } from 'vue'
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, Upload } from '@element-plus/icons-vue'
 import { useCustomerRuntime } from './composables/useCustomerRuntime.js'
+import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
 import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
@@ -342,80 +343,27 @@ const filteredTransportMaterials = computed(() => {
     return matchesCategory && matchesName
   })
 })
-const analysisPieItems = computed(() => {
-  if (analysisSelectedStage.value === '建材碳排放') {
-    return allMaterials.value.map(material => ({
-      name: material.materialName,
-      quantity: material.quantity,
-      unit: material.unit,
-      factor: material.emissionFactor,
-      emission: material.emissionAmount
-    }))
-  }
-  if (analysisSelectedStage.value === '运输碳排放') {
-    return countedTransportMaterials.value.map(material => ({
-      name: material.transportedMaterial,
-      quantity: material.transportQuantity,
-      unit: 't',
-      factor: material.emissionFactor,
-      emission: material.emissionAmount
-    }))
-  }
-  if (analysisSelectedStage.value === '施工碳排放') {
-    return countedConstructionMaterials.value.map(material => ({
-      name: material.machineryName,
-      quantity: material.shiftCount,
-      unit: '台班',
-      factor: material.emissionFactor,
-      emission: material.emissionAmount / 1000
-    }))
-  }
-  return allRecyclingMaterials.value.map(material => ({
-    name: material.materialName,
-    quantity: material.recyclingQuantity,
-    unit: material.unit,
-    factor: material.recyclingFactor * material.recyclingCoefficient,
-    emission: material.reductionAmount
-  }))
-})
-const analysisPieTotal = computed(() =>
-  analysisPieItems.value.reduce((total, item) => total + item.emission, 0)
-)
-const analysisPieGradient = computed(() => {
-  if (analysisPieTotal.value <= 0) return 'conic-gradient(#E5EAE7 0deg 360deg)'
-  let currentAngle = 0
-  const segments = analysisPieItems.value.map((item, index) => {
-    const start = currentAngle
-    currentAngle += item.emission / analysisPieTotal.value * 360
-    return `${analysisColors[index % analysisColors.length]} ${start}deg ${currentAngle}deg`
-  })
-  return `conic-gradient(${segments.join(', ')})`
-})
-const analysisLifecycleStages = computed(() => [
-  { name: '建材碳排放', emission: buildCarbonInfo.totalEmission, color: '#0071E3' },
-  { name: '运输碳排放', emission: transportCarbonInfo.totalEmission, color: '#86868B' },
-  { name: '施工碳排放', emission: constructionCarbonInfo.totalEmission / 1000, color: '#6E6E73' },
-  { name: '回收碳计算', emission: -recyclingCarbonInfo.totalReduction, color: '#34C759' }
-])
-const analysisNetEmission = computed(() =>
-  analysisLifecycleStages.value.reduce((total, stage) => total + stage.emission, 0)
-)
-const analysisUnitAreaEmission = computed(() => {
-  const area = Number(ProjectInfo.buildingArea) || 0
-  return area > 0 ? analysisNetEmission.value * 1000 / area : 0
-})
-const analysisMaxStageEmission = computed(() =>
-  Math.max(0, ...analysisLifecycleStages.value.map(stage => Math.abs(stage.emission)))
-)
-const analysisBuildMaterialDetails = computed(() => {
-  const total = buildCarbonInfo.totalEmission
-  return allMaterials.value
-    .map((material, index) => ({
-      ...material,
-      rank: index + 1,
-      share: total > 0 ? material.emissionAmount / total * 100 : 0
-    }))
-    .sort((left, right) => right.emissionAmount - left.emissionAmount)
+const {
+  analysisPieItems,
+  analysisPieTotal,
+  analysisPieGradient,
+  analysisLifecycleStages,
+  analysisNetEmission,
+  analysisUnitAreaEmission,
+  analysisMaxStageEmission,
+  analysisBuildMaterialDetails
+} = useAnalysisViewModel({
+  analysisSelectedStage,
+  analysisColors,
+  allMaterials,
+  countedTransportMaterials,
+  countedConstructionMaterials,
+  allRecyclingMaterials,
+  buildCarbonInfo,
+  transportCarbonInfo,
+  constructionCarbonInfo,
+  recyclingCarbonInfo,
+  ProjectInfo
 })
 const costAnalysisTotal = computed(() =>
   allMaterials.value.reduce((total, material) => total + material.totalPrice, 0) +

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProjectPersistence } from './apiPersistence.js'
 import { createProjectApi } from './apiProjectFacade.js'
 import { createCustomerRuntime } from './composables/useCustomerRuntime.js'
+import { useAnalysisViewModel } from './composables/useAnalysisViewModel.js'
 import { formatDisplayNumber } from './formatDisplayNumber.js'
 import { hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges } from './unsavedChanges.js'
 
@@ -38,7 +39,7 @@ function customerScript() {
     .replace(/^import[\s\S]*?from ['"][^'"]+['"]\r?\n/gm, '')
   const project = reactive({ projectName: '客户项目', buildingArea: 100, accountingStages: [], modelImage: null })
   const context: Record<string, any> = {
-    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, formatDisplayNumber,
+    computed, markRaw, reactive, ref, api, createProjectPersistence, createProjectApi, createCustomerRuntime, useCustomerRuntime: createCustomerRuntime, useAnalysisViewModel, formatDisplayNumber,
     hasMeaningfulTemporaryRows, hasProjectDraftChanges, hasRowDraftChanges, protectUnsavedChanges,
     apiMessage: (_error: unknown, fallback: string) => fallback,
     downloadApiFile: mockedApi.downloadApiFile,
