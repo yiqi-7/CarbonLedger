@@ -4,15 +4,15 @@ import StyleShell from './StyleShell.vue'
 import { providePreview } from '../design-preview/state'
 import type { PageId } from '../design-preview/types'
 
-type ThemeId = 'swiss' | 'neo-memphis' | 'industrial-safety' | 'soft-utility' | 'ink-vermilion' | 'blueprint-office'
+type ThemeId = 'soft-utility' | 'graphite-editorial' | 'oceanic-system' | 'terracotta-studio' | 'signal-green' | 'cloud-blue'
 
 const themes: { id: ThemeId; letter: string; name: string; detail: string }[] = [
-  { id: 'swiss', letter: 'A', name: 'Swiss Data', detail: '瑞士数据排版' },
-  { id: 'neo-memphis', letter: 'B', name: 'Neo Memphis', detail: '新孟菲斯工具感' },
-  { id: 'industrial-safety', letter: 'C', name: 'Industrial Safety', detail: '工业安全标识' },
-  { id: 'soft-utility', letter: 'D', name: 'Soft Utility', detail: '柔和工具界面' },
-  { id: 'ink-vermilion', letter: 'E', name: 'Ink & Vermilion', detail: '墨色朱砂编辑' },
-  { id: 'blueprint-office', letter: 'F', name: 'Blueprint Office', detail: '蓝图事务所' },
+  { id: 'soft-utility', letter: 'D', name: 'Soft Utility', detail: '柔和工具界面（保留）' },
+  { id: 'graphite-editorial', letter: 'E', name: 'Graphite Editorial', detail: '石墨编辑系统' },
+  { id: 'oceanic-system', letter: 'F', name: 'Oceanic System', detail: '海洋系统界面' },
+  { id: 'terracotta-studio', letter: 'G', name: 'Terracotta Studio', detail: '陶土工作室' },
+  { id: 'signal-green', letter: 'H', name: 'Signal Green', detail: '信号绿色数据' },
+  { id: 'cloud-blue', letter: 'I', name: 'Cloud Blue', detail: '云端蓝灰' },
 ]
 
 const pages: { id: PageId; name: string }[] = [
@@ -24,14 +24,14 @@ const pages: { id: PageId; name: string }[] = [
 ]
 
 providePreview()
-const theme = ref<ThemeId>('swiss')
+const theme = ref<ThemeId>('soft-utility')
 const page = ref<PageId>('overview')
 
 function readUrl() {
   const query = new URLSearchParams(location.search)
   const candidateTheme = query.get('theme')
   const candidatePage = query.get('page')
-  theme.value = themes.find(item => item.id === candidateTheme)?.id ?? 'swiss'
+  theme.value = themes.find(item => item.id === candidateTheme)?.id ?? 'soft-utility'
   page.value = pages.find(item => item.id === candidatePage)?.id ?? 'overview'
 }
 readUrl()

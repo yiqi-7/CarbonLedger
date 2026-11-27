@@ -199,121 +199,6 @@
 }
 
 /* ============================================================
-   A. Swiss Data — 瑞士数据排版
-   ============================================================ */
-[data-theme="swiss"] {
-  color-scheme: light;
-  --s-canvas: #F1F1EE;
-  --s-surface: #FFFFFF;
-  --s-text: #16181A;
-  --s-muted: #6B7075;
-  --s-border: #DCDCD6;
-  --s-border-w: 1px;
-  --s-accent: #1B4DFF;
-  --s-accent-hover: #0F3FE0;
-  --s-accent-text: #1B4DFF;
-  --s-accent-contrast: #FFFFFF;
-  --s-tint: #EAEDFF;
-  --s-field-bg: #FFFFFF;
-  --s-focus: #1B4DFF;
-  --s-font: "Helvetica Neue", Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --s-heading-font: var(--s-font);
-  --s-sidebar-width: 224px;
-  --s-sidebar-bg: #FFFFFF;
-  --s-sidebar-text: #3F4448;
-  --s-sidebar-muted: #8A9095;
-  --s-sidebar-icon: #6B7075;
-  --s-sidebar-active-bg: #EAEDFF;
-  --s-sidebar-active-text: #1B4DFF;
-  --s-sidebar-hover-bg: #F4F4F1;
-  --s-sidebar-hover-text: #16181A;
-  --s-sidebar-border: #DCDCD6;
-  --s-header-bg: #FFFFFF;
-  --s-header-text: #16181A;
-  --s-header-border: #DCDCD6;
-  --s-brand-bg: #16181A;
-  --s-brand-text: #FFFFFF;
-  --s-brand-radius: 3px;
-  --s-crumb-sep: #C4C4BC;
-  --s-radius-card: 4px;
-  --s-radius-control: 3px;
-  --s-radius-pill: 3px;
-  --s-shadow: none;
-  --s-header-height: 60px;
-  --s-gutter: 32px;
-  --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px;
-  --s-content-width: 1120px;
-  --s-table-head-bg: #F6F6F3;
-  --s-table-head-text: #6B7075;
-  --s-row-line: #E8E8E2;
-  --s-row-hover: #F7F7F4;
-  --s-track-bg: #E8E8E2;
-  --s-bar: #1B4DFF;
-  --s-metric-size: clamp(26px, 2.6vw, 34px);
-  --s-metric-weight: 600;
-  --s-panel-title-size: 15px;
-  --s-panel-title-weight: 600;
-  --s-label-transform: uppercase;
-  --s-label-tracking: .08em;
-  --s-action-weight: 600;
-  --s-accent-shadow: none;
-  --s-notice-bg: #16181A;
-  --s-notice-text: #FFFFFF;
-  --s-active-weight: 600;
-
-  /* bridge to shared preview content */
-  --v-bg: #F1F1EE;
-  --v-surface: #FFFFFF;
-  --v-text: #16181A;
-  --v-muted: #6B7075;
-  --v-line: #DCDCD6;
-  --v-accent: #1B4DFF;
-  --v-tint: #EAEDFF;
-  --v-radius: 4px;
-  --v-font: var(--s-font);
-  --v-title-weight: 600;
-  --v-title-size: 32px;
-}
-
-/* ============================================================
-   B. Neo Memphis — 新孟菲斯工具感
-   Playful colour blocks with the same disciplined workspace geometry.
-   ============================================================ */
-[data-theme="neo-memphis"] {
-  color-scheme: light;
-  --s-canvas: #F8F5EC; --s-surface: #FFFDF7; --s-text: #181818; --s-muted: #6B6861;
-  --s-border: #181818; --s-border-w: 2px; --s-accent: #7357FF; --s-accent-hover: #5D43DE; --s-accent-text: #6049E5; --s-accent-contrast: #FFFFFF;
-  --s-tint: #EAE4FF; --s-field-bg: #FFFDF7; --s-focus: #181818;
-  --s-font: "Helvetica Neue", Inter, "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
-  --s-sidebar-width: 224px; --s-sidebar-bg: #F7D34A; --s-sidebar-text: #181818; --s-sidebar-muted: #5B4F24; --s-sidebar-icon: #181818; --s-sidebar-active-bg: #181818; --s-sidebar-active-text: #FFFFFF; --s-sidebar-hover-bg: #FFE47A; --s-sidebar-hover-text: #181818; --s-sidebar-border: #181818;
-  --s-header-bg: #FFFDF7; --s-header-text: #181818; --s-header-border: #181818; --s-brand-bg: #F05A47; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #9C9484;
-  --s-radius-card: 0; --s-radius-control: 0; --s-radius-pill: 0; --s-shadow: none; --s-table-head-bg: #181818; --s-table-head-text: #FFFFFF; --s-row-line: #C9C4B7; --s-row-hover: #F0EBFF; --s-track-bg: #DFD9CA; --s-bar: #7357FF; --s-notice-bg: #181818; --s-notice-text: #FFFFFF;
-  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px; --s-content-width: 1120px; --s-metric-size: clamp(26px, 2.6vw, 34px); --s-metric-weight: 700; --s-panel-title-size: 15px; --s-panel-title-weight: 700; --s-label-transform: uppercase; --s-label-tracking: .06em; --s-action-weight: 700; --s-active-weight: 700;
-  --v-bg: #F8F5EC; --v-surface: #FFFDF7; --v-text: #181818; --v-muted: #6B6861; --v-line: #C9C4B7; --v-accent: #7357FF; --v-tint: #EAE4FF; --v-radius: 0; --v-font: var(--s-font); --v-title-weight: 700; --v-title-size: 34px;
-}
-[data-theme="neo-memphis"] .metrics-strip { border-top: 8px solid #F05A47; }
-[data-theme="neo-memphis"] .shell-nav button.active { outline: 2px solid #181818; outline-offset: -2px; }
-
-/* ============================================================
-   C. Industrial Safety — 工业安全标识
-   Charcoal, hazard yellow and orange: clear, practical, high-signal.
-   ============================================================ */
-[data-theme="industrial-safety"] {
-  color-scheme: dark;
-  --s-canvas: #171A1B; --s-surface: #202526; --s-text: #F1F0E8; --s-muted: #A4A69B;
-  --s-border: #3A4140; --s-border-w: 1px; --s-accent: #F6C945; --s-accent-hover: #FFD95A; --s-accent-text: #F6C945; --s-accent-contrast: #151718;
-  --s-tint: #39331B; --s-field-bg: #191E1F; --s-focus: #F6C945;
-  --s-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
-  --s-sidebar-width: 224px; --s-sidebar-bg: #101313; --s-sidebar-text: #D8D9CE; --s-sidebar-muted: #777C76; --s-sidebar-icon: #9DA197; --s-sidebar-active-bg: #F6C945; --s-sidebar-active-text: #151718; --s-sidebar-hover-bg: #252A2A; --s-sidebar-hover-text: #F1F0E8; --s-sidebar-border: #303635;
-  --s-header-bg: #1D2223; --s-header-text: #F1F0E8; --s-header-border: #3A4140; --s-brand-bg: #F17A38; --s-brand-text: #151718; --s-brand-radius: 3px; --s-crumb-sep: #69706A;
-  --s-radius-card: 5px; --s-radius-control: 3px; --s-radius-pill: 3px; --s-shadow: inset 0 1px 0 rgba(255,255,255,.04); --s-table-head-bg: #292F2F; --s-table-head-text: #B9BCAF; --s-row-line: #343B3A; --s-row-hover: #2A2E23; --s-track-bg: #343B3A; --s-bar: #F17A38; --s-notice-bg: #F6C945; --s-notice-text: #151718;
-  --s-header-height: 58px; --s-gutter: 30px; --s-main-padding: 36px clamp(20px, 4vw, 54px) 70px; --s-content-width: 1140px; --s-metric-size: clamp(25px, 2.5vw, 32px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 700; --s-label-transform: uppercase; --s-label-tracking: .08em; --s-action-weight: 700; --s-active-weight: 700;
-  --v-bg: #171A1B; --v-surface: #202526; --v-text: #F1F0E8; --v-muted: #A4A69B; --v-line: #3A4140; --v-accent: #F6C945; --v-tint: #39331B; --v-radius: 5px; --v-font: var(--s-font); --v-title-weight: 700; --v-title-size: 31px;
-}
-[data-theme="industrial-safety"] .emission-value { color: #F17A38; }
-[data-theme="industrial-safety"] .recovery-line b { color: #A7DB55; }
-
-/* ============================================================
    D. Soft Utility — 柔和工具界面
    Friendly product UI with lavender-grey surfaces and coral actions.
    ============================================================ */
@@ -324,51 +209,88 @@
   --s-tint: #FCEAE7; --s-field-bg: #FAF9FD; --s-focus: #E86F61;
   --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
   --s-sidebar-width: 230px; --s-sidebar-bg: #FAF9FD; --s-sidebar-text: #4F4C63; --s-sidebar-muted: #9290A2; --s-sidebar-icon: #77738D; --s-sidebar-active-bg: #FCEAE7; --s-sidebar-active-text: #C65348; --s-sidebar-hover-bg: #F0EEF6; --s-sidebar-hover-text: #29283A; --s-sidebar-border: #E5E2ED;
-  --s-header-bg: rgba(255,255,255,.9); --s-header-text: #29283A; --s-header-border: #E5E2ED; --s-header-shadow: 0 2px 10px rgba(45, 40, 80, .04); --s-brand-bg: #6E64C5; --s-brand-text: #FFFFFF; --s-brand-radius: 10px; --s-crumb-sep: #C8C5D4;
-  --s-radius-card: 18px; --s-radius-control: 11px; --s-radius-pill: 999px; --s-shadow: 0 5px 20px rgba(51, 46, 86, .06); --s-table-head-bg: #F7F6FB; --s-table-head-text: #77758A; --s-row-line: #EEEAF3; --s-row-hover: #FCF3F1; --s-track-bg: #E8E5F0; --s-bar: #6E64C5; --s-notice-bg: #29283A; --s-notice-text: #FFFFFF;
-  --s-header-height: 64px; --s-gutter: 34px; --s-main-padding: 44px clamp(20px, 4vw, 60px) 78px; --s-content-width: 1120px; --s-metric-size: clamp(26px, 2.6vw, 34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --s-header-bg: rgba(255,255,255,.9); --s-header-text: #29283A; --s-header-border: #E5E2ED; --s-header-shadow: 0 2px 10px rgba(45,40,80,.04); --s-brand-bg: #6E64C5; --s-brand-text: #FFFFFF; --s-brand-radius: 10px; --s-crumb-sep: #C8C5D4;
+  --s-radius-card: 18px; --s-radius-control: 11px; --s-radius-pill: 999px; --s-shadow: 0 5px 20px rgba(51,46,86,.06); --s-table-head-bg: #F7F6FB; --s-table-head-text: #77758A; --s-row-line: #EEEAF3; --s-row-hover: #FCF3F1; --s-track-bg: #E8E5F0; --s-bar: #6E64C5; --s-notice-bg: #29283A; --s-notice-text: #FFFFFF;
+  --s-header-height: 64px; --s-gutter: 34px; --s-main-padding: 44px clamp(20px,4vw,60px) 78px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
   --v-bg: #F1F0F7; --v-surface: #FFFFFF; --v-text: #29283A; --v-muted: #77758A; --v-line: #E1DFEA; --v-accent: #E86F61; --v-tint: #FCEAE7; --v-radius: 18px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
 }
 [data-theme="soft-utility"] .metric-cell strong { color: #6E64C5; }
 
 /* ============================================================
-   E. Ink & Vermilion — 墨色朱砂编辑
-   Editorial hierarchy, warm paper and one decisive red signal.
+   E. Graphite Editorial — 石墨编辑系统
+   White paper, graphite hierarchy and a restrained violet signal.
    ============================================================ */
-[data-theme="ink-vermilion"] {
+[data-theme="graphite-editorial"] {
   color-scheme: light;
-  --s-canvas: #F7F4EE; --s-surface: #FFFEFA; --s-text: #201E1B; --s-muted: #77726A;
-  --s-border: #D6D0C7; --s-border-w: 1px; --s-accent: #B7372B; --s-accent-hover: #922A22; --s-accent-text: #A22F26; --s-accent-contrast: #FFFEFA;
-  --s-tint: #F5E4DF; --s-field-bg: #FFFEFA; --s-focus: #B7372B;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif;
-  --s-sidebar-width: 218px; --s-sidebar-bg: #201E1B; --s-sidebar-text: #F4F0E8; --s-sidebar-muted: #ADA79D; --s-sidebar-icon: #C2BAB0; --s-sidebar-active-bg: #B7372B; --s-sidebar-active-text: #FFFEFA; --s-sidebar-hover-bg: #39332F; --s-sidebar-hover-text: #FFFEFA; --s-sidebar-border: #201E1B;
-  --s-header-bg: #FFFEFA; --s-header-text: #201E1B; --s-header-border: #D6D0C7; --s-brand-bg: #B7372B; --s-brand-text: #FFFEFA; --s-brand-radius: 2px; --s-crumb-sep: #B6AFA5;
-  --s-radius-card: 5px; --s-radius-control: 4px; --s-radius-pill: 4px; --s-shadow: 0 2px 8px rgba(61, 48, 37, .04); --s-table-head-bg: #F0EBE2; --s-table-head-text: #77726A; --s-row-line: #E7E0D6; --s-row-hover: #FCF0EC; --s-track-bg: #E3DCD1; --s-bar: #201E1B; --s-notice-bg: #201E1B; --s-notice-text: #FFFEFA;
-  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px, 4vw, 56px) 74px; --s-content-width: 1100px; --s-metric-size: clamp(28px, 2.7vw, 36px); --s-metric-weight: 600; --s-panel-title-size: 17px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #F7F4EE; --v-surface: #FFFEFA; --v-text: #201E1B; --v-muted: #77726A; --v-line: #D6D0C7; --v-accent: #B7372B; --v-tint: #F5E4DF; --v-radius: 5px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 35px;
+  --s-canvas: #F4F4F2; --s-surface: #FFFFFF; --s-text: #222326; --s-muted: #74757A;
+  --s-border: #DADADD; --s-border-w: 1px; --s-accent: #6957C8; --s-accent-hover: #5745B2; --s-accent-text: #5D4BBB; --s-accent-contrast: #FFFFFF; --s-tint: #EEEBFF; --s-field-bg: #FBFBFC; --s-focus: #6957C8;
+  --s-font: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 224px; --s-sidebar-bg: #26272A; --s-sidebar-text: #E9E9EB; --s-sidebar-muted: #96979D; --s-sidebar-icon: #B5B6BB; --s-sidebar-active-bg: #3D3D43; --s-sidebar-active-text: #FFFFFF; --s-sidebar-hover-bg: #323338; --s-sidebar-hover-text: #FFFFFF; --s-sidebar-border: #35363A;
+  --s-header-bg: #FFFFFF; --s-header-text: #222326; --s-header-border: #DADADD; --s-brand-bg: #6957C8; --s-brand-text: #FFFFFF; --s-brand-radius: 7px; --s-crumb-sep: #B7B7BC; --s-radius-card: 10px; --s-radius-control: 7px; --s-radius-pill: 7px; --s-shadow: 0 3px 12px rgba(30,30,35,.05); --s-table-head-bg: #F5F5F6; --s-table-head-text: #74757A; --s-row-line: #E8E8EA; --s-row-hover: #F8F7FF; --s-track-bg: #E4E4E7; --s-bar: #6957C8; --s-notice-bg: #26272A; --s-notice-text: #FFFFFF;
+  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px,4vw,56px) 72px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 650; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: uppercase; --s-label-tracking: .07em; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F4F4F2; --v-surface: #FFFFFF; --v-text: #222326; --v-muted: #74757A; --v-line: #DADADD; --v-accent: #6957C8; --v-tint: #EEEBFF; --v-radius: 10px; --v-font: var(--s-font); --v-title-weight: 650; --v-title-size: 32px;
 }
-[data-theme="ink-vermilion"] .preview-content h1,
-[data-theme="ink-vermilion"] .preview-content h2 { letter-spacing: 0; }
-[data-theme="ink-vermilion"] .net-line strong { color: #B7372B; }
+[data-theme="graphite-editorial"] .shell-sidebar { box-shadow: 4px 0 16px rgba(20,20,25,.08); }
 
 /* ============================================================
-   F. Blueprint Office — 蓝图事务所
-   Technical blue field, cyan controls and amber measurement accents.
+   F. Oceanic System — 海洋系统界面
+   Calm blue-green surfaces with deep navy structure.
    ============================================================ */
-[data-theme="blueprint-office"] {
-  color-scheme: dark;
-  --s-canvas: #123B59; --s-surface: #174A6C; --s-text: #F0F7FA; --s-muted: #B4CFDB;
-  --s-border: rgba(185, 225, 236, .42); --s-border-w: 1px; --s-accent: #55D6E8; --s-accent-hover: #7CE4F0; --s-accent-text: #55D6E8; --s-accent-contrast: #073249;
-  --s-tint: rgba(85, 214, 232, .14); --s-field-bg: #123B59; --s-focus: #55D6E8;
-  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font);
-  --s-sidebar-width: 224px; --s-sidebar-bg: #0B2D47; --s-sidebar-text: #E4F3F7; --s-sidebar-muted: #8FB4C3; --s-sidebar-icon: #A9CFD9; --s-sidebar-active-bg: #1B6686; --s-sidebar-active-text: #FFFFFF; --s-sidebar-hover-bg: #12425F; --s-sidebar-hover-text: #FFFFFF; --s-sidebar-border: rgba(185,225,236,.25);
-  --s-header-bg: #174A6C; --s-header-text: #F0F7FA; --s-header-border: rgba(185,225,236,.34); --s-brand-bg: #55D6E8; --s-brand-text: #073249; --s-brand-radius: 3px; --s-crumb-sep: #76A7B8;
-  --s-radius-card: 6px; --s-radius-control: 4px; --s-radius-pill: 4px; --s-shadow: inset 0 1px 0 rgba(255,255,255,.06); --s-table-head-bg: #0F354F; --s-table-head-text: #B4CFDB; --s-row-line: rgba(185,225,236,.24); --s-row-hover: #1B5678; --s-track-bg: #28617D; --s-bar: #E9B94E; --s-notice-bg: #E9B94E; --s-notice-text: #17374B;
-  --s-header-height: 60px; --s-gutter: 32px; --s-main-padding: 40px clamp(20px, 4vw, 56px) 72px; --s-content-width: 1140px; --s-metric-size: clamp(26px, 2.6vw, 34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: .04em; --s-action-weight: 600; --s-active-weight: 600;
-  --v-bg: #123B59; --v-surface: #174A6C; --v-text: #F0F7FA; --v-muted: #B4CFDB; --v-line: rgba(185,225,236,.42); --v-accent: #55D6E8; --v-tint: rgba(85,214,232,.14); --v-radius: 6px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
+[data-theme="oceanic-system"] {
+  color-scheme: light;
+  --s-canvas: #EEF5F5; --s-surface: #FFFFFF; --s-text: #173337; --s-muted: #688185;
+  --s-border: #D7E5E5; --s-border-w: 1px; --s-accent: #087F8C; --s-accent-hover: #066A75; --s-accent-text: #087F8C; --s-accent-contrast: #FFFFFF; --s-tint: #DDF1F0; --s-field-bg: #F8FCFC; --s-focus: #087F8C;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 226px; --s-sidebar-bg: #E4F0EF; --s-sidebar-text: #285258; --s-sidebar-muted: #709096; --s-sidebar-icon: #4E747A; --s-sidebar-active-bg: #CBE8E6; --s-sidebar-active-text: #066A75; --s-sidebar-hover-bg: #D9EAE9; --s-sidebar-hover-text: #173337; --s-sidebar-border: #CBDDDC;
+  --s-header-bg: #FFFFFF; --s-header-text: #173337; --s-header-border: #D7E5E5; --s-brand-bg: #087F8C; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #B7CCCC; --s-radius-card: 13px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 3px 15px rgba(19,70,75,.05); --s-table-head-bg: #F0F7F7; --s-table-head-text: #688185; --s-row-line: #E2EEEE; --s-row-hover: #F1FAF9; --s-track-bg: #D7E9E7; --s-bar: #087F8C; --s-notice-bg: #173337; --s-notice-text: #FFFFFF;
+  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 76px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #EEF5F5; --v-surface: #FFFFFF; --v-text: #173337; --v-muted: #688185; --v-line: #D7E5E5; --v-accent: #087F8C; --v-tint: #DDF1F0; --v-radius: 13px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
 }
-[data-theme="blueprint-office"] .metric-cell strong { color: #E9B94E; }
-[data-theme="blueprint-office"] .stage-fill { background: #E9B94E; }
+[data-theme="oceanic-system"] .metric-cell strong { color: #087F8C; }
+
+/* ============================================================
+   G. Terracotta Studio — 陶土工作室
+   Warm clay, cream surfaces and dark olive details.
+   ============================================================ */
+[data-theme="terracotta-studio"] {
+  color-scheme: light;
+  --s-canvas: #F5EEE8; --s-surface: #FFFBF7; --s-text: #302622; --s-muted: #86756D;
+  --s-border: #E2D4CB; --s-border-w: 1px; --s-accent: #B85C45; --s-accent-hover: #994935; --s-accent-text: #A54D39; --s-accent-contrast: #FFFFFF; --s-tint: #F7E3DA; --s-field-bg: #FFFBF7; --s-focus: #B85C45;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: "Noto Serif SC", Georgia, "Songti SC", serif; --s-sidebar-width: 232px; --s-sidebar-bg: #EFE2D9; --s-sidebar-text: #55423B; --s-sidebar-muted: #988078; --s-sidebar-icon: #826A60; --s-sidebar-active-bg: #E6C6B8; --s-sidebar-active-text: #873D2E; --s-sidebar-hover-bg: #E9D7CC; --s-sidebar-hover-text: #302622; --s-sidebar-border: #DECBC0;
+  --s-header-bg: #FFFBF7; --s-header-text: #302622; --s-header-border: #E2D4CB; --s-brand-bg: #302622; --s-brand-text: #FFFBF7; --s-brand-radius: 9px; --s-crumb-sep: #C5AFA4; --s-radius-card: 14px; --s-radius-control: 9px; --s-radius-pill: 9px; --s-shadow: 0 4px 16px rgba(91,54,40,.07); --s-table-head-bg: #F7EEE7; --s-table-head-text: #86756D; --s-row-line: #EEE1D8; --s-row-hover: #FFF3ED; --s-track-bg: #E9D8CE; --s-bar: #B85C45; --s-notice-bg: #302622; --s-notice-text: #FFFBF7;
+  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 44px clamp(20px,4vw,58px) 78px; --s-content-width: 1100px; --s-metric-size: clamp(27px,2.7vw,35px); --s-metric-weight: 600; --s-panel-title-size: 16px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F5EEE8; --v-surface: #FFFBF7; --v-text: #302622; --v-muted: #86756D; --v-line: #E2D4CB; --v-accent: #B85C45; --v-tint: #F7E3DA; --v-radius: 14px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 33px;
+}
+[data-theme="terracotta-studio"] .preview-content h1,
+[data-theme="terracotta-studio"] .preview-content h2 { letter-spacing: 0; }
+
+/* ============================================================
+   H. Signal Green — 信号绿色数据
+   Cool grey base with an electric green action and data signal.
+   ============================================================ */
+[data-theme="signal-green"] {
+  color-scheme: light;
+  --s-canvas: #F0F3F1; --s-surface: #FFFFFF; --s-text: #18231D; --s-muted: #6D7A71;
+  --s-border: #D7E0D9; --s-border-w: 1px; --s-accent: #40A958; --s-accent-hover: #328D47; --s-accent-text: #268B3F; --s-accent-contrast: #FFFFFF; --s-tint: #E0F3E3; --s-field-bg: #FAFCFA; --s-focus: #40A958;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 224px; --s-sidebar-bg: #E8EFEA; --s-sidebar-text: #35513D; --s-sidebar-muted: #7E9584; --s-sidebar-icon: #5A7863; --s-sidebar-active-bg: #D0EBD5; --s-sidebar-active-text: #287A3C; --s-sidebar-hover-bg: #DDE9DF; --s-sidebar-hover-text: #18231D; --s-sidebar-border: #D0DDD3;
+  --s-header-bg: #FFFFFF; --s-header-text: #18231D; --s-header-border: #D7E0D9; --s-brand-bg: #40A958; --s-brand-text: #FFFFFF; --s-brand-radius: 50%; --s-crumb-sep: #B6C7B9; --s-radius-card: 12px; --s-radius-control: 8px; --s-radius-pill: 999px; --s-shadow: 0 3px 14px rgba(28,71,39,.05); --s-table-head-bg: #F2F7F3; --s-table-head-text: #6D7A71; --s-row-line: #E4ECE5; --s-row-hover: #F0FAF1; --s-track-bg: #DCEADD; --s-bar: #40A958; --s-notice-bg: #18231D; --s-notice-text: #FFFFFF;
+  --s-header-height: 62px; --s-gutter: 32px; --s-main-padding: 42px clamp(20px,4vw,58px) 76px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F0F3F1; --v-surface: #FFFFFF; --v-text: #18231D; --v-muted: #6D7A71; --v-line: #D7E0D9; --v-accent: #40A958; --v-tint: #E0F3E3; --v-radius: 12px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
+}
+[data-theme="signal-green"] .recovery-line b { color: #268B3F; }
+
+/* ============================================================
+   I. Cloud Blue — 云端蓝灰
+   Airy blue-grey product UI with indigo actions and crisp surfaces.
+   ============================================================ */
+[data-theme="cloud-blue"] {
+  color-scheme: light;
+  --s-canvas: #F1F5FA; --s-surface: #FFFFFF; --s-text: #1E2D42; --s-muted: #718198;
+  --s-border: #DCE5EF; --s-border-w: 1px; --s-accent: #526DDF; --s-accent-hover: #425BC8; --s-accent-text: #425BC8; --s-accent-contrast: #FFFFFF; --s-tint: #E9EEFF; --s-field-bg: #FAFCFF; --s-focus: #526DDF;
+  --s-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; --s-heading-font: var(--s-font); --s-sidebar-width: 228px; --s-sidebar-bg: #F8FBFF; --s-sidebar-text: #45566D; --s-sidebar-muted: #8A9AAF; --s-sidebar-icon: #6E8198; --s-sidebar-active-bg: #E9EEFF; --s-sidebar-active-text: #425BC8; --s-sidebar-hover-bg: #EEF3F9; --s-sidebar-hover-text: #1E2D42; --s-sidebar-border: #DCE5EF;
+  --s-header-bg: rgba(255,255,255,.92); --s-header-text: #1E2D42; --s-header-border: #DCE5EF; --s-header-shadow: 0 2px 12px rgba(35,65,105,.04); --s-brand-bg: #526DDF; --s-brand-text: #FFFFFF; --s-brand-radius: 9px; --s-crumb-sep: #BECADE; --s-radius-card: 15px; --s-radius-control: 9px; --s-radius-pill: 999px; --s-shadow: 0 4px 18px rgba(44,75,125,.06); --s-table-head-bg: #F3F7FC; --s-table-head-text: #718198; --s-row-line: #E7EDF4; --s-row-hover: #F3F6FF; --s-track-bg: #DFE7F3; --s-bar: #526DDF; --s-notice-bg: #1E2D42; --s-notice-text: #FFFFFF;
+  --s-header-height: 64px; --s-gutter: 34px; --s-main-padding: 44px clamp(20px,4vw,60px) 78px; --s-content-width: 1120px; --s-metric-size: clamp(26px,2.6vw,34px); --s-metric-weight: 600; --s-panel-title-size: 15px; --s-panel-title-weight: 600; --s-label-transform: none; --s-label-tracking: 0; --s-action-weight: 600; --s-active-weight: 600;
+  --v-bg: #F1F5FA; --v-surface: #FFFFFF; --v-text: #1E2D42; --v-muted: #718198; --v-line: #DCE5EF; --v-accent: #526DDF; --v-tint: #E9EEFF; --v-radius: 15px; --v-font: var(--s-font); --v-title-weight: 600; --v-title-size: 32px;
+}
+[data-theme="cloud-blue"] .metric-cell strong { color: #425BC8; }
 /* ---------- Responsive: layout rules stay shared ---------- */
 @media (max-width: 1080px) {
   .lab-bar { gap: 14px; padding: 10px 16px; }
