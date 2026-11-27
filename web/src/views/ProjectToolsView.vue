@@ -47,14 +47,8 @@ const factorTotal = computed(() => factorTab.value === 'build' ? buildFactors.va
 const versionPage = ref(1)
 const versionPageSize = ref(10)
 const pagedVersions = computed(() => versions.value.slice((versionPage.value - 1) * versionPageSize.value, versionPage.value * versionPageSize.value))
-const workspacePath = computed(() => {
-  const rawId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
-  const id = Number(rawId)
-  return Number.isInteger(id) && id > 0 ? `/projects/${id}` : '/projects'
-})
-
-function returnToWorkspace() {
-  void router.push(workspacePath.value)
+function returnToProjects() {
+  void router.push('/projects')
 }
 const snapshotDialog = ref(false)
 const snapshotData = ref<any>(null)
@@ -222,7 +216,7 @@ watch(projectId, () => {
   <div v-loading="loading || !!busyAction" class="workspace-wrap project-tools-page">
     <div class="workspace-heading">
       <div><button class="back-link" @click="router.push('/projects')">返回我的项目</button><h1>{{ title }}</h1><p class="muted">{{ format(project?.buildingArea, 0) }} ㎡ · {{ project?.buildingType || '未填写类型' }} · {{ project?.accountingStandard }}</p></div>
-      <div class="heading-actions"><el-button class="back-workspace-button" :disabled="loading" @click="returnToWorkspace">返回项目工作区</el-button><el-button :disabled="loading || !!busyAction" @click="refresh">刷新</el-button><el-button type="primary" :disabled="unavailable" :loading="busyAction==='version'" @click="saveVersion">保存核算版本</el-button></div>
+      <div class="heading-actions"><el-button class="back-workspace-button" :disabled="loading" @click="returnToProjects">返回我的项目</el-button><el-button :disabled="loading || !!busyAction" @click="refresh">刷新</el-button><el-button type="primary" :disabled="unavailable" :loading="busyAction==='version'" @click="saveVersion">保存核算版本</el-button></div>
     </div>
     <el-alert v-if="error" :title="error" type="error" show-icon :closable="false" />
     <nav class="workspace-tabs"><button v-for="tab in tabs" :key="tab.key" :class="{active: active===tab.key}" :aria-current="active===tab.key ? 'page' : undefined" @click="active=tab.key">{{ tab.label }}</button></nav>
