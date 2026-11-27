@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { ProjectsService } from '../projects/projects.service'
+import { RecordAccessService } from '../records/record-access.service'
 import { RecordsService } from '../records/records.service'
 import { AnalysisService } from '../analysis/analysis.service'
 import {
@@ -37,7 +37,7 @@ export interface ImportResult {
 export class ImportExportService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly projects: ProjectsService,
+    private readonly access: RecordAccessService,
     private readonly records: RecordsService,
     private readonly analysis: AnalysisService,
   ) {}
@@ -50,7 +50,7 @@ export class ImportExportService {
     userId: number,
     file: Buffer,
   ): Promise<ImportResult> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const workbook = await loadWorkbook(file)
     const { materials, sheetName } = parseBuildMaterialWorkbook(workbook)
 
@@ -115,7 +115,7 @@ export class ImportExportService {
     userId: number,
     file: Buffer,
   ): Promise<ImportResult> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const workbook = await loadWorkbook(file)
     const { records, skippedRows } = parseTransportWorkbook(workbook)
 
@@ -174,7 +174,7 @@ export class ImportExportService {
     userId: number,
     file: Buffer,
   ): Promise<ImportResult> {
-    await this.projects.assertOwner(projectId, userId)
+    await this.access.assertOwner(projectId, userId)
     const workbook = await loadWorkbook(file)
     const { records, skippedRows } = parseConstructionWorkbook(workbook)
 
