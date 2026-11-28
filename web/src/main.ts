@@ -1,8 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import ElementPlus from 'element-plus'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import 'element-plus/dist/index.css'
+import { installElementPlus } from './element-plus'
 import './styles.css'
 import './styles/platform-workspace.css'
 import App from './App.vue'
@@ -10,4 +8,7 @@ import router from './router'
 import { initLiquidGlass } from './lib/liquidGlass'
 
 initLiquidGlass()
-createApp(App).use(createPinia()).use(router).use(ElementPlus, { locale: zhCn }).mount('#app')
+const app = createApp(App)
+app.use(createPinia()).use(router)
+installElementPlus(app)
+app.mount('#app')

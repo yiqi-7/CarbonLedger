@@ -22,3 +22,5 @@ npm run check:bundle
 The gate fails when `web/dist` is missing, the total output exceeds its budget, or a JavaScript/CSS asset exceeds its per-file budget. It prints the five largest output files to make a failure actionable.
 
 Vitest coverage is intentionally not part of the default quality gate yet. The current repository does not install a Vitest coverage provider; adding one would add a new dependency solely for reporting. Existing Vitest test commands remain unchanged, and coverage can be added later when the project chooses and installs a provider compatible with the pinned Vitest version.
+
+`npm audit --omit=dev` remains a release review gate. The current six findings are transitive: Prisma 6.19.3 carries vulnerable `deepmerge-ts` and `effect`, while ExcelJS 4.4.0 carries `uuid` 8.x. The available automated fixes require either a major Prisma migration or an ExcelJS downgrade to 3.4.0; neither is applied without compatibility tests. Recheck the audit on every dependency update and track these findings as explicit upgrade work.

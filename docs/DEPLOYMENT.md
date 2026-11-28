@@ -45,6 +45,14 @@ DATABASE_URL=postgresql://carbonledger:数据库密码@127.0.0.1:5432/carbonledg
 JWT_SECRET=随机长密钥
 # 同源 Nginx 部署无需设置；只有独立前端域名时才填写可信来源
 CORS_ORIGINS=
+# 仅在反向代理确实可信时设置；可填 1、true 或 false
+TRUST_PROXY=1
+# 认证接口限流和请求超时，可按代理/业务流量调整
+AUTH_LOGIN_RATE_LIMIT=30
+AUTH_REGISTER_RATE_LIMIT=20
+AUTH_RATE_WINDOW_MS=900000
+AUTH_REGISTER_RATE_WINDOW_MS=3600000
+REQUEST_TIMEOUT_MS=30000
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=独立管理员密码
 PORT=3000
@@ -140,6 +148,8 @@ TARGET_SHA=<已审核的完整 40 位 SHA> bash scripts/deploy.sh
 ## 就绪检查
 
 API 提供两个健康接口：`GET /api/health` 是 liveness，只表示进程已启动；`GET /api/health/ready` 是 readiness，会以有界数据库探针确认应用依赖可用。readiness 成功时返回 HTTP 200 和 `{"status":"ok",...}`，失败时返回 HTTP 503。部署脚本检查 systemd 服务处于 active，并检查 readiness 返回的 JSON `status` 为 `ok`；只检查 `systemctl is-active` 不足以证明 API 已经可以接收请求。
+
+应用默认对登录和注册接口按客户端 IP 做进程内固定窗口限流，并对未完成请求设置 30 秒超时。多实例部署应在 Nginx 或网关层配置共享限流；如果启用 `TRUST_PROXY`，只能填写实际可信代理拓扑，否则客户端 IP 可能被伪造。API 还返回 `X-Content-Type-Options`、`X-Frame-Options`、`Referrer-Policy`、`Permissions-Policy` 和 API-safe CSP；HTTPS 请求会返回 HSTS。
 
 默认检查地址是 `http://127.0.0.1:3000/api/health/ready`，如果 Nginx 或其他环境提供等价 HTTPS 地址，可以覆盖：
 

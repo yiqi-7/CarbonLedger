@@ -29,7 +29,11 @@ npm run typecheck   # 三个 workspace 的 TypeScript 检查
 npm run dev:server  # 后端 http://localhost:3000
 npm run dev:web     # 前端 http://localhost:5173
 npm test            # 运行全部测试
-npm run check       # 发布前完整检查：类型、测试、构建
+npm run check       # 发布前完整检查：类型、测试、构建与 bundle 预算
+npm run preview -w web -- --host 127.0.0.1  # 预览 web/dist（默认 4173 端口）
+npm run smoke:production  # HTTP + Chrome/CDP 浏览器挂载冒烟（需先构建并启动 preview）
 ```
 
-详见 `docs/ARCHITECTURE.md`。
+`npm run smoke:production` 不新增 npm 依赖：它通过 Node 内置模块检查首页、客户页和设计预览页的 HTML/module 资源，并在本机已有 Chrome/Chromium 下用 CDP 确认 Vue 挂载。没有浏览器时可设置 `SMOKE_SKIP_CDP=1` 只运行 HTTP 检查；设置 `SMOKE_CHROME_PATH` 可指定浏览器。可选 `SMOKE_API_URL`（例如 `http://127.0.0.1:3000/api/`）会额外检查 `/health`，但不会自动启动 API 或数据库。
+
+GitHub Actions 的 `Quality` 工作流执行 `npm ci`、`npm run check`，安装 Chrome 并对构建后的 Vite preview 执行浏览器冒烟；它不声称验证数据库/API 集成。详见 `docs/ARCHITECTURE.md`。

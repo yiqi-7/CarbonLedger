@@ -24,7 +24,7 @@ describe('CarbonLedger API (e2e)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile()
     app = moduleRef.createNestApplication()
     app.setGlobalPrefix('api')
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }))
     await app.init()
   })
 
@@ -108,7 +108,11 @@ describe('CarbonLedger API (e2e)', () => {
     expect(rejectionLog).toMatchObject({ targetType: 'USER', result: 'SUCCESS', detail: 'rejected-user' })
   })
 
-  it('注册校验：密码不足 6 位、备注超过 200 字、用户名重复都会被拒绝', async () => {
+  it('注册校验：拒绝未知字段、密码不足 6 位、备注超过 200 字、用户名重复都会被拒绝', async () => {
+    await server()
+      .post('/api/auth/register')
+      .send({ username: 'unknown-field', password: 'password1', remark: '', isAdmin: true })
+      .expect(400)
     await server()
       .post('/api/auth/register')
       .send({ username: 'shortpw', password: '123', remark: '' })
@@ -276,7 +280,7 @@ describe('CarbonLedger API (e2e)', () => {
     const updated = await server()
       .patch(`/api/projects/${projectId}/build-materials/${configurableBuildId}`)
       .set('Authorization', `Bearer ${userToken}`)
-      .send({ factorConfigId: recyclingFactor.body.id, emissionFactor: 999 })
+      .send({ factorConfigId: recyclingFactor.body.id })
       .expect(200)
     expect(updated.body).toMatchObject({
       materialName: '换配置玻璃', type: '玻璃', unit: 'm²', emissionFactor: 60,
@@ -501,6 +505,21 @@ describe('CarbonLedger API (e2e)', () => {
       .set('Authorization', `Bearer ${userToken}`)
       .send({ vehicleName: '回归测试汽油车', energyType: '汽油', emissionFactor: 0.42 })
       .expect(201)
+    await server()
+      .patch(`/api/projects/${projectId}/transport-records/${transportRecordId}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        factorConfigId: String(factor.body.id),
+        transportedMaterial: '水泥',
+        transportQuantity: 20,
+        transportDistance: 80,
+        transportUnitPrice: 2.5,
+        energyType: '柴油',
+        emissionFactor: 999,
+        emissionAmount: 999,
+        transportTotalPrice: 999,
+      })
+      .expect(400)
     const updated = await server()
       .patch(`/api/projects/${projectId}/transport-records/${transportRecordId}`)
       .set('Authorization', `Bearer ${userToken}`)
@@ -510,11 +529,6 @@ describe('CarbonLedger API (e2e)', () => {
         transportQuantity: 20,
         transportDistance: 80,
         transportUnitPrice: 2.5,
-        // 派生属性不可由客户端覆盖。
-        energyType: '柴油',
-        emissionFactor: 999,
-        emissionAmount: 999,
-        transportTotalPrice: 999,
       })
       .expect(200)
     expect(updated.body).toMatchObject({
@@ -523,7 +537,6 @@ describe('CarbonLedger API (e2e)', () => {
       transportUnitPrice: 2.5, isCustomMaterial: true,
     })
     expect(updated.body.emissionAmount).toBeCloseTo(0.672)
-    // 旧版总价不乘运输量。
     expect(updated.body.transportTotalPrice).toBeCloseTo(0.02)
 
     const quantityOnly = await server()

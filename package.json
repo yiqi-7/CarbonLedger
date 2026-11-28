@@ -15,6 +15,7 @@
     "typecheck": "npm run typecheck -w @carbonledger/shared && npm run typecheck -w server && npm run typecheck -w web",
     "build": "npm run build:shared && npm run build -w server && npm run build -w web",
     "check:bundle": "npm run check:bundle -w web",
+    "smoke:production": "node scripts/smoke-production.mjs",
     "test": "npm run test --workspaces --if-present",
     "check": "npm run typecheck && npm test && npm run build && npm run check:bundle"
   },

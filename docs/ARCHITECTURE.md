@@ -102,6 +102,12 @@
 | `JWT_SECRET` | JWT 签名密钥 | dev 提供默认值，生产必须设置 |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | 首位管理员初始化 | 启动时若不存在则创建 |
 | `PORT` | 服务端口 | 3000 |
+| `HOST` | 监听地址 | `0.0.0.0` |
+| `CORS_ORIGINS` | 可信前端来源，逗号分隔 | 空（同源） |
+| `TRUST_PROXY` | 反向代理信任配置，仅按实际拓扑设置 | 未启用 |
+| `AUTH_LOGIN_RATE_LIMIT` / `AUTH_REGISTER_RATE_LIMIT` | 登录/注册的 IP 固定窗口请求数 | 30 / 20 |
+| `AUTH_RATE_WINDOW_MS` / `AUTH_REGISTER_RATE_WINDOW_MS` | 上述限流窗口毫秒数 | 900000 / 3600000 |
+| `REQUEST_TIMEOUT_MS` | 单请求超时 | 30000 |
 
 ## 9. 架构演进与依赖约束
 

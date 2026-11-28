@@ -1,0 +1,53 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Typecheck, tests, build, and smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        id: chrome
+
+      - name: Run typecheck, unit tests, build, and bundle budget
+        run: npm run check
+
+      - name: Start built web preview
+        run: npm run preview -w web -- --host 127.0.0.1 > /tmp/carbonledger-preview.log 2>&1 &
+
+      - name: Wait for preview
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/carbonledger-preview.log
+          exit 1
+
+      - name: Run browser smoke
+        env:
+          SMOKE_BASE_URL: http://127.0.0.1:4173/
+          SMOKE_CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: npm run smoke:production
