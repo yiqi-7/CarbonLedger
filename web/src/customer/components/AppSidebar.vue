@@ -67,8 +67,9 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
 .brand-icon { width: 20px; height: 20px; }
 .sidebar-toggle {
   position: fixed !important;
-  left: 14px !important;
-  bottom: 18px !important;
+  left: 212px !important;
+  top: 42% !important;
+  bottom: auto !important;
   z-index: 1001 !important;
   display: flex !important;
   align-items: center;
@@ -87,6 +88,7 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
 }
 .sidebar-toggle:hover { background: #E8F2FC; border-color: rgba(0, 113, 227, 0.30); color: #0071E3; }
 .sidebar-toggle:focus-visible { outline: 2px solid #0071E3; outline-offset: 3px; }
+.sidebar-toggle.sidebar-toggle-collapsed { left: 14px !important; top: 42% !important; bottom: auto !important; }
 .sidebar-toggle-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
 .nav-icon svg, .sidebar-toggle-icon svg { width: 1em; height: 1em; }
@@ -117,9 +119,16 @@ const labels = { '首页': '项目概览', '回收碳计算': '回收减碳', '�
   z-index: 6;
   margin: 0;
 }
+@media (max-width: 1000px) {
+  .sidebar-toggle:not(.sidebar-toggle-collapsed) { left: 180px !important; }
+}
 @media (max-width: 760px) {
   .sidebar:not(.sidebar-collapsed) .project-directory-label { display: none; }
   .sidebar-collapsed .project-directory-link { top: 9px; left: 8px; font-size: 12px; }
+  .sidebar-toggle:not(.sidebar-toggle-collapsed) { left: 50px !important; }
+}
+@media (max-width: 520px) {
+  .sidebar-toggle:not(.sidebar-toggle-collapsed) { left: 42px !important; }
 }
 /* Apple style sidebar refinements */
 .brand-mark { background: #000000; border-radius: 50%; box-shadow: none; }

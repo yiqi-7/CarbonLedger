@@ -1038,18 +1038,19 @@ button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue);
   .construction-energy-item, .construction-energy-copy, .construction-energy-emission { transition: none; }
 }
 
-/* Keep the collapse and expand controls on the same fixed sidebar anchor. */
+/* Keep the collapse and expand controls on the sidebar's right edge, mid-height. */
 .sidebar-toggle {
-  position: absolute;
-  left: 14px;
-  bottom: 18px;
+  position: fixed;
+  left: 212px;
+  top: 42%;
+  bottom: auto;
   margin: 0;
 }
 .sidebar-collapsed .sidebar-toggle {
   position: fixed !important;
-  top: auto !important;
+  top: 42% !important;
   left: 14px !important;
-  bottom: 18px !important;
+  bottom: auto !important;
   z-index: 1000 !important;
   display: flex !important;
   visibility: visible !important;
@@ -1068,9 +1069,15 @@ button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue);
 .sidebar-collapsed .sidebar-toggle:hover { transform: translateY(-2px); }
 .sidebar-collapsed .sidebar-toggle:active,
 .sidebar-collapsed .sidebar-toggle[data-lg-pressed="true"] { transform: scale(0.96); }
+@media (max-width: 1000px) {
+  .sidebar-toggle:not(.sidebar-toggle-collapsed) { left: 180px; }
+}
 @media (max-width: 760px) {
-  .sidebar-toggle,
-  .sidebar-collapsed .sidebar-toggle { left: 14px; bottom: 14px; }
+  .sidebar-toggle:not(.sidebar-toggle-collapsed) { left: 50px; }
+  .sidebar-collapsed .sidebar-toggle { left: 14px !important; }
+}
+@media (max-width: 520px) {
+  .sidebar-toggle:not(.sidebar-toggle-collapsed) { left: 42px; }
 }
 
 /* Mouse selection should not add a second halo around building-type radios. */
