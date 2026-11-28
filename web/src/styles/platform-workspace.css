@@ -684,7 +684,7 @@ button:focus-visible, a:focus-visible, [role="link"]:focus-visible { outline-col
 .project-tools-page { width: min(100% - 48px, 1600px); max-width: 1600px; }
 .project-tools-page .panel { min-width: 0; }
 .project-tools-page .el-table { width: 100%; }
-.project-tools-page .el-table__body-wrapper, .project-tools-page .el-table__header-wrapper { overflow-x: hidden; }
+.project-tools-page .el-table__body-wrapper, .project-tools-page .el-table__header-wrapper { overflow-x: auto; }
 .project-tools-page .el-table .cell { white-space: normal; overflow-wrap: anywhere; }
 .project-tools-page .version-pagination { justify-content: flex-end; }
 .page-heading, .workspace-heading, .admin-heading { margin-bottom: 48px; }

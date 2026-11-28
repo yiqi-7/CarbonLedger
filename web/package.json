@@ -8,7 +8,9 @@
     "build": "vue-tsc -b && vite build",
     "typecheck": "vue-tsc -b --pretty false",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:bundle": "node ../scripts/check-web-bundle.mjs --dist dist",
+    "build:check": "npm run build && npm run check:bundle"
   },
   "dependencies": {
     "@carbonledger/shared": "*",

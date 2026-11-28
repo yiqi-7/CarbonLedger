@@ -25,6 +25,7 @@ export default defineConfig({
     pool: 'forks',
     poolOptions: { forks: { singleFork: true } },
     env: {
+      NODE_ENV: 'test',
       DATABASE_URL: 'file:./test.db',
       JWT_SECRET: 'test-secret',
       ADMIN_USERNAME: 'admin',

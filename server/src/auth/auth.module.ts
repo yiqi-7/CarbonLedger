@@ -1,24 +1,28 @@
 import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { AuditModule } from '../audit/audit.module'
-
-const jwtSecret = process.env.JWT_SECRET ?? (process.env.NODE_ENV === 'production'
-  ? (() => { throw new Error('JWT_SECRET must be set in production') })()
-  : 'test-only-secret-change-before-deploy')
+import { createJwtOptions, type JwtEnvironment } from './jwt.config'
 
 @Module({
   imports: [
     AuditModule,
-    JwtModule.register({
-      global: true,
-      secret: jwtSecret,
-      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN ?? '12h') as `${number}h` },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => createJwtOptions({
+        NODE_ENV: config.get<string>('NODE_ENV'),
+        JWT_SECRET: config.get<string>('JWT_SECRET'),
+        JWT_EXPIRES_IN: config.get<string>('JWT_EXPIRES_IN'),
+        JWT_ISSUER: config.get<string>('JWT_ISSUER'),
+        JWT_AUDIENCE: config.get<string>('JWT_AUDIENCE'),
+      }),
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

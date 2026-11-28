@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { PrismaModule } from './prisma/prisma.module'
 import { HealthController } from './health/health.controller'
+import { HealthService } from './health/health.service'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { ProjectsModule } from './projects/projects.module'
@@ -29,6 +30,6 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard'
     VersionsModule,
   ],
   controllers: [HealthController],
-  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [HealthService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

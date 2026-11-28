@@ -351,7 +351,49 @@ const {
   flushPendingBuildInput,
 } = factorConfiguration
 
-
+const activeBuildConfigSuggestionIndex = reactive({})
+function buildConfigIdPart(value) {
+  return String(value ?? '').trim().replace(/[^\w-]+/g, '-').replace(/^-+|-+$/g, '') || 'item'
+}
+function buildConfigListboxId(material) { return `build-config-listbox-${buildConfigIdPart(material.id)}` }
+function buildConfigOptionId(material, configuration, index) {
+  const key = configuration.id ?? `${configuration.category}-${configuration.name}`
+  return `${buildConfigListboxId(material)}-option-${buildConfigIdPart(key)}-${index}`
+}
+function buildConfigSuggestionIndex(material) { return activeBuildConfigSuggestionIndex[material.id] ?? -1 }
+function resetBuildConfigSuggestionIndex(material, event) {
+  activeBuildConfigSuggestionIndex[material.id] = -1
+  showBuildConfigSuggestions(material, event)
+}
+function updateBuildConfigNameDraft(material, event) {
+  setMaterialDraft(material.id, 'materialName', event)
+  resetBuildConfigSuggestionIndex(material, event)
+}
+function handleBuildConfigKeydown(material, event) {
+  const suggestions = buildConfigSuggestions(material)
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    activeBuildConfigSuggestionIndex[material.id] = -1
+    activeBuildConfigMaterialId.value = null
+    return
+  }
+  if (!suggestions.length) return
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault()
+    const current = buildConfigSuggestionIndex(material)
+    activeBuildConfigSuggestionIndex[material.id] = event.key === 'ArrowDown'
+      ? Math.min(current + 1, suggestions.length - 1)
+      : Math.max(current < 0 ? suggestions.length : current - 1, 0)
+    return
+  }
+  if (event.key === 'Enter') {
+    const index = buildConfigSuggestionIndex(material)
+    if (index >= 0) {
+      event.preventDefault()
+      void selectBuildMaterialConfiguration(material, suggestions[index])
+    }
+  }
+}
 
 if (typeof window !== 'undefined') {
   window.ProjectInfo = ProjectInfo
@@ -1099,17 +1141,20 @@ async function createProject(event) {
                           type="text"
                           role="combobox"
                           aria-autocomplete="list"
-                          :aria-expanded="activeBuildConfigMaterialId === material.id && buildConfigSuggestions(material).length > 0"
+                          :aria-controls="buildConfigListboxId(material)"
+                           :aria-activedescendant="buildConfigSuggestionIndex(material) >= 0 ? buildConfigOptionId(material, buildConfigSuggestions(material)[buildConfigSuggestionIndex(material)], buildConfigSuggestionIndex(material)) : undefined"
+                           :aria-expanded="activeBuildConfigMaterialId === material.id && buildConfigSuggestions(material).length > 0"
                           :aria-label="`${material.materialName || '新建建材'}名称`"
                           :value="materialEditDrafts[material.id]?.materialName ?? material.materialName"
                           @focus="showBuildConfigSuggestions(material, $event)"
                           @blur="handleBuildMaterialNameBlur(material, $event)"
-                          @input="setMaterialDraft(material.id, 'materialName', $event); showBuildConfigSuggestions(material, $event)"
-                          @keydown.esc="activeBuildConfigMaterialId = null"
+                          @input="updateBuildConfigNameDraft(material, $event)"
+                          @keydown="handleBuildConfigKeydown(material, $event)"
                         />
                         <Teleport to="body">
                         <ul
-                          v-if="activeBuildConfigMaterialId === material.id && buildConfigSuggestions(material).length"
+                          :id="buildConfigListboxId(material)"
+                           v-if="activeBuildConfigMaterialId === material.id && buildConfigSuggestions(material).length"
                           class="build-config-suggestions"
                           role="listbox"
                           :style="{
@@ -1119,7 +1164,7 @@ async function createProject(event) {
                             maxHeight: `${buildConfigSuggestionsPosition.maxHeight}px`
                           }"
                         >
-                          <li v-for="configuration in buildConfigSuggestions(material)" :key="`${configuration.category}:${configuration.name}`" role="option">
+                          <li v-for="(configuration, suggestionIndex) in buildConfigSuggestions(material)" :key="`${configuration.category}:${configuration.name}`" :id="buildConfigOptionId(material, configuration, suggestionIndex)" :aria-selected="buildConfigSuggestionIndex(material) === suggestionIndex" role="option">
                             <button
                               type="button"
                               @mousedown.prevent
@@ -1168,18 +1213,21 @@ async function createProject(event) {
                           type="text"
                           role="combobox"
                           aria-autocomplete="list"
-                          :aria-expanded="activeBuildConfigMaterialId === pending.id && buildConfigSuggestions(pending).length > 0"
+                          :aria-controls="buildConfigListboxId(pending)"
+                           :aria-activedescendant="buildConfigSuggestionIndex(pending) >= 0 ? buildConfigOptionId(pending, buildConfigSuggestions(pending)[buildConfigSuggestionIndex(pending)], buildConfigSuggestionIndex(pending)) : undefined"
+                           :aria-expanded="activeBuildConfigMaterialId === pending.id && buildConfigSuggestions(pending).length > 0"
                           :data-pending-material-id="pending.id"
                           aria-label="新建建材名称"
                           :value="materialEditDrafts[pending.id]?.materialName ?? pending.materialName"
                           @focus="showBuildConfigSuggestions(pending, $event)"
                           @blur="handleBuildMaterialNameBlur(pending, $event)"
-                          @input="setMaterialDraft(pending.id, 'materialName', $event); showBuildConfigSuggestions(pending, $event)"
-                          @keydown.esc="activeBuildConfigMaterialId = null"
+                          @input="updateBuildConfigNameDraft(pending, $event)"
+                          @keydown="handleBuildConfigKeydown(pending, $event)"
                         />
                         <Teleport to="body">
                           <ul
-                            v-if="activeBuildConfigMaterialId === pending.id && buildConfigSuggestions(pending).length"
+                            :id="buildConfigListboxId(pending)"
+                             v-if="activeBuildConfigMaterialId === pending.id && buildConfigSuggestions(pending).length"
                             class="build-config-suggestions"
                             role="listbox"
                             :style="{
@@ -1189,7 +1237,7 @@ async function createProject(event) {
                               maxHeight: `${buildConfigSuggestionsPosition.maxHeight}px`
                             }"
                           >
-                            <li v-for="configuration in buildConfigSuggestions(pending)" :key="`${configuration.category}:${configuration.name}`" role="option">
+                            <li v-for="(configuration, suggestionIndex) in buildConfigSuggestions(pending)" :key="`${configuration.category}:${configuration.name}`" :id="buildConfigOptionId(pending, configuration, suggestionIndex)" :aria-selected="buildConfigSuggestionIndex(pending) === suggestionIndex" role="option">
                               <button
                                 type="button"
                                 @mousedown.prevent
