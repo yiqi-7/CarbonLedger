@@ -568,7 +568,7 @@ async function createProject(event) {
       <header v-else-if="activePage === '建材碳排放'" class="top-header material-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
-          <div><h1>建材碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
+          <div><h1>建材碳排放</h1></div>
         </div>
         <div class="header-actions">
           <button class="button button-outline" type="button" @click="materialFileInput?.click()"><Upload class="action-icon" aria-hidden="true" /> 导入清单</button>
@@ -581,7 +581,7 @@ async function createProject(event) {
       <header v-else-if="activePage === '运输碳排放'" class="top-header material-header transport-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
-          <div><h1>运输碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
+          <div><h1>运输碳排放</h1></div>
         </div>
         <div class="header-actions">
           <button class="button button-outline" type="button" @click="transportFileInput?.click()"><Upload class="action-icon" aria-hidden="true" /> 导入清单</button>
@@ -594,14 +594,14 @@ async function createProject(event) {
       <header v-else-if="activePage === '回收碳计算'" class="top-header material-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
-          <div><h1>回收减碳</h1><p>{{ ProjectInfo.projectName }}</p></div>
+          <div><h1>回收减碳</h1></div>
         </div>
       </header>
 
       <header v-else-if="activePage === '施工碳排放'" class="top-header material-header construction-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
-          <div><h1>施工碳排放</h1><p>{{ ProjectInfo.projectName }}</p></div>
+          <div><h1>施工碳排放</h1></div>
         </div>
         <div class="header-actions">
           <button class="button button-outline" type="button" @click="constructionFileInput?.click()"><Upload class="action-icon" aria-hidden="true" /> 导入清单</button>
@@ -614,7 +614,7 @@ async function createProject(event) {
       <header v-else-if="activePage === '碳排放分析'" class="top-header material-header analysis-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
-          <div><h1>排放分析</h1><p>{{ ProjectInfo.projectName }}</p></div>
+          <div><h1>排放分析</h1></div>
         </div>
         <div class="header-actions">
           <button class="button button-primary" type="button" @click="exportProjectReport"><Download class="action-icon" aria-hidden="true" /> 导出报告</button>
@@ -624,7 +624,7 @@ async function createProject(event) {
       <header v-else-if="activePage === '成本分析'" class="top-header material-header cost-analysis-header">
         <div class="material-page-title">
           <button class="back-button" type="button" aria-label="返回项目信息" @click="navigateToPage('项目信息')"><ArrowLeft class="action-icon" aria-hidden="true" /></button>
-          <div><h1>成本分析</h1><p>{{ ProjectInfo.projectName }}</p></div>
+          <div><h1>成本分析</h1></div>
         </div>
       </header>
 
