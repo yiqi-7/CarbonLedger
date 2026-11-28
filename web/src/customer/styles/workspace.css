@@ -1199,6 +1199,16 @@ body { color: var(--cloud-text); background: var(--cloud-canvas); }
 .sidebar-toggle { border: 1px solid var(--cloud-line); background: var(--cloud-surface); color: var(--cloud-accent-hover); box-shadow: var(--shadow-sm); }
 .sidebar-toggle:hover { background: var(--cloud-tint); border-color: #C5D1EE; }
 
+/* Analysis and cost summaries use open reading rows without card frames. */
+.analysis-summary-grid,
+.cost-analysis-summary,
+.analysis-summary-grid .analysis-metric-card,
+.cost-analysis-summary .cost-metric-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 @media (max-width: 1000px) {
   .sidebar { width: 196px; }
   .main-content { margin-left: 196px; }
