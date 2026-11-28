@@ -94,7 +94,7 @@ if [[ "$(git rev-parse HEAD)" != "$TARGET_SHA" ]]; then
 fi
 
 echo "==> 2/8 安装完整构建依赖"
-npm ci --include=dev
+NPM_CONFIG_PRODUCTION=false NODE_ENV=development npm ci --include=dev
 
 echo "==> 3/8 准备生产 Prisma schema"
 SCHEMA="server/prisma/schema.production.prisma"
@@ -112,7 +112,7 @@ echo "==> 5/8 同步数据库结构"
 DATABASE_URL="$DATABASE_URL" npx prisma db push --schema "$SCHEMA" --skip-generate
 
 echo "==> 6/8 构建"
-npm run build
+NPM_CONFIG_PRODUCTION=false NODE_ENV=development npm run build
 
 echo "==> 7/8 准备运行时依赖"
 npm prune --omit=dev
