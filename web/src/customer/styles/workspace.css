@@ -1082,3 +1082,130 @@ button:focus-visible, a:focus-visible { outline-color: var(--color-system-blue);
   outline: 2px solid #0071E3;
   outline-offset: 3px;
 }
+
+/* Cloud Blue customer workspace: calm blue-grey canvas and clear data surfaces. */
+:root {
+  --cloud-canvas: #F1F5FA;
+  --cloud-surface: #FFFFFF;
+  --cloud-surface-soft: #F8FBFF;
+  --cloud-field: #FAFCFF;
+  --cloud-text: #1E2D42;
+  --cloud-muted: #718198;
+  --cloud-line: #DCE5EF;
+  --cloud-line-strong: #C8D5E4;
+  --cloud-accent: #526DDF;
+  --cloud-accent-hover: #425BC8;
+  --cloud-tint: #E9EEFF;
+  --cloud-success: #2F8F68;
+  --cloud-danger: #C94A52;
+  --canvas: var(--cloud-canvas);
+  --sidebar: #F8FBFF;
+  --panel: var(--cloud-surface);
+  --panel-soft: var(--cloud-surface-soft);
+  --field: var(--cloud-field);
+  --text: var(--cloud-text);
+  --muted: var(--cloud-muted);
+  --line: var(--cloud-line);
+  --line-strong: var(--cloud-line-strong);
+  --control-line: var(--cloud-line-strong);
+  --selected: var(--cloud-tint);
+  --selected-line: #C7D1F4;
+  --primary: var(--cloud-accent);
+  --primary-hover: var(--cloud-accent-hover);
+  --primary-active: #3549A7;
+  --emission: var(--cloud-accent);
+  --green: var(--cloud-success);
+  --blue: var(--cloud-accent);
+  --focus-ring: rgba(82, 109, 223, .24);
+  --shadow-sm: 0 4px 18px rgba(44, 75, 125, .06), 0 1px 2px rgba(44, 75, 125, .04);
+  --shadow-glass: 0 4px 18px rgba(44, 75, 125, .06);
+  --shadow-md: 0 10px 28px rgba(44, 75, 125, .10);
+  --brand-gradient: var(--cloud-accent);
+  --color-paper: var(--cloud-canvas);
+  --color-ink: var(--cloud-text);
+  --color-glass-scene: var(--cloud-accent-hover);
+  --color-glass-mist: var(--cloud-tint);
+  --color-focus: var(--cloud-accent);
+  --surface-paper: var(--cloud-canvas);
+  --surface-tinted-glass: var(--cloud-surface-soft);
+  --surface-tinted-glass-strong: var(--cloud-surface);
+  --surface-solid: var(--cloud-surface);
+}
+body { color: var(--cloud-text); background: var(--cloud-canvas); }
+.sidebar { width: 228px; padding: 22px 14px 17px; background: #F8FBFF; border-right: 1px solid var(--cloud-line); box-shadow: 4px 0 24px rgba(44,75,125,.04); }
+.brand { padding: 0 9px 26px; }
+.brand-mark { width: 32px; height: 32px; border-radius: 9px; background: var(--cloud-accent); box-shadow: none; }
+.brand-copy strong { color: var(--cloud-text); }
+.brand-copy small { color: #8A9AAF; }
+.nav-item { color: #61738A; border-radius: 9px; }
+.nav-item:hover { background: #EEF3F9; color: var(--cloud-text); }
+.nav-item.active { background: var(--cloud-tint); color: var(--cloud-accent-hover); }
+.nav-icon { color: #8192A7; }
+.nav-item.active .nav-icon { color: var(--cloud-accent); }
+.main-content { margin-left: 228px; background: var(--cloud-canvas); }
+.top-header { height: 64px; padding-inline: clamp(20px, 3vw, 48px); border-bottom: 1px solid var(--cloud-line); background: rgba(255,255,255,.94); box-shadow: 0 2px 12px rgba(35,65,105,.04); }
+.breadcrumb { color: var(--cloud-muted); }
+.breadcrumb b { color: #A8B7C9; }
+.breadcrumb strong { color: var(--cloud-text); }
+.header-actions { gap: 10px; }
+.material-page-title h1 { color: var(--cloud-text); }
+.material-page-title p { color: var(--cloud-muted); }
+.back-button { border-color: var(--cloud-line); background: var(--cloud-surface); color: var(--cloud-accent-hover); border-radius: 9px; box-shadow: none; }
+.back-button:hover { border-color: #B9C8DE; background: var(--cloud-tint); color: var(--cloud-accent-hover); }
+.button, .button-outline, .button-primary { border-radius: 9px; }
+.button { min-height: 38px; background: var(--cloud-surface); color: var(--cloud-text); border-color: var(--cloud-line); }
+.button-outline { border-color: var(--cloud-line-strong); color: #52627A; background: var(--cloud-surface); }
+.button-outline:hover { border-color: #B9C8DE; background: var(--cloud-tint); color: var(--cloud-accent-hover); }
+.button-primary { color: #FFFFFF; background: var(--cloud-accent); border-color: var(--cloud-accent); box-shadow: 0 4px 14px rgba(82,109,223,.24); }
+.button-primary:hover { background: var(--cloud-accent-hover); border-color: var(--cloud-accent-hover); box-shadow: 0 10px 24px rgba(82,109,223,.24); }
+.page-container, .dashboard-workbench { background: var(--cloud-canvas); }
+.project-card, .surface-card, .material-table-card, .construction-energy-card, .dashboard-panel, .material-stats, .construction-stats, .cost-analysis-summary, .analysis-summary-grid, .analysis-card, .cost-chart-card { border: 1px solid var(--cloud-line); border-radius: 15px; background: var(--cloud-surface); box-shadow: var(--shadow-sm); }
+.project-card:hover { border-color: #C5D1EE; box-shadow: var(--shadow-md); }
+.project-card h2, .project-card h3, .surface-card h2, .surface-card h3 { color: var(--cloud-text); }
+.project-card p, .project-card small, .surface-card small { color: var(--cloud-muted); }
+.field label, .field span, .material-toolbar label { color: var(--cloud-muted); }
+.field input, .field select, .field textarea, .material-search, select, .analysis-card-heading select { border: 1px solid var(--cloud-line); border-radius: 9px; background: var(--cloud-field); color: var(--cloud-text); }
+.field input:focus, .field select:focus, .field textarea:focus, .material-search:focus, select:focus { border-color: var(--cloud-accent); outline: 3px solid rgba(82,109,223,.14); }
+.material-filters button, .cost-chart-tabs button, .stage-switch button, .factor-tabs button { border: 1px solid var(--cloud-line); border-radius: 999px; background: var(--cloud-surface); color: #52627A; }
+.material-filters button:hover, .cost-chart-tabs button:hover, .stage-switch button:hover, .factor-tabs button:hover { background: var(--cloud-tint); color: var(--cloud-accent-hover); border-color: #C5D1EE; }
+.material-filters button.active, .stage-switch button.active, .factor-tabs button.active, .cost-chart-tabs button.active { background: var(--cloud-accent) !important; border-color: var(--cloud-accent) !important; color: #FFFFFF !important; box-shadow: 0 4px 14px rgba(82,109,223,.24); }
+.material-table, .analysis-detail-table, .analysis-compact-table, .cost-detail-table { background: var(--cloud-surface); border-color: var(--cloud-line); color: var(--cloud-text); }
+.material-table th, .analysis-detail-table th, .analysis-compact-table th, .cost-detail-table th { background: #F3F7FC; color: var(--cloud-muted); border-color: var(--cloud-line); }
+.material-table td, .analysis-detail-table td, .analysis-compact-table td, .cost-detail-table td { border-color: var(--cloud-line); color: var(--cloud-text); }
+.material-table tr:hover td, .analysis-detail-table tr:hover td, .analysis-compact-table tr:hover td, .cost-detail-table tr:hover td { background: #F3F6FF; }
+.analysis-metric-card, .cost-metric-card, .dashboard-stat { border: 1px solid var(--cloud-line); background: var(--cloud-surface); color: var(--cloud-text); box-shadow: var(--shadow-sm); }
+.analysis-metric-card strong, .cost-metric-card strong, .dashboard-stat strong { color: var(--cloud-text); }
+.analysis-metric-card small, .cost-metric-card small, .dashboard-stat span { color: var(--cloud-muted); }
+.analysis-number, .cost-number, .dashboard-stat .accent, .composition-share { color: var(--cloud-accent-hover); }
+.construction-energy-marker, .energy-电力, .construction-energy-item .construction-energy-marker { background: var(--cloud-accent); }
+.construction-energy-item, .construction-energy-breakdown > div { border-color: var(--cloud-line); }
+.dashboard-home, .dashboard-workbench { color: var(--cloud-text); }
+.dashboard-title h1, .dashboard-title h2, .dashboard-panel h2, .dashboard-panel h3 { color: var(--cloud-text); }
+.dashboard-panel p, .dashboard-panel small, .dashboard-stat > span { color: var(--cloud-muted); }
+.dashboard-grid > *, .dashboard-top > * { border-color: var(--cloud-line); background: var(--cloud-surface); box-shadow: var(--shadow-sm); }
+.dashboard-bar, .dashboard-build .dashboard-bar, .dashboard-transport .dashboard-bar, .dashboard-lifecycle-bar { background: var(--cloud-accent); box-shadow: none; }
+.dashboard-construction-bar, .dashboard-build-bar, .dashboard-transport-bar { fill: var(--cloud-accent); }
+.dashboard-market-line { stroke: var(--cloud-accent); }
+.dashboard-market-point { fill: var(--cloud-accent); stroke: var(--cloud-surface); }
+.dashboard-deal-point, .dashboard-legend-deal { fill: var(--cloud-success); background: var(--cloud-success); }
+.dashboard-market-label, .dashboard-transport-price-label { fill: var(--cloud-accent-hover); stroke: var(--cloud-surface); }
+.sidebar-toggle { border: 1px solid var(--cloud-line); background: var(--cloud-surface); color: var(--cloud-accent-hover); box-shadow: var(--shadow-sm); }
+.sidebar-toggle:hover { background: var(--cloud-tint); border-color: #C5D1EE; }
+
+@media (max-width: 1000px) {
+  .sidebar { width: 196px; }
+  .main-content { margin-left: 196px; }
+}
+@media (max-width: 760px) {
+  .sidebar { width: 64px; padding: 20px 8px 14px; }
+  .main-content { margin-left: 64px; }
+}
+@media (max-width: 520px) {
+  .sidebar { width: 56px; padding-inline: 6px; }
+  .main-content { margin-left: 56px; }
+  .top-header { background: rgba(255,255,255,.98); }
+  .surface-card, .material-table-card, .construction-energy-card, .dashboard-panel, .material-stats, .construction-stats, .cost-analysis-summary, .analysis-summary-grid { border-radius: 12px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sidebar, .top-header { background: var(--cloud-surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
