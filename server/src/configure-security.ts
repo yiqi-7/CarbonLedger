@@ -34,5 +34,6 @@ function configureTrustProxy(app: NestExpressApplication): void {
 
 export function configureSecurity(app: NestExpressApplication): void {
   configureTrustProxy(app)
+  app.disable('x-powered-by')
   app.use(securityHeadersMiddleware)
 }

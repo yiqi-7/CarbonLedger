@@ -33,13 +33,15 @@ describe('security headers', () => {
 
   it('configures an explicitly requested trusted proxy without changing defaults', () => {
     const set = vi.fn()
+    const disable = vi.fn()
     const use = vi.fn()
-    const app = { set, use } as never
+    const app = { set, disable, use } as never
     const previous = process.env.TRUST_PROXY
     process.env.TRUST_PROXY = '1'
     try {
       configureSecurity(app)
       expect(set).toHaveBeenCalledWith('trust proxy', 1)
+      expect(disable).toHaveBeenCalledWith('x-powered-by')
       expect(use).toHaveBeenCalledWith(securityHeadersMiddleware)
     } finally {
       if (previous === undefined) delete process.env.TRUST_PROXY

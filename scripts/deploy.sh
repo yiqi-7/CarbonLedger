@@ -117,7 +117,7 @@ NPM_CONFIG_PRODUCTION=false NODE_ENV=development npm run build
 echo "==> 7/8 准备运行时依赖"
 npm prune --omit=dev
 # npm 版本差异可能改写 lockfile 的可选平台元数据；部署不应留下工作树漂移。
-git restore --worktree -- package-lock.json
+git restore --source=HEAD --staged --worktree -- package-lock.json
 
 echo "==> 8/8 重启 API 服务"
 sudo systemctl restart carbon-ledger
