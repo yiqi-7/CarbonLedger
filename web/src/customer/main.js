@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import { api } from '@/api'
+import { startAuthenticatedCustomerApp } from './authenticatedEntry.js'
 import './styles/base.css'
 import './styles/typography.css'
 import './styles/workspace.css'
@@ -16,4 +18,12 @@ window.addEventListener(CUSTOMER_EVENT_TYPES.unauthorized, () => {
   }
 })
 
-createApp(App).mount('#app')
+startAuthenticatedCustomerApp({
+  apiClient: api,
+  mount: () => createApp(App).mount('#app'),
+  storage: window.localStorage,
+  location: window.location,
+}).catch(() => {
+  const root = document.querySelector('#app')
+  if (root) root.textContent = '无法验证登录状态，请检查网络后刷新页面。'
+})
