@@ -1199,18 +1199,13 @@ body { color: var(--cloud-text); background: var(--cloud-canvas); }
 .sidebar-toggle { border: 1px solid var(--cloud-line); background: var(--cloud-surface); color: var(--cloud-accent-hover); box-shadow: var(--shadow-sm); }
 .sidebar-toggle:hover { background: var(--cloud-tint); border-color: #C5D1EE; }
 
-/* Cloud Blue summary cards use the same white framed surface as the surrounding workspace. */
+/* Analysis and cost summaries keep a white reading surface without card frames. */
 .analysis-summary-grid,
-.cost-analysis-summary {
-  border: 1px solid var(--cloud-line);
-  border-radius: 15px;
-  background: var(--cloud-surface);
-  box-shadow: var(--shadow-sm);
-}
+.cost-analysis-summary,
 .analysis-summary-grid .analysis-metric-card,
 .cost-analysis-summary .cost-metric-card {
-  border: 1px solid var(--cloud-line);
-  border-radius: 12px;
+  border: 0;
+  border-radius: 0;
   background: var(--cloud-surface);
   box-shadow: none;
 }
