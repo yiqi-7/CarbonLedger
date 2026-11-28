@@ -93,10 +93,10 @@ if [[ "$(git rev-parse HEAD)" != "$TARGET_SHA" ]]; then
   exit 1
 fi
 
-echo "==> 2/7 安装依赖"
-npm ci
+echo "==> 2/8 安装完整构建依赖"
+npm ci --include=dev
 
-echo "==> 3/7 准备生产 Prisma schema"
+echo "==> 3/8 准备生产 Prisma schema"
 SCHEMA="server/prisma/schema.production.prisma"
 trap 'rm -f -- "${SCHEMA:-}"' EXIT
 sed 's/provider = "sqlite"/provider = "postgresql"/' server/prisma/schema.prisma > "$SCHEMA"
@@ -105,16 +105,19 @@ if grep -q 'provider = "sqlite"' "$SCHEMA"; then
   exit 1
 fi
 
-echo "==> 4/7 生成 Prisma Client"
+echo "==> 4/8 生成 Prisma Client"
 DATABASE_URL="$DATABASE_URL" npx prisma generate --schema "$SCHEMA"
 
-echo "==> 5/7 同步数据库结构"
+echo "==> 5/8 同步数据库结构"
 DATABASE_URL="$DATABASE_URL" npx prisma db push --schema "$SCHEMA" --skip-generate
 
-echo "==> 6/7 构建"
+echo "==> 6/8 构建"
 npm run build
 
-echo "==> 7/7 重启 API 服务"
+echo "==> 7/8 准备运行时依赖"
+npm prune --omit=dev
+
+echo "==> 8/8 重启 API 服务"
 sudo systemctl restart carbon-ledger
 
 echo "==> 就绪检查（最多等待 24 秒）"
